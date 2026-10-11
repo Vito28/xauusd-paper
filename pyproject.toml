@@ -1,0 +1,54 @@
+[project]
+name = "xaussd-paper"
+version = "0.1.0"
+description = "Auditable, read-only, multi-broker XAUUSD market-data ingestion"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.15",
+    "fastapi>=0.141.1",
+    "matplotlib>=3.10",
+    "metatrader5>=5.0.5120; sys_platform == 'win32'",
+    "mkdocs>=1.6.1",
+    "pandas>=2.2",
+    "plotly>=7.1.0",
+    "psycopg[binary]>=3.2",
+    "pydantic-settings>=2.7",
+    "scikit-learn>=1.6",
+    "sqlalchemy>=2.0",
+    "structlog>=25.1",
+    "typer>=0.15",
+    "uvicorn>=0.54.0",
+    "xgboost>=3.4.1",
+]
+
+[project.scripts]
+market = "market.collector:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: requires a disposable GOLD_TEST_DATABASE_URL PostgreSQL database",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"database/migrations/versions/*.py" = ["E501"]
+
+[tool.coverage.run]
+source = ["market", "database"]
+branch = true
+
+[dependency-groups]
+dev = [
+    "mkdocs>=1.6",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.11",
+]
