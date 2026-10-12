@@ -2,9 +2,10 @@
 
 Platform Python 3.12+ untuk mengambil native OHLC bar dan historical tick
 XAUUSD/GOLD dari API resmi MetaTrader 5, memvalidasinya, lalu menyimpannya ke
-PostgreSQL 16+. Proyek ini adalah tahap **data acquisition** untuk riset; tidak
-memiliki indikator teknikal, feature engineering, prediksi, sinyal, ataupun
-eksekusi trading.
+PostgreSQL 16+. Lapisan collector menangani **data acquisition** untuk riset.
+Modul analytics menyediakan EDA, analisis time series, dan eksperimen forecast
+melalui pembacaan data secara read-only. Dashboard FastAPI menampilkan dataset
+tanpa menjalankan terminal MT5 atau mengubah data sumber.
 
 ## Arsitektur
 
@@ -352,32 +353,6 @@ bulanan, distribusi error, serta metrics.json berisi MAE, MSE, RMSE, dan MAPE.
 seberapa jauh ground truth tersedia untuk dibandingkan; close pada rentang itu
 tidak pernah menjadi input XGBoost.
 
-## Pipeline teknikal
-
-Folder `technical/` membaca XAUUSD M5 canonical dari `market.processed_m5` secara
-read-only, lalu menjalankan causal feature engineering, Quality Filter → ReliefF
-→ RFECV, serta XGBoost classifier/regressor dengan purged expanding walk-forward.
-Calibration dan selective precision policy mempunyai blok waktu sendiri. Default
-final TEST Januari–September 2026 memakai model yang dibekukan sebelum Januari.
-Input diperbarui dari candle aktual yang sudah tutup. BUY/SELL harus searah dengan
-regressor dan lolos validasi precision per arah; target 90% bukan jaminan hasil.
-
-```powershell
-uv run python -B -m technical.xgboost_model `
-  --source-key metaquotes-demo-xauusd `
-  --symbol XAUUSD `
-  --start 2016-01-01T00:00:00Z `
-  --evaluation-end 2026-10-01T00:00:00Z `
-  --horizon-bars 3
-```
-
-Model, audit seleksi fitur, metrik dan CSV disimpan per fold di
-`technical/artifacts/direction_v3/`. Buka
-`final_2026/dashboard_2026.html` untuk candle/line, scroll/zoom, titik
-BUY/SELL/NO TRADE, probabilitas, tabel interaktif, dan hasil antar-fold.
-Base timeframe M5; horizon 3 bar berarti 15 menit. Actual yang belum tersedia
-tetap pending. Panduan lengkap ada di [technical/README.md](technical/README.md).
-
 ## Troubleshooting
 
 - **MT5 initialization failed**: buka terminal Windows, login, cek path
@@ -402,6 +377,7 @@ tetap pending. Panduan lengkap ada di [technical/README.md](technical/README.md)
 ```text
 market/                 domain, MT5 boundary, validation, services, CLI
 database/               SQLAlchemy mappings, repositories, Alembic migration
+analytics/              pembacaan read-only, EDA, time series dan forecast
 configs/brokers/        profile non-secret per broker/server/environment
 tests/                  unit tests dan integration test opt-in
 docs/                   arsitektur, alur, tooling, dan generated reference

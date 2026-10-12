@@ -1,0 +1,29 @@
+site_name: XAUUSD Market Data Collector
+site_description: Dokumentasi collector market data XAUUSD/GOLD berbasis MetaTrader 5 dan PostgreSQL.
+site_author: Vito28
+docs_dir: docs
+use_directory_urls: false
+
+theme:
+  name: readthedocs
+  language: id
+
+nav:
+  - Beranda: index.md
+  - Panduan Cepat: getting-started.md
+  - Dashboard Data: dashboard.md
+  - Analytics dan Time Series: analytics.md
+  - Arsitektur: architecture.md
+  - Alur Data: data-flow.md
+  - Tooling:
+      - uv: tooling/uv.md
+      - Docker: tooling/docker.md
+      - Testing: testing.md
+  - Referensi Kode: reference/code-reference.md
+  - Spesifikasi Awal: market-collector.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
