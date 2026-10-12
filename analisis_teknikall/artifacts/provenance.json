@@ -1,0 +1,61 @@
+{
+  "source": "market.processed_m5; read-only export; metaquotes-demo-xauusd; XAUUSD M5",
+  "candles": 754660,
+  "feature_engineering": "technical.xgboost_model.build_features; default Config; full actual history",
+  "source_code_sha256": "d8bdfdb1e092ae40b752b4f52dbf6f3885f278ca125f7f3c01204eaec4299d9b",
+  "input_history_sha256": "1e4a55b4ee7df21e64d24edba9e9a0e5d45cc6c54eb6e87903a763615f14f747",
+  "reference_against_original_artifacts": {
+    "fold_2024": {
+      "rows": 513,
+      "max_absolute_error_vs_saved_technical": {
+        "probability_sell": 0.0,
+        "probability_no_trade": 0.0,
+        "probability_buy": 0.0,
+        "predicted_future_return": 0.0,
+        "return_interval_lower": 0.0,
+        "return_interval_upper": 0.0,
+        "predicted_future_close": 4.547473508864641e-13
+      },
+      "mismatches": {
+        "raw_predicted_signal": 0,
+        "predicted_signal": 0,
+        "policy_reason": 0
+      }
+    },
+    "fold_2025": {
+      "rows": 515,
+      "max_absolute_error_vs_saved_technical": {
+        "probability_sell": 0.0,
+        "probability_no_trade": 0.0,
+        "probability_buy": 0.0,
+        "predicted_future_return": 0.0,
+        "return_interval_lower": 0.0,
+        "return_interval_upper": 0.0,
+        "predicted_future_close": 9.094947017729282e-13
+      },
+      "mismatches": {
+        "raw_predicted_signal": 0,
+        "predicted_signal": 0,
+        "policy_reason": 0
+      }
+    },
+    "final_2026": {
+      "rows": 51236,
+      "max_absolute_error_vs_saved_technical": {
+        "probability_sell": 0.0,
+        "probability_no_trade": 0.0,
+        "probability_buy": 0.0,
+        "predicted_future_return": 0.0,
+        "return_interval_lower": 0.0,
+        "return_interval_upper": 0.0,
+        "predicted_future_close": 9.094947017729282e-13
+      },
+      "mismatches": {
+        "raw_predicted_signal": 0,
+        "predicted_signal": 0,
+        "policy_reason": 0
+      }
+    }
+  },
+  "scope": "Export uses existing libraries once. Pure mathematical runtime does not import them."
+}

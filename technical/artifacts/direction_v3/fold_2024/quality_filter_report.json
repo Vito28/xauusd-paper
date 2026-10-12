@@ -1,0 +1,30 @@
+{
+  "fit_block": "TRAIN",
+  "input_features": 223,
+  "retained_features": 223,
+  "removed": {},
+  "train_rows": 485586,
+  "screening_rows": 121395,
+  "screening_method": "frozen first purged inner-training prefix",
+  "screening_max_target": "2017-10-02T11:40:00+00:00",
+  "train_first": "2016-01-04T01:10:00+00:00",
+  "train_last": "2022-12-30T23:45:00+00:00",
+  "relieff_reference_rows": 10000,
+  "relieff_anchors": 512,
+  "relieff_top_k": 40,
+  "rfecv_selected": 20,
+  "rfecv_splits": [
+    {
+      "max_train_target": "2017-10-02T11:40:00+00:00",
+      "validation_start": "2017-10-02T11:45:00+00:00"
+    },
+    {
+      "max_train_target": "2019-07-05T17:25:00+00:00",
+      "validation_start": "2019-07-05T17:30:00+00:00"
+    },
+    {
+      "max_train_target": "2021-04-07T14:35:00+00:00",
+      "validation_start": "2021-04-07T14:40:00+00:00"
+    }
+  ]
+}

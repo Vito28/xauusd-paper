@@ -1,0 +1,75 @@
+{
+  "tuning_block": "TUNE",
+  "refit_blocks": [
+    "TRAIN",
+    "TUNE"
+  ],
+  "classifier": {
+    "max_depth": 5,
+    "learning_rate": 0.04,
+    "min_child_weight": 16,
+    "reg_alpha": 0.3,
+    "reg_lambda": 8.0
+  },
+  "classifier_trials": [
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.05,
+        "min_child_weight": 8
+      },
+      "tune_macro_f1": 0.424692179154652
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "min_child_weight": 12
+      },
+      "tune_macro_f1": 0.42266825678268005
+    },
+    {
+      "parameters": {
+        "max_depth": 5,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_alpha": 0.3,
+        "reg_lambda": 8.0
+      },
+      "tune_macro_f1": 0.4253316650282959
+    }
+  ],
+  "regressor": {
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "min_child_weight": 12
+  },
+  "regressor_trials": [
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.05,
+        "min_child_weight": 8
+      },
+      "tune_return_rmse": 0.0006411520737218976
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "min_child_weight": 12
+      },
+      "tune_return_rmse": 0.0006400776102398275
+    },
+    {
+      "parameters": {
+        "max_depth": 5,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_alpha": 0.3,
+        "reg_lambda": 8.0
+      },
+      "tune_return_rmse": 0.0006401087756142255
+    }
+  ]
+}

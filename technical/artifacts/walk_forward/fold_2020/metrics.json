@@ -1,0 +1,94 @@
+{
+  "fold": "fold_2020",
+  "status": "completed",
+  "ranges": {
+    "train": "2016-01-01 ≤ t < 2019-01-01",
+    "tune": "2019-01-01 ≤ t < 2019-07-01",
+    "calibration": "2019-07-01 ≤ t < 2019-10-01",
+    "policy": "2019-10-01 ≤ t < 2020-01-01",
+    "test": "2020-01-01 ≤ t < 2021-01-01"
+  },
+  "rows": {
+    "train": 207553,
+    "tune": 34008,
+    "calibration": 17792,
+    "policy": 17335,
+    "test": 70327
+  },
+  "number_features": 20,
+  "metrics": {
+    "total_predictions": 70327,
+    "pending_rows": 781,
+    "classification": {
+      "evaluated_rows": 69546,
+      "f1_macro": 0.3904001647636708,
+      "f1_weighted": 0.3933980416252926,
+      "balanced_accuracy": 0.4140393852816335,
+      "confusion_matrix": [
+        [
+          20511,
+          1944,
+          4247
+        ],
+        [
+          8179,
+          4040,
+          2298
+        ],
+        [
+          20703,
+          2081,
+          5543
+        ]
+      ],
+      "per_class": {
+        "SELL": {
+          "precision": 0.4152612718401393,
+          "recall": 0.7681447082615535,
+          "f1-score": 0.5390892962743938,
+          "support": 26702.0
+        },
+        "NO_TRADE": {
+          "precision": 0.5009299442033478,
+          "recall": 0.27829441344630435,
+          "f1-score": 0.35780710300239127,
+          "support": 14517.0
+        },
+        "BUY": {
+          "precision": 0.45855393778954334,
+          "recall": 0.1956790341370424,
+          "f1-score": 0.27430409501422737,
+          "support": 28327.0
+        }
+      }
+    },
+    "regression": {
+      "unit": "XAUUSD price units",
+      "evaluated_rows": 69546,
+      "mae": 1.4778745918336498,
+      "mse": 5.149661859029492,
+      "rmse": 2.269286641001857,
+      "mape_percent": 0.08365246307240168
+    },
+    "signals": {
+      "SELL": 49709,
+      "NO_TRADE": 8427,
+      "BUY": 12191
+    },
+    "average_spread": 0.16108834444807826,
+    "trading_proxy": {
+      "signal_count": 61900,
+      "signal_coverage": 0.8801740441082372,
+      "evaluated_trades": 61481,
+      "wins": 29235,
+      "losses": 32246,
+      "flat": 0,
+      "win_rate": 0.47551276003968707,
+      "mean_net_move": -0.07118865991119196,
+      "median_net_move": -0.08000000000008187,
+      "mean_move_in_spread_multiple": -0.44024844282397596,
+      "cumulative_proxy_PL": -4376.749999999993,
+      "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+    }
+  }
+}

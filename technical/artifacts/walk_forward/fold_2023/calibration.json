@@ -1,0 +1,36 @@
+{
+  "fit_block": "CALIBRATION",
+  "method": "OVR sigmoid on log odds, normalized",
+  "pre_calibration_logloss": 1.0200773477554321,
+  "post_calibration_logloss": 1.019185185432434,
+  "pre_brier_multiclass": 0.6221824385718382,
+  "post_brier_multiclass": 0.6214558795308971,
+  "coefficients": [
+    [
+      [
+        0.896410346031189
+      ]
+    ],
+    [
+      [
+        1.011742115020752
+      ]
+    ],
+    [
+      [
+        0.7644572854042053
+      ]
+    ]
+  ],
+  "intercepts": [
+    [
+      0.023993130773305893
+    ],
+    [
+      -0.0018637555185705423
+    ],
+    [
+      -0.1374967396259308
+    ]
+  ]
+}
