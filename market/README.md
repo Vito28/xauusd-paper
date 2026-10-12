@@ -21,6 +21,12 @@ mengekspor app dari `collector.py`; tidak menyimpan implementasi collection.
 
 ## Profile dan penulisan konfigurasi
 
+Profile tersedia: `example_demo` dan `example_live` sebagai template,
+`metaquotes_demo` untuk MetaQuotes-Demo, serta `finex_live` untuk
+FinexBisnisSolusi-Real. Profile hanya berisi identitas broker/server/simbol
+dan policy collection; credential berasal dari environment dan terminal MT5.
+Pilih profile yang sesuai dengan environment dan account terminal aktif.
+
 Section `profile.py`: import → schema profile broker → runtime settings →
 penulisan konfigurasi. `load_broker_profile()` membaca TOML;
 `save_broker_profile()` memvalidasi lalu menulis satu profile TOML.
