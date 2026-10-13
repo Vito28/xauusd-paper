@@ -1,0 +1,27 @@
+{
+  "fit_block": "TRAIN",
+  "input_features": 223,
+  "retained_features": 223,
+  "removed": {},
+  "train_rows": 276688,
+  "train_first": "2016-01-04T01:10:00+00:00",
+  "train_last": "2019-12-31T20:45:00+00:00",
+  "relieff_reference_rows": 10000,
+  "relieff_anchors": 512,
+  "relieff_top_k": 40,
+  "rfecv_selected": 25,
+  "rfecv_splits": [
+    {
+      "max_train_target": "2016-12-30T10:15:00+00:00",
+      "validation_start": "2016-12-30T10:20:00+00:00"
+    },
+    {
+      "max_train_target": "2017-12-29T21:05:00+00:00",
+      "validation_start": "2017-12-29T21:10:00+00:00"
+    },
+    {
+      "max_train_target": "2018-12-31T17:40:00+00:00",
+      "validation_start": "2018-12-31T17:45:00+00:00"
+    }
+  ]
+}

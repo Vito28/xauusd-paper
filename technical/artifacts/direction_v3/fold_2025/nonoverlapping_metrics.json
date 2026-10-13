@@ -1,0 +1,185 @@
+{
+  "sampling": "fixed chronological anchors with nonoverlapping target horizons",
+  "metrics": {
+    "total_predictions": 23547,
+    "pending_rows": 0,
+    "unavailable_actual_rows": 299,
+    "actual_status_counts": {
+      "AVAILABLE": 23248,
+      "GAP_INVALID": 298,
+      "OUTSIDE_EVALUATION": 1
+    },
+    "classification": {
+      "evaluated_rows": 23248,
+      "f1_macro": 0.08667015941920515,
+      "f1_weighted": 0.03885394018698194,
+      "balanced_accuracy": 0.3333333333333333,
+      "confusion_matrix": [
+        [
+          0,
+          9416,
+          0
+        ],
+        [
+          0,
+          3474,
+          0
+        ],
+        [
+          0,
+          10358,
+          0
+        ]
+      ],
+      "per_class": {
+        "SELL": {
+          "precision": null,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 9416.0
+        },
+        "NO_TRADE": {
+          "precision": 0.1494322092222987,
+          "recall": 1.0,
+          "f1-score": 0.2600104782576155,
+          "support": 3474.0
+        },
+        "BUY": {
+          "precision": null,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 10358.0
+        }
+      }
+    },
+    "raw_classifier": {
+      "SELL": {
+        "precision": 0.41087032506116744,
+        "recall": 0.24968139337298215,
+        "f1-score": 0.3106090632844497,
+        "support": 9416.0
+      },
+      "NO_TRADE": {
+        "precision": 0.39094650205761317,
+        "recall": 0.05469199769717904,
+        "f1-score": 0.09595959595959595,
+        "support": 3474.0
+      },
+      "BUY": {
+        "precision": 0.45223004694835683,
+        "recall": 0.7439660166055223,
+        "f1-score": 0.5625228118840792,
+        "support": 10358.0
+      },
+      "accuracy": 0.44076909841706813,
+      "macro avg": {
+        "precision": 0.41801562468904585,
+        "recall": 0.3494464692252279,
+        "f1-score": 0.32303049037604165,
+        "support": 23248.0
+      },
+      "weighted avg": {
+        "precision": 0.4263206278051953,
+        "recall": 0.44076909841706813,
+        "f1-score": 0.3907721034818181,
+        "support": 23248.0
+      }
+    },
+    "selective": {
+      "SELL": {
+        "signals": 0,
+        "correct": 0,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "actual_support": 11152,
+        "wilson95_lower": null,
+        "wilson95_upper": null
+      },
+      "BUY": {
+        "signals": 0,
+        "correct": 0,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "actual_support": 12055,
+        "wilson95_lower": null,
+        "wilson95_upper": null
+      },
+      "no_trade_fraction": 1.0,
+      "definition": "strict direction from decision close to fixed-horizon actual close; NO_TRADE neutral",
+      "outcome_counts": {
+        "NEUTRAL": 23547
+      },
+      "reason_counts": {
+        "class_precision_unconfirmed": 22974,
+        "classifier_no_trade": 573
+      },
+      "regression_direction_conflicts": 0
+    },
+    "regression": {
+      "unit": "XAUUSD price units",
+      "evaluated_rows": 23248,
+      "mae": 2.7693606772729096,
+      "mse": 17.848410471256233,
+      "rmse": 4.224737917463784,
+      "mape_percent": 0.07876907582639625,
+      "return_rmse": 0.0011668179530024338,
+      "return_mae": 0.0007876169931848073,
+      "zero_return_rmse": 0.0011669635905072764,
+      "persistence_price_rmse": 4.2254233870987274,
+      "return_skill_vs_zero": 0.00024958519394924217,
+      "direction_accuracy": 0.5070543702684102,
+      "interval_coverage": 0.7536132140399174,
+      "mean_interval_width": 0.00207339302461373
+    },
+    "signals": {
+      "SELL": 0,
+      "NO_TRADE": 23547,
+      "BUY": 0
+    },
+    "average_spread": 0.12793986495094917,
+    "trading_proxy": {
+      "unit": "XAUUSD price units; not account currency profit",
+      "by_side": {
+        "BUY": {
+          "signals": 0,
+          "evaluated": 0,
+          "unevaluated": 0,
+          "gross_price_move": 0.0,
+          "spread_cost": 0.0,
+          "slippage_cost": 0.0,
+          "net_price_move": 0.0,
+          "positive_net_total": 0.0,
+          "negative_net_total": 0.0
+        },
+        "SELL": {
+          "signals": 0,
+          "evaluated": 0,
+          "unevaluated": 0,
+          "gross_price_move": 0.0,
+          "spread_cost": 0.0,
+          "slippage_cost": 0.0,
+          "net_price_move": 0.0,
+          "positive_net_total": 0.0,
+          "negative_net_total": 0.0
+        }
+      },
+      "gross_price_move": 0.0,
+      "spread_cost": 0.0,
+      "slippage_cost": 0.0,
+      "signal_count": 0,
+      "signal_coverage": 0.0,
+      "evaluated_trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "flat": 0,
+      "win_rate": null,
+      "mean_net_move": null,
+      "median_net_move": null,
+      "mean_move_in_spread_multiple": null,
+      "cumulative_proxy_PL": 0.0,
+      "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, stop loss, take profit, atau overlapping positions. Slippage hanya berupa asumsi bps yang dikonfigurasi (default nol)."
+    }
+  }
+}

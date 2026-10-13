@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "rows": 51236,
+  "scope": "same frozen trees and same input features; not retraining equivalence",
+  "absolute_tolerances": {
+    "probability_sell": 2e-06,
+    "probability_no_trade": 2e-06,
+    "probability_buy": 2e-06,
+    "confidence": 2e-06,
+    "predicted_future_return": 2e-09,
+    "return_interval_lower": 2e-09,
+    "return_interval_upper": 2e-09,
+    "predicted_future_close": 0.002
+  },
+  "max_absolute_error": {
+    "probability_sell": 3.548625027161023e-08,
+    "probability_no_trade": 1.716849246102825e-08,
+    "probability_buy": 3.207822668604976e-08,
+    "confidence": 3.548625027161023e-08,
+    "predicted_future_return": 1.202021837100331e-11,
+    "return_interval_lower": 1.1620545367976853e-10,
+    "return_interval_upper": 1.1593830583078724e-10,
+    "predicted_future_close": 0.0
+  },
+  "discrete_mismatches": {
+    "raw_predicted_signal": 0,
+    "predicted_signal": 0,
+    "policy_reason": 0
+  },
+  "signals": {
+    "SELL": 0,
+    "NO_TRADE": 51236,
+    "BUY": 0
+  },
+  "input_sha256": "a6837b60a14c0b875a88cb58181272e0c2f8a49802f437fa5b8b84ebe683d0fd",
+  "reference_sha256": "c5948c15060d20f3b41d6b65b920e54969a215714811b60f5e7ccd6626332eb2"
+}

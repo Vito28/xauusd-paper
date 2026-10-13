@@ -1,0 +1,660 @@
+[
+  {
+    "fold": "fold_2020",
+    "status": "completed",
+    "ranges": {
+      "train": "2016-01-01 ≤ t < 2019-01-01",
+      "tune": "2019-01-01 ≤ t < 2019-07-01",
+      "calibration": "2019-07-01 ≤ t < 2019-10-01",
+      "policy": "2019-10-01 ≤ t < 2020-01-01",
+      "test": "2020-01-01 ≤ t < 2021-01-01"
+    },
+    "rows": {
+      "train": 207553,
+      "tune": 34008,
+      "calibration": 17792,
+      "policy": 17335,
+      "test": 70327
+    },
+    "number_features": 20,
+    "metrics": {
+      "total_predictions": 70327,
+      "pending_rows": 781,
+      "classification": {
+        "evaluated_rows": 69546,
+        "f1_macro": 0.3904001647636708,
+        "f1_weighted": 0.3933980416252926,
+        "balanced_accuracy": 0.4140393852816335,
+        "confusion_matrix": [
+          [
+            20511,
+            1944,
+            4247
+          ],
+          [
+            8179,
+            4040,
+            2298
+          ],
+          [
+            20703,
+            2081,
+            5543
+          ]
+        ],
+        "per_class": {
+          "SELL": {
+            "precision": 0.4152612718401393,
+            "recall": 0.7681447082615535,
+            "f1-score": 0.5390892962743938,
+            "support": 26702.0
+          },
+          "NO_TRADE": {
+            "precision": 0.5009299442033478,
+            "recall": 0.27829441344630435,
+            "f1-score": 0.35780710300239127,
+            "support": 14517.0
+          },
+          "BUY": {
+            "precision": 0.45855393778954334,
+            "recall": 0.1956790341370424,
+            "f1-score": 0.27430409501422737,
+            "support": 28327.0
+          }
+        }
+      },
+      "regression": {
+        "unit": "XAUUSD price units",
+        "evaluated_rows": 69546,
+        "mae": 1.4778745918336498,
+        "mse": 5.149661859029492,
+        "rmse": 2.269286641001857,
+        "mape_percent": 0.08365246307240168
+      },
+      "signals": {
+        "SELL": 49709,
+        "NO_TRADE": 8427,
+        "BUY": 12191
+      },
+      "average_spread": 0.16108834444807826,
+      "trading_proxy": {
+        "signal_count": 61900,
+        "signal_coverage": 0.8801740441082372,
+        "evaluated_trades": 61481,
+        "wins": 29235,
+        "losses": 32246,
+        "flat": 0,
+        "win_rate": 0.47551276003968707,
+        "mean_net_move": -0.07118865991119196,
+        "median_net_move": -0.08000000000008187,
+        "mean_move_in_spread_multiple": -0.44024844282397596,
+        "cumulative_proxy_PL": -4376.749999999993,
+        "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+      }
+    }
+  },
+  {
+    "fold": "fold_2021",
+    "status": "completed",
+    "ranges": {
+      "train": "2016-01-01 ≤ t < 2020-01-01",
+      "tune": "2020-01-01 ≤ t < 2020-07-01",
+      "calibration": "2020-07-01 ≤ t < 2020-10-01",
+      "policy": "2020-10-01 ≤ t < 2021-01-01",
+      "test": "2021-01-01 ≤ t < 2022-01-01"
+    },
+    "rows": {
+      "train": 276688,
+      "tune": 34300,
+      "calibration": 17796,
+      "policy": 17450,
+      "test": 70224
+    },
+    "number_features": 25,
+    "metrics": {
+      "total_predictions": 70224,
+      "pending_rows": 798,
+      "classification": {
+        "evaluated_rows": 69426,
+        "f1_macro": 0.38842728081861305,
+        "f1_weighted": 0.41511294832583473,
+        "balanced_accuracy": 0.3870466194879277,
+        "confusion_matrix": [
+          [
+            10859,
+            1983,
+            14876
+          ],
+          [
+            4622,
+            2601,
+            6223
+          ],
+          [
+            10214,
+            1771,
+            16277
+          ]
+        ],
+        "per_class": {
+          "SELL": {
+            "precision": 0.422611402996692,
+            "recall": 0.39176708276210404,
+            "f1-score": 0.4066051335817123,
+            "support": 27718.0
+          },
+          "NO_TRADE": {
+            "precision": 0.4092840283241542,
+            "recall": 0.1934404283801874,
+            "f1-score": 0.262714004343215,
+            "support": 13446.0
+          },
+          "BUY": {
+            "precision": 0.4354933647260274,
+            "recall": 0.5759323473214918,
+            "f1-score": 0.49596270453091196,
+            "support": 28262.0
+          }
+        }
+      },
+      "regression": {
+        "unit": "XAUUSD price units",
+        "evaluated_rows": 69426,
+        "mae": 1.1076464336003868,
+        "mse": 2.8810146724458465,
+        "rmse": 1.697355199257317,
+        "mape_percent": 0.061548260474562334
+      },
+      "signals": {
+        "SELL": 25973,
+        "NO_TRADE": 6750,
+        "BUY": 37501
+      },
+      "average_spread": 0.059295112781954894,
+      "trading_proxy": {
+        "signal_count": 63474,
+        "signal_coverage": 0.903879015721121,
+        "evaluated_trades": 63071,
+        "wins": 31330,
+        "losses": 31720,
+        "flat": 21,
+        "win_rate": 0.49674176721472624,
+        "mean_net_move": -0.02638375798703073,
+        "median_net_move": -0.009999999999809009,
+        "mean_move_in_spread_multiple": -0.3974314173940315,
+        "cumulative_proxy_PL": -1664.0500000000152,
+        "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+      }
+    }
+  },
+  {
+    "fold": "fold_2022",
+    "status": "completed",
+    "ranges": {
+      "train": "2016-01-01 ≤ t < 2021-01-01",
+      "tune": "2021-01-01 ≤ t < 2021-07-01",
+      "calibration": "2021-07-01 ≤ t < 2021-10-01",
+      "policy": "2021-10-01 ≤ t < 2022-01-01",
+      "test": "2022-01-01 ≤ t < 2023-01-01"
+    },
+    "rows": {
+      "train": 346234,
+      "tune": 34179,
+      "calibration": 17751,
+      "policy": 17496,
+      "test": 70709
+    },
+    "number_features": 35,
+    "metrics": {
+      "total_predictions": 70709,
+      "pending_rows": 783,
+      "classification": {
+        "evaluated_rows": 69926,
+        "f1_macro": 0.39206097393841244,
+        "f1_weighted": 0.4098069488301857,
+        "balanced_accuracy": 0.3976183802894302,
+        "confusion_matrix": [
+          [
+            10128,
+            4835,
+            14086
+          ],
+          [
+            3351,
+            4077,
+            4591
+          ],
+          [
+            9601,
+            4684,
+            14573
+          ]
+        ],
+        "per_class": {
+          "SELL": {
+            "precision": 0.4388214904679376,
+            "recall": 0.3486522771868223,
+            "f1-score": 0.3885744978802586,
+            "support": 29049.0
+          },
+          "NO_TRADE": {
+            "precision": 0.2998676081200353,
+            "recall": 0.33921291288792743,
+            "f1-score": 0.3183291040406012,
+            "support": 12019.0
+          },
+          "BUY": {
+            "precision": 0.4382857142857143,
+            "recall": 0.5049899507935408,
+            "f1-score": 0.46927931989437754,
+            "support": 28858.0
+          }
+        }
+      },
+      "regression": {
+        "unit": "XAUUSD price units",
+        "evaluated_rows": 69926,
+        "mae": 1.1702562571349366,
+        "mse": 3.1687852883797576,
+        "rmse": 1.7801082237829693,
+        "mape_percent": 0.0647703995586253
+      },
+      "signals": {
+        "SELL": 23167,
+        "NO_TRADE": 14218,
+        "BUY": 33324
+      },
+      "average_spread": 0.058448288053854526,
+      "trading_proxy": {
+        "signal_count": 56491,
+        "signal_coverage": 0.7989223436903364,
+        "evaluated_trades": 56330,
+        "wins": 27717,
+        "losses": 28577,
+        "flat": 36,
+        "win_rate": 0.49204686667850167,
+        "mean_net_move": -0.04211343866500972,
+        "median_net_move": -0.020000000000027288,
+        "mean_move_in_spread_multiple": -1.0928014466954938,
+        "cumulative_proxy_PL": -2372.2499999999973,
+        "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+      }
+    }
+  },
+  {
+    "fold": "fold_2023",
+    "status": "completed",
+    "ranges": {
+      "train": "2016-01-01 ≤ t < 2022-01-01",
+      "tune": "2022-01-01 ≤ t < 2022-07-01",
+      "calibration": "2022-07-01 ≤ t < 2022-10-01",
+      "policy": "2022-10-01 ≤ t < 2023-01-01",
+      "test": "2023-01-01 ≤ t < 2024-01-01"
+    },
+    "rows": {
+      "train": 415660,
+      "tune": 34566,
+      "calibration": 17956,
+      "policy": 17403,
+      "test": 70671
+    },
+    "number_features": 25,
+    "metrics": {
+      "total_predictions": 70671,
+      "pending_rows": 780,
+      "classification": {
+        "evaluated_rows": 69891,
+        "f1_macro": 0.4024771177016862,
+        "f1_weighted": 0.40135217928712147,
+        "balanced_accuracy": 0.41578102376140463,
+        "confusion_matrix": [
+          [
+            14675,
+            5876,
+            6282
+          ],
+          [
+            6451,
+            7156,
+            2594
+          ],
+          [
+            14208,
+            5700,
+            6949
+          ]
+        ],
+        "per_class": {
+          "SELL": {
+            "precision": 0.4153223524084451,
+            "recall": 0.5469012037416614,
+            "f1-score": 0.4721154310164557,
+            "support": 26833.0
+          },
+          "NO_TRADE": {
+            "precision": 0.3820200726030322,
+            "recall": 0.4417011295599037,
+            "f1-score": 0.4096985658260098,
+            "support": 16201.0
+          },
+          "BUY": {
+            "precision": 0.43911532385466034,
+            "recall": 0.25874073798264885,
+            "f1-score": 0.32561735626259314,
+            "support": 26857.0
+          }
+        }
+      },
+      "regression": {
+        "unit": "XAUUSD price units",
+        "evaluated_rows": 69891,
+        "mae": 1.0397621356450988,
+        "mse": 2.6937304616497877,
+        "rmse": 1.6412588039824152,
+        "mape_percent": 0.053463470110302315
+      },
+      "signals": {
+        "SELL": 35402,
+        "NO_TRADE": 19422,
+        "BUY": 15847
+      },
+      "average_spread": 0.07992840061694331,
+      "trading_proxy": {
+        "signal_count": 51249,
+        "signal_coverage": 0.7251772296981789,
+        "evaluated_trades": 51159,
+        "wins": 24962,
+        "losses": 26194,
+        "flat": 3,
+        "win_rate": 0.48792978752516664,
+        "mean_net_move": -0.07020563341738491,
+        "median_net_move": -0.030000000000045476,
+        "mean_move_in_spread_multiple": -1.055844351930449,
+        "cumulative_proxy_PL": -3591.649999999994,
+        "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+      }
+    }
+  },
+  {
+    "fold": "fold_2024",
+    "status": "completed",
+    "ranges": {
+      "train": "2016-01-01 ≤ t < 2023-01-01",
+      "tune": "2023-01-01 ≤ t < 2023-07-01",
+      "calibration": "2023-07-01 ≤ t < 2023-10-01",
+      "policy": "2023-10-01 ≤ t < 2024-01-01",
+      "test": "2024-01-01 ≤ t < 2025-01-01"
+    },
+    "rows": {
+      "train": 485586,
+      "tune": 34818,
+      "calibration": 17685,
+      "policy": 17387,
+      "test": 71209
+    },
+    "number_features": 25,
+    "metrics": {
+      "total_predictions": 71209,
+      "pending_rows": 777,
+      "classification": {
+        "evaluated_rows": 70432,
+        "f1_macro": 0.40461289394175726,
+        "f1_weighted": 0.4027411627683374,
+        "balanced_accuracy": 0.41520117672970547,
+        "confusion_matrix": [
+          [
+            12808,
+            5749,
+            7790
+          ],
+          [
+            5634,
+            7388,
+            3205
+          ],
+          [
+            12770,
+            6614,
+            8474
+          ]
+        ],
+        "per_class": {
+          "SELL": {
+            "precision": 0.41035499166987055,
+            "recall": 0.4861274528409307,
+            "f1-score": 0.44503900345732206,
+            "support": 26347.0
+          },
+          "NO_TRADE": {
+            "precision": 0.3740570097716571,
+            "recall": 0.45529056510753685,
+            "f1-score": 0.4106954249819334,
+            "support": 16227.0
+          },
+          "BUY": {
+            "precision": 0.4352560480764292,
+            "recall": 0.304185512240649,
+            "f1-score": 0.3581042533860164,
+            "support": 27858.0
+          }
+        }
+      },
+      "regression": {
+        "unit": "XAUUSD price units",
+        "evaluated_rows": 70432,
+        "mae": 1.4574321350287816,
+        "mse": 4.873914525083839,
+        "rmse": 2.2076943912334963,
+        "mape_percent": 0.06066312035755893
+      },
+      "signals": {
+        "SELL": 31283,
+        "NO_TRADE": 20365,
+        "BUY": 19561
+      },
+      "average_spread": 0.1612157171144097,
+      "trading_proxy": {
+        "signal_count": 50844,
+        "signal_coverage": 0.7140108694125743,
+        "evaluated_trades": 50681,
+        "wins": 24187,
+        "losses": 26494,
+        "flat": 0,
+        "win_rate": 0.4772399913182455,
+        "mean_net_move": -0.1525330991890448,
+        "median_net_move": -0.09999999999972715,
+        "mean_move_in_spread_multiple": -1.1599370759599512,
+        "cumulative_proxy_PL": -7730.52999999998,
+        "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+      }
+    }
+  },
+  {
+    "fold": "fold_2025",
+    "status": "completed",
+    "ranges": {
+      "train": "2016-01-01 ≤ t < 2024-01-01",
+      "tune": "2024-01-01 ≤ t < 2024-07-01",
+      "calibration": "2024-07-01 ≤ t < 2024-10-01",
+      "policy": "2024-10-01 ≤ t < 2025-01-01",
+      "test": "2025-01-01 ≤ t < 2026-01-01"
+    },
+    "rows": {
+      "train": 555477,
+      "tune": 34825,
+      "calibration": 17958,
+      "policy": 17648,
+      "test": 70487
+    },
+    "number_features": 25,
+    "metrics": {
+      "total_predictions": 70487,
+      "pending_rows": 856,
+      "classification": {
+        "evaluated_rows": 69631,
+        "f1_macro": 0.3651700449823241,
+        "f1_weighted": 0.3972406702112029,
+        "balanced_accuracy": 0.3852891253588955,
+        "confusion_matrix": [
+          [
+            5618,
+            3267,
+            19434
+          ],
+          [
+            1622,
+            2640,
+            6209
+          ],
+          [
+            5692,
+            3395,
+            21754
+          ]
+        ],
+        "per_class": {
+          "SELL": {
+            "precision": 0.4344262295081967,
+            "recall": 0.19838271125392845,
+            "f1-score": 0.27238127560543984,
+            "support": 28319.0
+          },
+          "NO_TRADE": {
+            "precision": 0.2838099333476672,
+            "recall": 0.2521249164358705,
+            "f1-score": 0.2670307995751783,
+            "support": 10471.0
+          },
+          "BUY": {
+            "precision": 0.4589741966791147,
+            "recall": 0.7053597483868875,
+            "f1-score": 0.556098059766354,
+            "support": 30841.0
+          }
+        }
+      },
+      "regression": {
+        "unit": "XAUUSD price units",
+        "evaluated_rows": 69631,
+        "mae": 2.7740136904070454,
+        "mse": 18.277854003725498,
+        "rmse": 4.275260694241405,
+        "mape_percent": 0.07886690914324676
+      },
+      "signals": {
+        "SELL": 13025,
+        "NO_TRADE": 9799,
+        "BUY": 47663
+      },
+      "average_spread": 0.12930171520989686,
+      "trading_proxy": {
+        "signal_count": 60688,
+        "signal_coverage": 0.860981457573737,
+        "evaluated_trades": 60329,
+        "wins": 30258,
+        "losses": 30071,
+        "flat": 0,
+        "win_rate": 0.5015498350710272,
+        "mean_net_move": -0.0987256543287645,
+        "median_net_move": 0.009999999999945428,
+        "mean_move_in_spread_multiple": -0.5292717542403581,
+        "cumulative_proxy_PL": -5956.020000000033,
+        "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+      }
+    }
+  },
+  {
+    "fold": "final_2026",
+    "status": "completed",
+    "ranges": {
+      "train": "2016-01-01 ≤ t < 2026-01-01",
+      "tune": "2026-01-01 ≤ t < 2026-02-01",
+      "calibration": "2026-02-01 ≤ t < 2026-03-01",
+      "policy": "2026-03-01 ≤ t < 2026-04-01",
+      "test": "2026-04-01 ≤ t < 2026-11-01"
+    },
+    "rows": {
+      "train": 695541,
+      "tune": 5698,
+      "calibration": 5377,
+      "policy": 5948,
+      "test": 34020
+    },
+    "number_features": 10,
+    "metrics": {
+      "total_predictions": 34020,
+      "pending_rows": 390,
+      "classification": {
+        "evaluated_rows": 33630,
+        "f1_macro": 0.32149526568459214,
+        "f1_weighted": 0.38076416986762507,
+        "balanced_accuracy": 0.3632137982146207,
+        "confusion_matrix": [
+          [
+            2640,
+            2272,
+            10741
+          ],
+          [
+            411,
+            603,
+            1803
+          ],
+          [
+            2460,
+            1983,
+            10717
+          ]
+        ],
+        "per_class": {
+          "SELL": {
+            "precision": 0.47904191616766467,
+            "recall": 0.16865776528461,
+            "f1-score": 0.2494802494802495,
+            "support": 15653.0
+          },
+          "NO_TRADE": {
+            "precision": 0.12412515438452038,
+            "recall": 0.21405750798722045,
+            "f1-score": 0.15713355048859934,
+            "support": 2817.0
+          },
+          "BUY": {
+            "precision": 0.4607282575985555,
+            "recall": 0.7069261213720317,
+            "f1-score": 0.5578719970849275,
+            "support": 15160.0
+          }
+        }
+      },
+      "regression": {
+        "unit": "XAUUSD price units",
+        "evaluated_rows": 33630,
+        "mae": 4.6170583246443515,
+        "mse": 44.308361814457214,
+        "rmse": 6.656452644949652,
+        "mape_percent": 0.105281765046414
+      },
+      "signals": {
+        "SELL": 5593,
+        "NO_TRADE": 5008,
+        "BUY": 23419
+      },
+      "average_spread": 0.06979717813051146,
+      "trading_proxy": {
+        "signal_count": 29012,
+        "signal_coverage": 0.8527924750146972,
+        "evaluated_trades": 28772,
+        "wins": 14324,
+        "losses": 14444,
+        "flat": 4,
+        "win_rate": 0.4978451272070068,
+        "mean_net_move": -0.12722507993883114,
+        "median_net_move": -0.02999999999974534,
+        "mean_move_in_spread_multiple": -2.0916295142576864,
+        "cumulative_proxy_PL": -3660.52000000005,
+        "note": "Trading proxy only — bukan simulasi akun riil. Belum memperhitungkan lot, contract size, leverage, swap, commission, slippage, stop loss, take profit, atau overlapping positions."
+      }
+    }
+  }
+]

@@ -1,0 +1,397 @@
+{
+  "tuning_block": "TUNE",
+  "refit_blocks": [
+    "TRAIN",
+    "TUNE"
+  ],
+  "classifier": {
+    "max_depth": 4,
+    "learning_rate": 0.03,
+    "min_child_weight": 24,
+    "reg_lambda": 12.0
+  },
+  "classifier_trials": [
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0
+      },
+      "balanced_weights": false,
+      "trees": 160,
+      "tune_macro_f1": 0.33718053102554824
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0
+      },
+      "balanced_weights": true,
+      "trees": 160,
+      "tune_macro_f1": 0.3450000020404503
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0
+      },
+      "balanced_weights": false,
+      "trees": 160,
+      "tune_macro_f1": 0.3408092194696814
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0
+      },
+      "balanced_weights": true,
+      "trees": 160,
+      "tune_macro_f1": 0.3526655252138567
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0
+      },
+      "balanced_weights": false,
+      "trees": 160,
+      "tune_macro_f1": 0.34253080916695594
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0
+      },
+      "balanced_weights": true,
+      "trees": 160,
+      "tune_macro_f1": 0.3543400943840238
+    }
+  ],
+  "balanced_weights": true,
+  "classifier_trees": 160,
+  "regressor": {
+    "max_depth": 4,
+    "learning_rate": 0.03,
+    "min_child_weight": 24,
+    "reg_lambda": 12.0,
+    "objective": "reg:squarederror"
+  },
+  "regressor_trials": [
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 1,
+      "shrinkage": 0.1,
+      "tune_return_rmse": 0.0011422592282583394
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 1,
+      "shrinkage": 0.25,
+      "tune_return_rmse": 0.0011422539618619891
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 1,
+      "shrinkage": 0.5,
+      "tune_return_rmse": 0.0011422455753030045
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 1,
+      "shrinkage": 1.0,
+      "tune_return_rmse": 0.0011422302676039305
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.1,
+      "tune_return_rmse": 0.0011422535660071198
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.25,
+      "tune_return_rmse": 0.0011422402179648219
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.5,
+      "tune_return_rmse": 0.001142219459995194
+    },
+    {
+      "parameters": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 1.0,
+      "tune_return_rmse": 0.001142183527288748
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 3,
+      "shrinkage": 0.1,
+      "tune_return_rmse": 0.0011422602732063282
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 3,
+      "shrinkage": 0.25,
+      "tune_return_rmse": 0.0011422569358006899
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 3,
+      "shrinkage": 0.5,
+      "tune_return_rmse": 0.0011422527284146871
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 3,
+      "shrinkage": 1.0,
+      "tune_return_rmse": 0.0011422493947893396
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.1,
+      "tune_return_rmse": 0.0011422540327958946
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.25,
+      "tune_return_rmse": 0.0011422414236929527
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.5,
+      "tune_return_rmse": 0.0011422220006374203
+    },
+    {
+      "parameters": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "min_child_weight": 16,
+        "reg_lambda": 8.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 1.0,
+      "tune_return_rmse": 0.0011421891253160126
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 21,
+      "shrinkage": 0.1,
+      "tune_return_rmse": 0.001142245809842818
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 21,
+      "shrinkage": 0.25,
+      "tune_return_rmse": 0.0011422231375613314
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 21,
+      "shrinkage": 0.5,
+      "tune_return_rmse": 0.0011421929996429279
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:squarederror"
+      },
+      "trees": 21,
+      "shrinkage": 1.0,
+      "tune_return_rmse": 0.001142161410793729
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.1,
+      "tune_return_rmse": 0.001142253400876025
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.25,
+      "tune_return_rmse": 0.0011422398310758201
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 0.5,
+      "tune_return_rmse": 0.0011422187726834996
+    },
+    {
+      "parameters": {
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "min_child_weight": 24,
+        "reg_lambda": 12.0,
+        "objective": "reg:pseudohubererror",
+        "huber_slope": 10.0
+      },
+      "trees": 1,
+      "shrinkage": 1.0,
+      "tune_return_rmse": 0.001142182498554734
+    }
+  ],
+  "regressor_trees": 21,
+  "regression_shrinkage": 1.0,
+  "quantile_trees": 160,
+  "tune_zero_return_rmse": 0.0011422628368798022,
+  "tune_selected_return_rmse": 0.001142161410793729
+}

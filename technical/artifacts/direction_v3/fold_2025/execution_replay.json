@@ -1,0 +1,34 @@
+{
+  "assumptions": "OHLC bid; ask=bid+bar spread; delayed entry; fixed target exit; one position; no stops/TP/account leverage",
+  "delay_bars": 1,
+  "round_trip_slippage_bps": 0.0,
+  "round_trip_commission_bps": 0.0,
+  "closed_trades": 0,
+  "unresolved_trades": 0,
+  "win_rate": null,
+  "net_price_move": 0,
+  "gross_price_move": 0,
+  "spread_cost": 0,
+  "slippage_cost": 0,
+  "commission_cost": 0,
+  "unit": "XAUUSD price units; not account currency profit",
+  "by_side": {
+    "BUY": {
+      "closed_trades": 0,
+      "gross_price_move": 0,
+      "spread_cost": 0,
+      "slippage_cost": 0,
+      "commission_cost": 0,
+      "net_price_move": 0
+    },
+    "SELL": {
+      "closed_trades": 0,
+      "gross_price_move": 0,
+      "spread_cost": 0,
+      "slippage_cost": 0,
+      "commission_cost": 0,
+      "net_price_move": 0
+    }
+  },
+  "records": []
+}

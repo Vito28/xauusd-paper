@@ -1,0 +1,64 @@
+{
+  "threshold": 0.45,
+  "macro_f1": 0.29851310574789364,
+  "signal_coverage": 0.9667114996637525,
+  "fit_block": "POLICY",
+  "metric": "macro_f1",
+  "class_distribution": {
+    "0": 708,
+    "1": 198,
+    "2": 5042
+  },
+  "trials": [
+    {
+      "threshold": 0.0,
+      "macro_f1": 0.27497537438477865,
+      "signal_coverage": 1.0
+    },
+    {
+      "threshold": 0.35,
+      "macro_f1": 0.27497537438477865,
+      "signal_coverage": 1.0
+    },
+    {
+      "threshold": 0.4,
+      "macro_f1": 0.27501549792057434,
+      "signal_coverage": 0.9996637525218561
+    },
+    {
+      "threshold": 0.45,
+      "macro_f1": 0.29851310574789364,
+      "signal_coverage": 0.9667114996637525
+    },
+    {
+      "threshold": 0.5,
+      "macro_f1": 0.23538675304997767,
+      "signal_coverage": 0.5519502353732347
+    },
+    {
+      "threshold": 0.55,
+      "macro_f1": 0.08894916696584095,
+      "signal_coverage": 0.082044384667115
+    },
+    {
+      "threshold": 0.6,
+      "macro_f1": 0.039638189988705455,
+      "signal_coverage": 0.0021856086079354406
+    },
+    {
+      "threshold": 0.65,
+      "macro_f1": 0.03904189089374275,
+      "signal_coverage": 0.0
+    },
+    {
+      "threshold": 0.7,
+      "macro_f1": 0.03904189089374275,
+      "signal_coverage": 0.0
+    },
+    {
+      "threshold": 0.8,
+      "macro_f1": 0.03904189089374275,
+      "signal_coverage": 0.0
+    }
+  ]
+}

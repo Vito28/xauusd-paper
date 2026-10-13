@@ -1,0 +1,48 @@
+{
+  "fit_block": "CALIBRATION",
+  "method": "OVR sigmoid on log odds, normalized",
+  "pre_calibration_logloss": 1.0514492988586426,
+  "post_calibration_logloss": 1.0461398255021743,
+  "pre_brier_multiclass": 0.6374771164021511,
+  "post_brier_multiclass": 0.6338803712793291,
+  "coefficients": [
+    [
+      [
+        1.4832788048242451
+      ]
+    ],
+    [
+      [
+        1.3287410705698484
+      ]
+    ],
+    [
+      [
+        1.3522040588646849
+      ]
+    ]
+  ],
+  "intercepts": [
+    [
+      0.19434423076721297
+    ],
+    [
+      0.49463575934320836
+    ],
+    [
+      0.09886406875246186
+    ]
+  ],
+  "return_interval": {
+    "nominal_coverage": 0.8,
+    "quantiles": [
+      0.1,
+      0.9
+    ],
+    "expansion": 0.0,
+    "calibration_rows": 17685,
+    "raw_quantile_crossing_rate": 0.0,
+    "empirical_calibration_coverage": 0.8744698897370653,
+    "note": "Empirical interval calibration; market dependence and distribution shift prevent an unconditional future coverage guarantee."
+  }
+}
