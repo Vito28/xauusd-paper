@@ -1,7 +1,7 @@
 [project]
 name = "xaussd-paper"
 version = "0.1.0"
-description = "Auditable, read-only, multi-broker XAUUSD market-data ingestion"
+description = "XAUUSD M5 market-data ingestion and selective Technical Agent research (BUY/SELL/NO_TRADE)"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -9,9 +9,7 @@ dependencies = [
     "fastapi>=0.141.1",
     "matplotlib>=3.10",
     "metatrader5>=5.0.5120; sys_platform == 'win32'",
-    "mkdocs>=1.6.1",
     "pandas>=2.2",
-    "plotly>=7.1.0",
     "psycopg[binary]>=3.2",
     "pydantic-settings>=2.7",
     "scikit-learn>=1.6",
@@ -40,6 +38,9 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "database/migrations/versions/*.py" = ["E501"]
+# Kode Technical Agent sengaja ditulis eksplisit (if/else bertingkat, tanpa ternary)
+# agar mudah dibaca dan dicocokkan dengan rumus di SOURCE_OF_TRUTH.md.
+"technical/*.py" = ["SIM102", "SIM108", "SIM114"]
 
 [tool.coverage.run]
 source = ["market", "database"]
@@ -47,7 +48,6 @@ branch = true
 
 [dependency-groups]
 dev = [
-    "mkdocs>=1.6",
     "pytest>=8.3",
     "pytest-cov>=6.0",
     "ruff>=0.11",
