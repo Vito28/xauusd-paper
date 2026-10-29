@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Vito28" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>uv - XAUUSD Market Data Collector</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "uv";
+        var mkdocs_page_input_path = "tooling\\uv.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../index.html" class="icon icon-home"> XAUUSD Market Data Collector
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../index.html">Beranda</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Panduan Cepat</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Dashboard Data</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../analytics.html">Analytics dan Time Series</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Arsitektur</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../data-flow.html">Alur Data</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tooling</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">uv</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#mengapa-uv">Mengapa uv</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bootstrap">Bootstrap</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#menambah-atau-menghapus-dependency">Menambah atau menghapus dependency</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#menjalankan-aplikasi">Menjalankan aplikasi</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#quality-workflow">Quality workflow</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#update-yang-terkendali">Update yang terkendali</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../reference/code-reference.html">Referensi Kode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../market-collector.html">Spesifikasi Awal</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">XAUUSD Market Data Collector</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html" class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tooling</li>
+      <li class="breadcrumb-item active">uv</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="tooling-khusus-uv">Tooling Khusus <code>uv</code><a class="headerlink" href="#tooling-khusus-uv" title="Permanent link">&para;</a></h1>
+<h2 id="mengapa-uv">Mengapa <code>uv</code><a class="headerlink" href="#mengapa-uv" title="Permanent link">&para;</a></h2>
+<p><code>uv</code> adalah satu-satunya project/dependency manager untuk collector ini. Ia
+mengelola versi Python, virtual environment, resolusi dependency, lock file,
+dev dependency, dan command execution. Konsistensi ini penting agar penelitian
+dapat direproduksi pada mesin Windows lain.</p>
+<p>File authoritative:</p>
+<ul>
+<li><code>pyproject.toml</code>: metadata, direct dependency, script, konfigurasi test/lint.</li>
+<li><code>uv.lock</code>: resolusi lengkap dan versi transitive yang reproducible.</li>
+<li><code>.python-version</code>: versi Python yang dipilih untuk workspace.</li>
+</ul>
+<p>Jangan menambah atau memelihara <code>requirements.txt</code> paralel.</p>
+<h2 id="bootstrap">Bootstrap<a class="headerlink" href="#bootstrap" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv sync --dev
+</code></pre>
+<p><code>--dev</code> memasang pytest, coverage, dan Ruff selain runtime dependency. Untuk
+environment deployment yang hanya menjalankan collector:</p>
+<pre><code class="language-powershell">uv sync --no-dev --frozen
+</code></pre>
+<p><code>--frozen</code> menolak perubahan resolusi yang belum tercatat di lock file.</p>
+<h2 id="menambah-atau-menghapus-dependency">Menambah atau menghapus dependency<a class="headerlink" href="#menambah-atau-menghapus-dependency" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv add &lt;package&gt;
+uv add --dev &lt;package&gt;
+uv remove &lt;package&gt;
+uv lock
+</code></pre>
+<p>Jalankan <code>uv sync</code> setelah checkout bila environment belum sinkron. Commit
+<code>pyproject.toml</code> dan <code>uv.lock</code> bersama-sama.</p>
+<h2 id="menjalankan-aplikasi">Menjalankan aplikasi<a class="headerlink" href="#menjalankan-aplikasi" title="Permanent link">&para;</a></h2>
+<p>Selalu jalankan command dalam managed environment:</p>
+<pre><code class="language-powershell">uv run alembic upgrade head
+uv run python -m market.collector --help
+uv run python -m market.collector mt5-info --profile example_demo
+uv run python -m market.collector ingest-bars --help
+</code></pre>
+<p>Project script ekuivalen juga tersedia:</p>
+<pre><code class="language-powershell">uv run market --help
+</code></pre>
+<h2 id="quality-workflow">Quality workflow<a class="headerlink" href="#quality-workflow" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv run ruff format .
+uv run ruff check .
+uv run pytest --cov=market --cov=database
+uv run python scripts/generate_code_reference.py
+uv run alembic upgrade head --sql
+</code></pre>
+<p>Migration offline tetap memerlukan <code>GOLD_ENVIRONMENT</code> dan
+<code>GOLD_DATABASE_URL</code>, tetapi tidak membuka koneksi dan tidak mengakses MT5.</p>
+<h2 id="update-yang-terkendali">Update yang terkendali<a class="headerlink" href="#update-yang-terkendali" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv lock --upgrade-package sqlalchemy
+uv sync
+uv run pytest
+</code></pre>
+<p>Hindari upgrade seluruh dependency tanpa review. Periksa perubahan <code>uv.lock</code>,
+jalankan semua quality checks, lalu uji migration pada PostgreSQL disposable.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../data-flow.html" class="btn btn-neutral float-left" title="Alur Data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="docker.html" class="btn btn-neutral float-right" title="Docker">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../data-flow.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="docker.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

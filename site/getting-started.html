@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Vito28" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Panduan Cepat - XAUUSD Market Data Collector</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Panduan Cepat";
+        var mkdocs_page_input_path = "getting-started.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> XAUUSD Market Data Collector
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="index.html">Beranda</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Panduan Cepat</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-sinkronkan-environment-python">1. Sinkronkan environment Python</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-sesuaikan-profile-broker">2. Sesuaikan profile broker</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-buat-struktur-database">3. Buat struktur database</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-validasi-terminal-dan-source">4. Validasi terminal dan source</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-jalankan-historical-bars">5. Jalankan historical bars</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-periksa-hasil">6. Periksa hasil</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-lihat-data-dalam-tabel">7. Lihat data dalam tabel</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#menjalankan-website-dokumentasi">Menjalankan website dokumentasi</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Dashboard Data</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="analytics.html">Analytics dan Time Series</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="architecture.html">Arsitektur</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="data-flow.html">Alur Data</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tooling</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/uv.html">uv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/docker.html">Docker</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="reference/code-reference.html">Referensi Kode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="market-collector.html">Spesifikasi Awal</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XAUUSD Market Data Collector</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Panduan Cepat</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="panduan-cepat">Panduan Cepat<a class="headerlink" href="#panduan-cepat" title="Permanent link">&para;</a></h1>
+<p>Halaman ini adalah langkah minimum untuk menjalankan collector sebagai data
+acquisition platform. Pastikan MetaTrader 5 Terminal sudah terpasang di Windows
+dan login secara manual ke account yang sesuai.</p>
+<h2 id="1-sinkronkan-environment-python">1. Sinkronkan environment Python<a class="headerlink" href="#1-sinkronkan-environment-python" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv sync --dev
+Copy-Item .env.example .env
+</code></pre>
+<p>Edit <code>.env</code>, terutama environment dan URL PostgreSQL. Demo dan live wajib
+memakai database fisik berbeda.</p>
+<pre><code class="language-dotenv">GOLD_ENVIRONMENT=demo
+GOLD_DATABASE_URL=postgresql+psycopg://gold_demo:password@localhost:5432/gold_market_demo
+GOLD_MT5_TERMINAL_PATH=C:\Program Files\Broker MT5\terminal64.exe
+</code></pre>
+<p>Profile broker dipilih secara eksplisit pada setiap command melalui
+<code>--profile &lt;nama_profile&gt;</code>.</p>
+<h2 id="2-sesuaikan-profile-broker">2. Sesuaikan profile broker<a class="headerlink" href="#2-sesuaikan-profile-broker" title="Permanent link">&para;</a></h2>
+<p>Salin <code>configs/brokers/example_demo.toml</code>, kemudian sesuaikan broker, server,
+dan exact symbol broker seperti <code>XAUUSD</code>, <code>XAUUSDm</code>, atau <code>GOLD</code>. Jangan letakkan
+credential pada profile.</p>
+<h2 id="3-buat-struktur-database">3. Buat struktur database<a class="headerlink" href="#3-buat-struktur-database" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv run alembic upgrade head
+</code></pre>
+<h2 id="4-validasi-terminal-dan-source">4. Validasi terminal dan source<a class="headerlink" href="#4-validasi-terminal-dan-source" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv run python -m market.collector mt5-info --profile example_demo
+uv run python -m market.collector symbol-info --profile example_demo
+uv run python -m market.collector source-register --profile example_demo
+</code></pre>
+<h2 id="5-jalankan-historical-bars">5. Jalankan historical bars<a class="headerlink" href="#5-jalankan-historical-bars" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv run python -m market.collector ingest-bars `
+  --profile example_demo `
+  --start 2016-01-01T00:00:00Z `
+  --end 2026-01-01T00:00:00Z `
+  --timeframe M5
+</code></pre>
+<h2 id="6-periksa-hasil">6. Periksa hasil<a class="headerlink" href="#6-periksa-hasil" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv run python -m market.collector status --profile example_demo
+uv run python -m market.collector coverage --profile example_demo
+uv run python -m market.collector validate --profile example_demo
+</code></pre>
+<h2 id="7-lihat-data-dalam-tabel">7. Lihat data dalam tabel<a class="headerlink" href="#7-lihat-data-dalam-tabel" title="Permanent link">&para;</a></h2>
+<p>Pastikan migration terbaru sudah diterapkan dan historical tick sudah dikoleksi,
+kemudian jalankan dashboard lokal:</p>
+<pre><code class="language-powershell">uv run alembic upgrade head
+uv run python -m market.dashboard
+</code></pre>
+<p>Buka <code>http://127.0.0.1:8080/</code>. Pilih tab Market bars, Raw ticks, atau Gabungan
+M5. Kolom Bid/Ask/spread pada gabungan akan <code>NULL</code> apabila broker tidak
+menyediakan historical tick untuk candle terkait.</p>
+<h2 id="menjalankan-website-dokumentasi">Menjalankan website dokumentasi<a class="headerlink" href="#menjalankan-website-dokumentasi" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv run mkdocs serve
+</code></pre>
+<p>Kemudian buka <code>http://127.0.0.1:8000/</code> pada browser. Server akan memperbarui
+halaman secara otomatis ketika file dokumentasi berubah.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="index.html" class="btn btn-neutral float-left" title="Beranda"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="dashboard.html" class="btn btn-neutral float-right" title="Dashboard Data">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="index.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="dashboard.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

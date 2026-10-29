@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Vito28" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Arsitektur - XAUUSD Market Data Collector</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Arsitektur";
+        var mkdocs_page_input_path = "architecture.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> XAUUSD Market Data Collector
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="index.html">Beranda</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Panduan Cepat</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Dashboard Data</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="analytics.html">Analytics dan Time Series</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Arsitektur</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#boundary">Boundary</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tanggung-jawab-folder">Tanggung jawab folder</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#workflow-market">Workflow market</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#persistence-database">Persistence database</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-model-dan-provenance">Data model dan provenance</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#views">Views</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-dan-isolation">Security dan isolation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#analytics-dalam-dua-file">Analytics dalam dua file</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="data-flow.html">Alur Data</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tooling</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/uv.html">uv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/docker.html">Docker</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="reference/code-reference.html">Referensi Kode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="market-collector.html">Spesifikasi Awal</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XAUUSD Market Data Collector</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Arsitektur</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="arsitektur-sistem">Arsitektur Sistem<a class="headerlink" href="#arsitektur-sistem" title="Permanent link">&para;</a></h1>
+<h2 id="boundary">Boundary<a class="headerlink" href="#boundary" title="Permanent link">&para;</a></h2>
+<p>Lapisan collector hanya melakukan extract, validation, metadata/timestamp
+normalization, store, dan audit. Collector tidak melakukan trading, indikator,
+feature engineering, normalisasi ML, penghapusan outlier, interpolation, atau
+training. Analytics membaca data melalui transaksi read-only dan melakukan
+analisis pada salinan tanpa mengubah data sumber.</p>
+<pre><code class="language-text">MetaTrader 5
+  -&gt; market.profile (broker TOML + validated GOLD_* settings)
+  -&gt; market.collector / MT5 provider (external boundary, read-only)
+  -&gt; market.collector / validation (pure normalization + invariant checks)
+  -&gt; market.collector / ingestion (partition/retry/transaction orchestration)
+  -&gt; database.storage (session/transaction + bulk persistence)
+  -&gt; PostgreSQL schemas core/ingest/market/audit
+  -&gt; market.dashboard (local read-only table and JSON API)
+  -&gt; analytics.data / analytics.analytics (query read-only, EDA dan time series)
+</code></pre>
+<p>Untuk deployment lokal berbasis container, Docker Compose menyediakan dua
+service: <code>postgres</code> menjalankan PostgreSQL 18 dan <code>api</code> menjalankan FastAPI
+dengan Python 3.12 serta environment yang dikelola <code>uv</code>. Service API menunggu
+health check PostgreSQL, menjalankan migrasi Alembic, lalu membuka dashboard.
+MetaTrader 5 tetap berada di boundary Windows host karena library resminya tidak
+tersedia untuk container Linux.</p>
+<p>MT5 hanya diakses oleh command <code>source-register</code>, <code>mt5-info</code>, <code>symbol-info</code>,
+<code>ingest-bars</code>, <code>ingest-ticks</code>, <code>sync-bars</code>, dan <code>sync-ticks</code>. Import module,
+pytest discovery, serta Alembic tidak menginisialisasi terminal.</p>
+<h2 id="tanggung-jawab-folder">Tanggung jawab folder<a class="headerlink" href="#tanggung-jawab-folder" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Folder</th>
+<th>Tanggung jawab</th>
+<th>Bukan tanggung jawab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>market/</code></td>
+<td>Kontrak domain, profile/settings, MT5 adapter, validasi, partition, aggregation, reporting, CLI</td>
+<td>SQL schema, ML, trading</td>
+</tr>
+<tr>
+<td>analytics/</td>
+<td>Query data, EDA, evaluasi model, dan laporan forecast XGBoost dengan PNG Matplotlib</td>
+<td>Mengubah market data, memakai target masa depan saat fitting/prediksi, tuning pada test, trading</td>
+</tr>
+<tr>
+<td><code>database/</code></td>
+<td>Session, mappings, repository bulk operations, migration PostgreSQL</td>
+<td>Provider MT5, transform harga</td>
+</tr>
+<tr>
+<td><code>configs/brokers/</code></td>
+<td>Identitas source dan policy non-secret</td>
+<td>Password/login/token</td>
+</tr>
+<tr>
+<td><code>tests/market/</code></td>
+<td>Unit test tanpa terminal/database nyata</td>
+<td>Menulis production data</td>
+</tr>
+<tr>
+<td><code>tests/database/</code></td>
+<td>Smoke test database disposable</td>
+<td>Menggunakan database demo/live</td>
+</tr>
+<tr>
+<td><code>docs/</code></td>
+<td>Penjelasan why/how dan generated reference</td>
+<td>Menjadi source behavior pengganti code</td>
+</tr>
+<tr>
+<td><code>scripts/</code></td>
+<td>Tool dokumentasi deterministik</td>
+<td>Ingestion market data</td>
+</tr>
+</tbody>
+</table>
+<h2 id="workflow-market">Workflow market<a class="headerlink" href="#workflow-market" title="Permanent link">&para;</a></h2>
+<p>Dua file utama acquisition adalah <code>market/profile.py</code> dan <code>market/collector.py</code>,
+keduanya memakai section <code># %%</code> dan komentar proses seperti notebook.
+<code>profile.py</code> berisi schema/loader/saver broker TOML dan runtime settings.
+<code>save_broker_profile()</code> memvalidasi serta menyimpan konfigurasi non-secret ke
+<code>configs/brokers/</code>, dengan penggantian file melalui <code>overwrite=True</code> eksplisit.</p>
+<p><code>collector.py</code> menyatukan symbol resolution, MT5 provider/preflight, UTC partition,
+bar/tick validation, derived aggregation/gap, ingestion/retry/checkpoint,
+coverage/status/validation reports, logging dan Typer CLI.
+<code>contracts.py</code> tetap menjadi kontrak record bersama repository; <code>dashboard.py</code>
+tetap menjadi API/browser read-only. <code>cli.py</code> hanya menghubungkan launcher lama
+ke app collector. Repository menunda import fingerprint collector sampai
+<code>save_symbol_spec()</code> dipanggil untuk menghindari circular import.</p>
+<p>Import tidak mengaktifkan settings, MT5, atau koneksi database. Profile TOML,
+policy retry, transaksi atomik dan format data tidak berubah oleh penggabungan.
+Lihat <code>market/README.md</code> dalam source repository untuk peta section dan contoh config.</p>
+<h2 id="persistence-database">Persistence database<a class="headerlink" href="#persistence-database" title="Permanent link">&para;</a></h2>
+<p>Dua file utama persistence adalah <code>database/schema.py</code> dan <code>database/storage.py</code>,
+dengan section <code># %%</code> dan komentar proses. <code>schema.py</code> memuat seluruh ORM mappings:
+source, symbol spec, ingestion run, checkpoint, bars, ticks dan rejection.
+<code>storage.py</code> memuat lazy engine/session lifecycle, transaksi dan empat repository
+source/market data/ingestion/rejection. Collector, dashboard dan analytics
+menggunakan API storage yang sama; schema metadata tersedia untuk Alembic.</p>
+<p><code>database/migrations/</code> tetap menyimpan runtime/template serta riwayat revisi
+Alembic. Struktur tabel, constraints dan migration revision IDs dipertahankan;
+refactor ini tidak menjalankan perubahan pada database aktif. Lihat
+<code>database/README.md</code> dalam source repository untuk peta section dan import baru.</p>
+<h2 id="data-model-dan-provenance">Data model dan provenance<a class="headerlink" href="#data-model-dan-provenance" title="Permanent link">&para;</a></h2>
+<p><code>core.data_source</code> mengikat satu <code>source_key</code> ke broker, server, environment,
+canonical dataset symbol, dan actual symbol. Source berbeda tidak dicampur.
+<code>core.symbol_spec_version</code> menyimpan snapshot metadata berdasarkan payload hash,
+karena specification sekarang tidak boleh diasumsikan berlaku untuk 10 tahun.</p>
+<p><code>ingest.run</code> adalah audit satu invocation. <code>ingest.checkpoint</code> adalah resume state
+per fixed partition. <code>market.bar_observation</code> dan <code>market.tick_observation</code>
+append-only serta dipartisi bulanan. <code>market.rejection</code> mempertahankan payload
+invalid untuk diagnosis.</p>
+<h2 id="views">Views<a class="headerlink" href="#views" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>market.bar_latest</code>: revision terbaru per logical candle; raw revision lama
+  tetap ada.</li>
+<li><code>market.data_coverage</code>: requested partitions versus actual record coverage.</li>
+<li><code>market.quote_ohlc_m5</code>: Bid/Ask OHLC dan statistik spread dari tick valid saja.</li>
+<li><code>market.processed_m5</code>: view siap-riset yang menggabungkan native M5 terbaru,
+  provenance source, dan quote M5 dengan <code>LEFT JOIN</code>. Native candle tetap tampil
+  ketika historical tick tidak tersedia; pada kondisi itu kolom quote bernilai
+  <code>NULL</code>.</li>
+</ul>
+<p>Native bar dan quote OHLC adalah dataset berbeda. Higher timeframe dari M5 juga
+merupakan derived dataset; native M5 tetap dipertahankan.</p>
+<p><code>market.dashboard</code> membaca <code>market.bar_latest</code>, <code>market.tick_observation</code>, dan
+<code>market.processed_m5</code> melalui query terparameterisasi. Dataset serta kolom
+sorting dipilih dari whitelist server. Dashboard tidak menginisialisasi MT5 dan
+tidak menyediakan operasi tulis database. Satu instance dashboard dapat
+membaca database demo atau live melalui pilihan environment yang dibatasi ke
+<code>demo</code>/<code>live</code>; URL koneksi masing-masing tetap berada di server pada
+<code>GOLD_DASHBOARD_DEMO_DATABASE_URL</code> dan
+<code>GOLD_DASHBOARD_LIVE_DATABASE_URL</code>, bukan di browser.</p>
+<h2 id="security-dan-isolation">Security dan isolation<a class="headerlink" href="#security-dan-isolation" title="Permanent link">&para;</a></h2>
+<p>Demo/live wajib memakai database berbeda. Runtime memvalidasi environment pada
+settings, profile, dan account MT5 aktual. Logs tidak memuat password, DSN,
+login, account number, token, atau secret. Credential MT5 tidak disimpan dalam
+database aplikasi maupun repository.</p>
+<h2 id="analytics-dalam-dua-file">Analytics dalam dua file<a class="headerlink" href="#analytics-dalam-dua-file" title="Permanent link">&para;</a></h2>
+<p><code>analytics/data.py</code> menangani query PostgreSQL read-only dan transformasi
+data pada salinan: UTC/provenance, candle tertutup, return native dengan gap
+mask, serta agregat sesi UTC harian tanpa imputation. <code>analytics/analytics.py</code>
+menangani section UNI/BI/MULTI, grafik time series, model Ridge return dengan
+expanding folds dan holdout 2026, evaluasi split model beku, forecast XGBoost
+yang dipertahankan, serta satu CLI. Scaler fit training per fold; target yang
+melewati boundary dipurge. Plot dan metrik ditulis sebagai artifact turunan,
+sedangkan database tetap source of truth. Panduan dan paper tersedia di
+<a href="analytics.html">analytics README</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="analytics.html" class="btn btn-neutral float-left" title="Analytics dan Time Series"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="data-flow.html" class="btn btn-neutral float-right" title="Alur Data">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="analytics.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="data-flow.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

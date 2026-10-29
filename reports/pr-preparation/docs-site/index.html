@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Dokumentasi collector market data XAUUSD/GOLD berbasis MetaTrader 5 dan PostgreSQL." /><meta name="author" content="Vito28" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>XAUUSD Market Data Collector</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Beranda";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> XAUUSD Market Data Collector
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Beranda</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#analytics-png">Analytics PNG</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#forecast-xgboost-2026">Forecast XGBoost 2026</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#insight-time-series">Insight time series</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Panduan Cepat</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Dashboard Data</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="analytics.html">Analytics dan Time Series</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="architecture.html">Arsitektur</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="data-flow.html">Alur Data</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tooling</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/uv.html">uv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/docker.html">Docker</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="reference/code-reference.html">Referensi Kode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="market-collector.html">Spesifikasi Awal</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XAUUSD Market Data Collector</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Beranda</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="dokumentasi-xauusd-market-data-collector">Dokumentasi XAUUSD Market Data Collector<a class="headerlink" href="#dokumentasi-xauusd-market-data-collector" title="Permanent link">&para;</a></h1>
+<p>Dokumentasi ini menjelaskan collector MetaTrader 5, penyimpanan PostgreSQL,
+validasi data, analytics, serta dashboard FastAPI. Analytics bekerja pada
+salinan data melalui transaksi read-only; database tetap menjadi sumber data.</p>
+<p>Untuk menjalankan dokumentasi ini sebagai website lokal, gunakan:</p>
+<pre><code class="language-powershell">uv run mkdocs serve
+</code></pre>
+<p>Lalu buka <code>http://127.0.0.1:8000/</code>.</p>
+<ul>
+<li><a href="getting-started.html">Panduan cepat</a></li>
+<li><a href="architecture.html">Arsitektur dan tanggung jawab folder</a></li>
+<li><a href="data-flow.html">Alur ingestion dan transaksi</a></li>
+<li><a href="tooling/uv.html">Panduan khusus uv</a></li>
+<li><a href="testing.html">Strategi testing</a></li>
+<li><a href="reference/code-reference.html">Referensi kode hasil AST</a></li>
+<li><a href="market-collector.html">Spesifikasi awal</a></li>
+</ul>
+<p>Source code dan docstring adalah sumber kebenaran perilaku. Referensi kode
+dihasilkan ulang dari AST dan menandai dokumentasi yang hilang secara eksplisit.</p>
+<h2 id="analytics-png">Analytics PNG<a class="headerlink" href="#analytics-png" title="Permanent link">&para;</a></h2>
+<p>Analytics berisi dua file Python: <code>data.py</code> untuk query read-only dan
+persiapan data; <code>analytics.py</code> untuk UNI, BI, MULTI, grafik time series,
+model return dengan validasi waktu, evaluasi dan forecast. Kode memakai
+pemisah <code># %%</code> seperti notebook. Lihat <a href="analytics.html">panduan analytics</a>
+untuk metodologi, batas interpretasi dan referensi paper.</p>
+<pre><code class="language-powershell">uv run python -B -m analytics.analytics univariate `
+  --source-id &lt;uuid&gt; `
+  --symbol XAUUSD `
+  --timeframe M5 `
+  --start 2026-01-01T00:00:00Z `
+  --end 2026-02-01T00:00:00Z `
+  --columns close tick_volume spread_price
+</code></pre>
+<p>PNG dibuat di <code>reports/analytics/</code> dalam subfolder sesuai mode analisis. Folder
+ini hanya artifact visual dan bukan source data; semua input tetap dibaca dari
+PostgreSQL. Jalankan ulang command untuk mengganti PNG dengan hasil terbaru,
+atau tambahkan polling agar otomatis refresh:</p>
+<pre><code class="language-powershell">uv run python -B -m analytics.analytics univariate `
+  --source-id &lt;uuid&gt; `
+  --symbol XAUUSD `
+  --timeframe M5 `
+  --start 2016-01-01T00:00:00Z `
+  --end 2027-01-01T00:00:00Z `
+  --watch-seconds 60 `
+  --columns close tick_volume spread_price
+</code></pre>
+<p>Watcher melakukan query ulang setiap interval dan berhenti dengan <code>Ctrl+C</code>.</p>
+<h2 id="forecast-xgboost-2026">Forecast XGBoost 2026<a class="headerlink" href="#forecast-xgboost-2026" title="Permanent link">&para;</a></h2>
+<p>Modul forecast memisahkan history tepat pada 2026-01-01T00:00:00Z. XGBoost
+hanya melihat close harian sampai 31 Desember 2025, lalu memprediksi 2026 secara
+recursive. Harga aktual 2026 dibaca terpisah sebagai ground truth visual dan
+evaluasi, bukan sebagai fitur, target training, atau state inference.</p>
+<pre><code class="language-powershell">uv run python -B -m analytics.analytics forecast `
+  --source-id &lt;uuid&gt; `
+  --symbol XAUUSD `
+  --timeframe M5 `
+  --history-start 2016-01-01T00:00:00Z `
+  --actual-end 2026-11-01T00:00:00Z
+</code></pre>
+<p>PNG, dashboard.html interaktif, dan metrics.json berisi MAE, MSE, RMSE, serta
+MAPE disimpan di reports/analytics/xgboost_forecast/. --actual-end adalah batas
+eksklusif data pembanding, bukan batas training.</p>
+<h2 id="insight-time-series">Insight time series<a class="headerlink" href="#insight-time-series" title="Permanent link">&para;</a></h2>
+<p>Gunakan <code>uv run python -B -m analytics.analytics time-series --source-id &lt;uuid&gt; --symbol XAUUSD --timeframe M5 --start 2016-01-01T00:00:00Z --end 2026-10-01T00:00:00Z --include-models</code>.
+Laporan mencakup tren/drawdown, return/volatilitas, distribusi tahunan, return
+bulanan, ACF, aktivitas/spread, Spearman, counts dan perbandingan model
+UNI/BI/MULTI versus baseline. Tahun/bulan terakhir mengikuti cakupan
+observasi dan dapat parsial; harga meningkat jangka panjang belum berarti
+setiap sesi naik. Output berada di <code>reports/analytics/time_series/</code>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="getting-started.html" class="btn btn-neutral float-right" title="Panduan Cepat">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="getting-started.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2026-10-12 01:29:08.254160+00:00
+-->

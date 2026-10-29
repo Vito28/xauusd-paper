@@ -5,6 +5,12 @@ Data bersumber dari `market.processed_m5` melalui transaksi PostgreSQL read-only
 Seluruh hasil ditulis lokal. Base timeframe **M5**, sedangkan horizon default
 **3 candle = 15 menit**; model tidak memakai resampling M15/H1.
 
+Bahan laporan eksperimen bagian 4.1–4.6 tersedia pada
+[README laporan baseline](README_laporan_baseline.md), dengan konfigurasi,
+strategi training/validasi, hasil prediksi, dan pembandingan yang sudah tersedia.
+Lanjutannya tersedia pada [README laporan optimasi](README_laporan_optimasi.md),
+berisi metrik, hasil tuning, interpretasi singkat, dan temuan awal.
+
 ## Struktur ringkas
 
 ```text

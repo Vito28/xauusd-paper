@@ -4,6 +4,9 @@ Kode: `analisis_teknikall/xgboost_matematis.py`, dengan section `# %%` dan
 komentar rumus. Runtime hanya memakai standard library Python; tidak mengimpor
 XGBoost, NumPy, pandas, sklearn, technical, atau plugin. JSON/CSV adalah data.
 
+Penjelasan bertahap beserta potongan kode classifier dan contoh hitungan satu
+ronde tersedia di `analisis_teknikall/README_klasifikasi_manual.md`.
+
 ## Dua pekerjaan yang berbeda
 
 1. **Training dari nol:** `ScratchRegressor` dan `ScratchClassifier` membangun

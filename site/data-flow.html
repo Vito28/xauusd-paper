@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Vito28" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Alur Data - XAUUSD Market Data Collector</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Alur Data";
+        var mkdocs_page_input_path = "data-flow.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> XAUUSD Market Data Collector
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="index.html">Beranda</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Panduan Cepat</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Dashboard Data</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="analytics.html">Analytics dan Time Series</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="architecture.html">Arsitektur</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Alur Data</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#preflight">Preflight</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#historical-bars">Historical bars</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#historical-ticks">Historical ticks</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#failure-dan-retry">Failure dan retry</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#idempotensi">Idempotensi</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gap-dan-aggregation">Gap dan aggregation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#unified-m5-research-view">Unified M5 research view</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tooling</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/uv.html">uv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/docker.html">Docker</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="reference/code-reference.html">Referensi Kode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="market-collector.html">Spesifikasi Awal</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XAUUSD Market Data Collector</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Alur Data</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="alur-data-dan-transaksi">Alur Data dan Transaksi<a class="headerlink" href="#alur-data-dan-transaksi" title="Permanent link">&para;</a></h1>
+<h2 id="preflight">Preflight<a class="headerlink" href="#preflight" title="Permanent link">&para;</a></h2>
+<pre><code class="language-text">explicit CLI command
+  -&gt; load GOLD_* settings (environment dan DSN wajib)
+  -&gt; load broker TOML
+  -&gt; initialize MT5
+  -&gt; validate connected terminal/path
+  -&gt; read account_info tanpa menyimpan login
+  -&gt; validate demo/live, company, server
+  -&gt; exact symbol resolution
+  -&gt; symbol_select + symbol_info snapshot
+  -&gt; start collection
+</code></pre>
+<p>Mismatch environment, broker, server, atau symbol adalah permanent error dan
+gagal cepat sebelum fetch.</p>
+<h2 id="historical-bars">Historical bars<a class="headerlink" href="#historical-bars" title="Permanent link">&para;</a></h2>
+<pre><code class="language-text">requested UTC range
+  -&gt; split per calendar month
+  -&gt; skip checkpoint fetched/empty
+  -&gt; copy_rates_range
+  -&gt; preserve native fields + calculate deterministic payload hash
+  -&gt; validate OHLC/volume/spread/finalization lag
+  -&gt; one PostgreSQL transaction:
+       ensure monthly partition
+       bulk insert valid bars (exact duplicate ignored, revision retained)
+       bulk insert rejections
+       checkpoint fetched/empty
+  -&gt; commit
+</code></pre>
+<p><code>close_time_utc</code> berasal dari native open time + timeframe duration. Candle hanya
+final bila current UTC melewati close time + configured safety delay.</p>
+<h2 id="historical-ticks">Historical ticks<a class="headerlink" href="#historical-ticks" title="Permanent link">&para;</a></h2>
+<pre><code class="language-text">requested UTC range
+  -&gt; split per UTC day
+  -&gt; copy_ticks_range(COPY_TICKS_ALL)
+  -&gt; preserve time/time_msc/bid/ask/last/volume/flags/volume_real
+  -&gt; fingerprint native fields + deterministic occurrence ordinal
+  -&gt; validate quote if Bid/Ask is present
+  -&gt; bulk insert + rejection + checkpoint transaction
+</code></pre>
+<p>Trade-only tick tidak diberi Bid/Ask palsu. Valid tick tidak menyimpan JSONB per
+row; structured native fields dan SHA-256 payload hash menjaga integrity.</p>
+<h2 id="failure-dan-retry">Failure dan retry<a class="headerlink" href="#failure-dan-retry" title="Permanent link">&para;</a></h2>
+<p>Fetch/transaction mendapat retry maksimal sesuai profile, default tiga attempt
+dengan delay 1 dan 2 detik sebelum attempt berikutnya (daftar policy menyediakan
+1, 2, 4 untuk perluasan). Setiap attempt gagal me-roll back transaction aktif.
+Setelah batas tercapai, partition ditandai <code>failed</code>, error disimpan, dan run
+menjadi <code>partial</code> bila partition lain berhasil atau <code>failed</code> bila tidak ada data
+yang berhasil diproses. Run berikutnya hanya mengulang state selain
+<code>fetched</code>/<code>empty</code>.</p>
+<h2 id="idempotensi">Idempotensi<a class="headerlink" href="#idempotensi" title="Permanent link">&para;</a></h2>
+<p>Logical bar identity adalah source/symbol/timeframe/open time. Exact payload hash
+yang sama diabaikan, sedangkan hash berbeda pada logical identity yang sama
+adalah revision baru. Logical tick identity memakai source/symbol/timestamp,
+payload fingerprint, dan occurrence. Fixed daily fetch membuat occurrence stabil.</p>
+<h2 id="gap-dan-aggregation">Gap dan aggregation<a class="headerlink" href="#gap-dan-aggregation" title="Permanent link">&para;</a></h2>
+<p><code>detect_candidate_gaps</code> hanya menghasilkan interval kandidat; tidak melakukan
+repair. <code>aggregate_m5_bars</code> hanya membentuk M15/M30/H1/H4 jika seluruh slot M5
+dalam bucket tersedia. OHLC memakai first/max/min/last dan volume dijumlahkan;
+spread tidak dijumlahkan.</p>
+<h2 id="unified-m5-research-view">Unified M5 research view<a class="headerlink" href="#unified-m5-research-view" title="Permanent link">&para;</a></h2>
+<p><code>market.processed_m5</code> menggabungkan revision native M5 terbaru dari
+<code>market.bar_latest</code> dengan Bid/Ask/spread OHLC dari <code>market.quote_ohlc_m5</code>.
+Penggabungan memakai <code>source_id</code>, <code>actual_symbol</code>, dan <code>open_time_utc</code> agar data
+antarbroker tidak tercampur. <code>LEFT JOIN</code> mempertahankan native candle ketika
+historical tick tidak tersedia; kolom <code>bid_*</code>, <code>ask_*</code>, dan <code>spread_*</code> akan
+bernilai <code>NULL</code> dan tidak pernah diisi nilai sintetis.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="architecture.html" class="btn btn-neutral float-left" title="Arsitektur"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="tooling/uv.html" class="btn btn-neutral float-right" title="uv">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="architecture.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="tooling/uv.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

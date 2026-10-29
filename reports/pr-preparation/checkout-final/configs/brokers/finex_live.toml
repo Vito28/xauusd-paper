@@ -1,0 +1,19 @@
+[source]
+source_key = "finex-bisnis-solusi-real-xauusd"
+broker_name = "PT. Finex Bisnis Solusi Futures"
+server_name = "FinexBisnisSolusi-Real"
+environment = "live"
+dataset_symbol = "XAUUSD"
+requested_symbol = "XAUUSD"
+
+[market]
+base_timeframe = "M5"
+additional_native_timeframes = ["M15", "H1"]
+timezone = "UTC"
+
+[collection]
+bar_chunk = "1month"
+tick_chunk = "1day"
+max_attempts = 3
+retry_delays_seconds = [1, 2, 4]
+finalization_delay_seconds = 5

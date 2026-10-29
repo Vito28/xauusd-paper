@@ -1,0 +1,19 @@
+[source]
+source_key = "example-live-xauusd"
+broker_name = "Example Broker"
+server_name = "Example-Live"
+environment = "live"
+dataset_symbol = "XAUUSD"
+requested_symbol = "XAUUSD"
+
+[market]
+base_timeframe = "M5"
+additional_native_timeframes = ["M15", "H1"]
+timezone = "UTC"
+
+[collection]
+bar_chunk = "1month"
+tick_chunk = "1day"
+max_attempts = 3
+retry_delays_seconds = [1, 2, 4]
+finalization_delay_seconds = 5

@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>XAUUSD Data Explorer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071119;
+      --bg-soft: #0a1720;
+      --panel: rgba(14, 29, 39, .92);
+      --panel-solid: #0e1d27;
+      --panel-raised: #132833;
+      --line: #223d49;
+      --line-soft: rgba(65, 97, 110, .38);
+      --text: #edf7fa;
+      --muted: #91aab4;
+      --muted-2: #607b86;
+      --gold: #f4bd55;
+      --gold-dark: #2c210d;
+      --cyan: #53d5ca;
+      --cyan-soft: rgba(83, 213, 202, .12);
+      --blue: #77aaff;
+      --blue-soft: rgba(119, 170, 255, .12);
+      --purple: #d6a5ff;
+      --purple-soft: rgba(214, 165, 255, .11);
+      --green: #72dda9;
+      --green-soft: rgba(114, 221, 169, .1);
+      --red: #ff8e98;
+      --red-soft: rgba(255, 142, 152, .11);
+      --shadow: 0 24px 80px rgba(0, 0, 0, .24);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% -8%, rgba(83, 213, 202, .13), transparent 30rem),
+        radial-gradient(circle at 88% 0%, rgba(244, 189, 85, .11), transparent 34rem),
+        linear-gradient(180deg, var(--bg) 0%, #08151c 100%);
+    }
+
+    button, input, select { font: inherit; }
+    button, a, input, select { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(244, 189, 85, .34);
+      outline-offset: 2px;
+    }
+
+    .shell { width: min(1760px, calc(100% - 36px)); margin: 0 auto; padding: 22px 0 42px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px;
+      color: var(--gold); background: linear-gradient(145deg, #18313b, #0d2028);
+      border: 1px solid #31515d; box-shadow: inset 0 1px rgba(255,255,255,.05);
+    }
+    .brand-mark svg { width: 24px; height: 24px; }
+    .brand-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+    .brand-subtitle { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .status-pill, .api-link {
+      min-height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px;
+      border: 1px solid var(--line); border-radius: 999px; background: rgba(10, 23, 32, .7);
+      color: var(--muted); font-size: 12px; text-decoration: none;
+    }
+    .api-link:hover { color: var(--text); border-color: #466370; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+    .status-pill.ready .status-dot { background: var(--green); box-shadow: 0 0 12px var(--green); }
+    .status-pill.error .status-dot { background: var(--red); box-shadow: 0 0 12px var(--red); }
+
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: end; margin-bottom: 20px; }
+    .eyebrow { margin: 0 0 9px; color: var(--gold); font-size: 11px; font-weight: 850; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(31px, 4vw, 52px); line-height: .98; letter-spacing: -.05em; }
+    .hero-copy { max-width: 790px; margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+
+    .dataset-tabs {
+      display: grid; grid-template-columns: repeat(3, minmax(130px, 1fr)); gap: 7px; padding: 6px;
+      border: 1px solid var(--line); border-radius: 15px; background: rgba(8, 20, 27, .72);
+      box-shadow: var(--shadow);
+    }
+    .dataset-tab {
+      min-height: 54px; padding: 8px 14px; border: 1px solid transparent; border-radius: 10px;
+      background: transparent; color: var(--muted); cursor: pointer; text-align: left; transition: .18s ease;
+    }
+    .dataset-tab strong { display: block; color: inherit; font-size: 13px; }
+    .dataset-tab small { display: block; margin-top: 3px; color: var(--muted-2); font-size: 10px; }
+    .dataset-tab:hover { color: var(--text); background: rgba(255,255,255,.03); }
+    .dataset-tab.active { color: var(--text); border-color: #3e5c67; background: linear-gradient(145deg, #18313b, #11262f); }
+    .dataset-tab.active small { color: var(--cyan); }
+
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+    .summary-card {
+      min-height: 104px; padding: 17px 18px; border: 1px solid var(--line); border-radius: 15px;
+      background: linear-gradient(145deg, rgba(19,40,51,.9), rgba(12,28,37,.9));
+    }
+    .summary-label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: .06em; }
+    .summary-label i { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); }
+    .summary-value { display: block; margin-top: 10px; font-size: clamp(21px, 2.5vw, 30px); font-weight: 800; letter-spacing: -.035em; }
+    .summary-note { display: block; min-height: 16px; margin-top: 4px; color: var(--muted-2); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .panel { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: var(--shadow); }
+    .filter-panel { padding: 16px; margin-bottom: 11px; }
+    .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .panel-heading h2 { margin: 0; font-size: 14px; letter-spacing: -.01em; }
+    .panel-heading p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .text-button { width: auto; min-height: 32px; padding: 0 10px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+    .text-button:hover { color: var(--text); }
+
+    .filters { display: grid; grid-template-columns: 1fr 1.15fr .65fr 1.05fr 1.05fr .75fr .72fr .62fr auto; gap: 9px; align-items: end; }
+    .field { min-width: 0; }
+    .field label { display: block; margin: 0 0 7px 2px; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .control {
+      width: 100%; min-height: 42px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px;
+      background: #091820; color: var(--text); transition: border-color .18s, background .18s;
+    }
+    .control:hover { border-color: #365663; }
+    .control:focus { border-color: var(--gold); background: #0c1d26; outline: none; box-shadow: 0 0 0 3px rgba(244,189,85,.1); }
+    .control:disabled { opacity: .42; cursor: not-allowed; }
+    .submit-button {
+      min-width: 116px; min-height: 42px; padding: 0 16px; border: 1px solid var(--gold); border-radius: 10px;
+      background: var(--gold); color: var(--gold-dark); font-weight: 850; cursor: pointer; transition: transform .18s, filter .18s;
+    }
+    .submit-button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); }
+    .submit-button:disabled { opacity: .55; cursor: wait; }
+
+    .table-panel { overflow: hidden; }
+    .table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 14px; border-bottom: 1px solid var(--line-soft); }
+    .column-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    .group-chip {
+      width: auto; min-height: 33px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px;
+      background: #0a1820; color: var(--muted); font-size: 11px; font-weight: 750; cursor: pointer;
+    }
+    .group-chip:hover { color: var(--text); border-color: #47636e; }
+    .group-chip.active { color: var(--text); border-color: #4f716f; background: var(--cyan-soft); }
+    .toolbar-actions { display: flex; align-items: center; gap: 8px; }
+    .small-select, .secondary-button {
+      width: auto; min-height: 34px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px;
+      background: #0a1820; color: var(--muted); font-size: 11px;
+    }
+    .secondary-button { cursor: pointer; font-weight: 750; }
+    .secondary-button:hover:not(:disabled) { color: var(--text); border-color: #47636e; }
+
+    .table-wrap { position: relative; overflow: auto; min-height: 390px; max-height: calc(100vh - 390px); }
+    table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+    th, td { max-width: 360px; padding: 10px 12px; border-right: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); white-space: nowrap; font-size: 11px; text-align: right; }
+    th { position: sticky; top: 0; z-index: 4; padding: 0; background: #122731; color: #a9c0c8; text-transform: uppercase; letter-spacing: .045em; }
+    .sort-button { width: 100%; min-height: 39px; padding: 0 12px; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 800; text-align: right; cursor: pointer; }
+    .sort-button:hover { color: var(--text); background: rgba(255,255,255,.035); }
+    .sort-indicator { margin-left: 5px; color: var(--gold); }
+    th:first-child, td:first-child { position: sticky; left: 0; z-index: 3; text-align: left; background: #0f222b; }
+    th:first-child { z-index: 6; background: #172f39; }
+    th:first-child .sort-button { text-align: left; }
+    tbody tr:hover td { background-color: #132832; }
+    tbody tr:hover td:first-child { background-color: #17303a; }
+    td.time { color: #c1d6dd; }
+    td.price, th.price { background-color: rgba(244,189,85,.075); color: #f7d990; }
+    td.bid, th.bid { background-color: var(--green-soft); color: #bdf3d8; }
+    td.ask, th.ask { background-color: var(--blue-soft); color: #c7dcff; }
+    td.spread, th.spread { background-color: var(--purple-soft); color: #ead4ff; }
+    td.null { color: #506c76; font-style: italic; }
+    .bool { display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; }
+    .bool.true { color: var(--green); background: var(--green-soft); }
+    .bool.false { color: var(--red); background: var(--red-soft); }
+
+    .empty-state { display: grid; place-items: center; min-height: 360px; padding: 42px 20px; text-align: center; }
+    .empty-state[hidden] { display: none; }
+    .empty-icon { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 14px; border: 1px solid var(--line); border-radius: 16px; background: #10232c; color: var(--muted); font-size: 23px; }
+    .empty-state strong { display: block; font-size: 14px; }
+    .empty-state p { max-width: 500px; margin: 7px auto 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .empty-state.error .empty-icon { color: var(--red); border-color: rgba(255,142,152,.35); background: var(--red-soft); }
+
+    .table-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border-top: 1px solid var(--line-soft); color: var(--muted); font-size: 11px; }
+    .page-meta { display: flex; align-items: center; gap: 12px; }
+    .pagination { display: flex; gap: 7px; }
+    .page-button { min-width: 96px; min-height: 34px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; background: #0a1820; color: var(--text); font-weight: 750; cursor: pointer; }
+    .page-button:hover:not(:disabled) { border-color: var(--gold); }
+    .page-button:disabled { opacity: .35; cursor: not-allowed; }
+
+    @media (max-width: 1320px) {
+      .hero { grid-template-columns: 1fr; align-items: start; }
+      .dataset-tabs { width: 100%; }
+      .filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .submit-button { width: 100%; }
+    }
+    @media (max-width: 850px) {
+      .shell { width: min(100% - 20px, 1760px); padding-top: 14px; }
+      .topbar { align-items: flex-start; }
+      .api-link { display: none; }
+      .dataset-tabs { grid-template-columns: 1fr; }
+      .dataset-tab { min-height: 48px; }
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .table-toolbar { align-items: flex-start; flex-direction: column; }
+      .toolbar-actions { width: 100%; justify-content: space-between; }
+      .table-wrap { max-height: 65vh; }
+    }
+    @media (max-width: 520px) {
+      .brand-subtitle { display: none; }
+      .status-pill { max-width: 156px; overflow: hidden; }
+      .status-pill span:last-child { overflow: hidden; text-overflow: ellipsis; }
+      .summary-grid, .filters { grid-template-columns: 1fr; }
+      .summary-card { min-height: 88px; }
+      .page-meta span:last-child { display: none; }
+      .page-button { min-width: 42px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="Navigasi dashboard">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 17V9m5 10V5m5 12V8m5 11V3"/>
+            <path d="m3 14 5-4 5 2 7-7"/>
+          </svg>
+        </div>
+        <div>
+          <p class="brand-title">XAUUSD Data Explorer</p>
+          <p class="brand-subtitle">PostgreSQL read-only workspace</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a class="api-link" href="/docs" target="_blank" rel="noreferrer">API Docs ↗</a>
+        <div class="status-pill" id="statusPill" role="status" aria-live="polite">
+          <i class="status-dot"></i><span id="connectionStatus">Menunggu data</span>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow" id="datasetEyebrow">Unified research view</p>
+        <h1 id="datasetTitle">Gabungan M5</h1>
+        <p class="hero-copy" id="datasetDescription">Native M5 candle dengan agregasi Bid, Ask, serta spread dari tick dalam satu tampilan yang mudah diperiksa.</p>
+      </div>
+      <div class="dataset-tabs" id="datasetTabs" role="tablist" aria-label="Pilih dataset">
+        <button class="dataset-tab active" type="button" data-dataset="processed_m5" role="tab" aria-selected="true"><strong>Gabungan M5</strong><small>Bar + Bid/Ask</small></button>
+        <button class="dataset-tab" type="button" data-dataset="bars" role="tab" aria-selected="false"><strong>Market bars</strong><small>OHLC + volume</small></button>
+        <button class="dataset-tab" type="button" data-dataset="ticks" role="tab" aria-selected="false"><strong>Raw ticks</strong><small>Bid + Ask + last</small></button>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Ringkasan halaman">
+      <article class="summary-card"><span class="summary-label"><i></i>Total sesuai filter</span><strong class="summary-value" id="totalRows">—</strong><small class="summary-note" id="totalNote">Menunggu query</small></article>
+      <article class="summary-card"><span class="summary-label"><i></i>Baris halaman</span><strong class="summary-value" id="visibleRows">—</strong><small class="summary-note" id="visibleNote">Maksimal 50 baris</small></article>
+      <article class="summary-card"><span class="summary-label"><i></i><span id="qualityLabel">Quote tersedia</span></span><strong class="summary-value" id="qualityRows">—</strong><small class="summary-note" id="qualityNote">Pada halaman aktif</small></article>
+      <article class="summary-card"><span class="summary-label"><i></i>Urutan aktif</span><strong class="summary-value" id="sortSummary">DESC</strong><small class="summary-note" id="sortNote">open_time_utc</small></article>
+    </section>
+
+    <section class="panel filter-panel" aria-labelledby="filterTitle">
+      <div class="panel-heading">
+        <div><h2 id="filterTitle">Filter data</h2><p>Semua filter bersifat read-only dan menggunakan waktu UTC.</p></div>
+        <button class="text-button" id="resetFilters" type="button">Reset filter</button>
+      </div>
+      <form class="filters" id="filters">
+        <div class="field"><label for="environment">Environment</label><select class="control" id="environment"><option value="demo" selected>Demo</option><option value="live">Live</option></select></div>
+        <div class="field"><label for="symbol">Actual symbol</label><input class="control" id="symbol" placeholder="XAUUSD"></div>
+        <div class="field"><label for="sourceKey">Source key</label><input class="control" id="sourceKey" placeholder="metaquotes-demo-xauusd"></div>
+        <div class="field"><label for="timeframe">Timeframe</label><select class="control" id="timeframe"><option value="">Semua</option><option value="M5" selected>M5</option><option value="M15">M15</option><option value="H1">H1</option></select></div>
+        <div class="field"><label for="startUtc">Mulai UTC</label><input class="control" id="startUtc" type="datetime-local"></div>
+        <div class="field"><label for="endUtc">Sampai UTC</label><input class="control" id="endUtc" type="datetime-local"></div>
+        <div class="field"><label for="quoteStatus">Status quote</label><select class="control" id="quoteStatus"><option value="all">Semua</option><option value="available">Tersedia</option><option value="missing">Tidak tersedia</option></select></div>
+        <div class="field"><label for="sortDirection">Urutan</label><select class="control" id="sortDirection"><option value="desc">Terbaru ↓</option><option value="asc">Terlama ↑</option></select></div>
+        <div class="field"><label for="limit">Baris</label><select class="control" id="limit"><option>25</option><option selected>50</option><option>100</option><option>200</option></select></div>
+        <button class="submit-button" id="submitButton" type="submit">Tampilkan</button>
+      </form>
+    </section>
+
+    <section class="panel table-panel" aria-labelledby="tableTitle">
+      <div class="table-toolbar">
+        <div class="column-tools" id="groups" aria-label="Kelompok kolom"></div>
+        <div class="toolbar-actions">
+          <select class="small-select" id="autoRefresh" aria-label="Refresh otomatis"><option value="0">Refresh manual</option><option value="30">Setiap 30 detik</option><option value="60">Setiap 1 menit</option><option value="300">Setiap 5 menit</option></select>
+          <button class="secondary-button" id="refresh" type="button">↻ Refresh</button>
+          <button class="secondary-button" id="download" type="button">Unduh CSV</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="dataTable" aria-label="Tabel market data"></table>
+        <div class="empty-state" id="emptyState">
+          <div><div class="empty-icon" id="emptyIcon">⌁</div><strong id="emptyTitle">Memuat data…</strong><p id="emptyMessage">Dashboard sedang membaca PostgreSQL.</p></div>
+        </div>
+      </div>
+      <footer class="table-footer">
+        <div class="page-meta"><span id="pageLabel">—</span><span id="tableTitle">Klik judul kolom untuk mengurutkan.</span></div>
+        <div class="pagination"><button class="page-button" id="previous" type="button">← Sebelumnya</button><button class="page-button" id="next" type="button">Berikutnya →</button></div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    const datasetConfigs = {
+      processed_m5: {
+        eyebrow: "Unified research view",
+        title: "Gabungan M5",
+        description: "Native M5 candle dengan agregasi Bid, Ask, serta spread dari tick dalam satu tampilan yang mudah diperiksa.",
+        qualityLabel: "Quote tersedia",
+        defaultTimeframe: "M5",
+        groups: {
+          "Identitas": ["bar_observation_id", "source_id", "symbol_spec_version_id", "source_key", "broker_name", "server_name", "environment", "dataset_symbol", "actual_symbol", "timeframe"],
+          "Waktu": ["open_time_utc", "close_time_utc", "first_tick_time_utc", "last_tick_time_utc", "bar_ingested_at_utc"],
+          "OHLC": ["open", "high", "low", "close", "tick_volume", "real_volume", "spread_points", "native_spread_price"],
+          "Bid": ["bid_open", "bid_high", "bid_low", "bid_close"],
+          "Ask": ["ask_open", "ask_high", "ask_low", "ask_close"],
+          "Spread": ["spread_open", "spread_high", "spread_low", "spread_close", "spread_mean", "spread_median", "spread_std", "tick_count"],
+          "Audit": ["bar_payload_hash", "bar_quality_status"]
+        },
+        defaults: ["Waktu", "OHLC", "Bid", "Ask", "Spread"]
+      },
+      bars: {
+        eyebrow: "Native broker candles",
+        title: "Market bars",
+        description: "Revision terbaru candle OHLC, tick volume, real volume, dan native spread yang diterima dari broker.",
+        qualityLabel: "Bar valid",
+        defaultTimeframe: "M5",
+        groups: {
+          "Identitas": ["id", "source_id", "symbol_spec_version_id", "source_key", "broker_name", "server_name", "environment", "dataset_symbol", "actual_symbol", "timeframe"],
+          "Waktu": ["open_time_utc", "close_time_utc", "ingested_at_utc"],
+          "OHLC": ["open", "high", "low", "close"],
+          "Volume": ["tick_volume", "real_volume"],
+          "Spread": ["spread_points", "spread_price"],
+          "Audit": ["payload_hash", "quality_status", "revision_rank"]
+        },
+        defaults: ["Waktu", "OHLC", "Volume", "Spread"]
+      },
+      ticks: {
+        eyebrow: "Native tick stream",
+        title: "Raw ticks",
+        description: "Setiap tick yang tersimpan lengkap dengan Bid, Ask, last price, volume, flags, serta status validitas quote.",
+        qualityLabel: "Quote valid",
+        defaultTimeframe: "",
+        groups: {
+          "Identitas": ["id", "source_id", "source_key", "broker_name", "server_name", "environment", "dataset_symbol", "actual_symbol"],
+          "Waktu": ["tick_time_utc", "timestamp_ms", "occurrence", "ingested_at_utc"],
+          "Quote": ["bid", "ask", "last", "spread_price", "is_valid_quote"],
+          "Volume": ["volume", "volume_real"],
+          "Flags": ["flags"],
+          "Audit": ["payload_hash", "quality_status"]
+        },
+        defaults: ["Waktu", "Quote", "Volume"]
+      }
+    };
+
+    const $ = id => document.getElementById(id);
+    const state = {
+      dataset: "processed_m5",
+      page: { columns: [], rows: [], total: 0, limit: 50, offset: 0, sort_by: "open_time_utc", sort_direction: "desc", timestamp_column: "open_time_utc" },
+      enabledGroups: new Set(),
+      loading: false,
+      requestId: 0,
+      refreshTimer: null
+    };
+
+    const numberFormat = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 10 });
+    const integerFormat = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 });
+
+    function activeConfig() { return datasetConfigs[state.dataset]; }
+    function groupFor(column) { return Object.keys(activeConfig().groups).find(name => activeConfig().groups[name].includes(column)) || "Identitas"; }
+    function visibleColumns() { return state.page.columns.filter(column => state.enabledGroups.has(groupFor(column))); }
+    function isTimestamp(column) { return column.endsWith("_utc"); }
+
+    function cssFor(column) {
+      if (column.startsWith("bid")) return "bid";
+      if (column.startsWith("ask")) return "ask";
+      if (column.startsWith("spread") || column === "native_spread_price") return "spread";
+      if (["open", "high", "low", "close", "last"].includes(column)) return "price";
+      if (isTimestamp(column)) return "time";
+      return "";
+    }
+
+    function formatTimestamp(value) {
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return String(value);
+      return parsed.toISOString().replace("T", " ").replace(".000Z", " UTC").replace("Z", " UTC");
+    }
+
+    function displayValue(value, column) {
+      if (value === null || value === undefined) return "—";
+      if (typeof value === "boolean") return value ? "Valid" : "Tidak valid";
+      if (isTimestamp(column)) return formatTimestamp(value);
+      if (typeof value === "number") return numberFormat.format(value);
+      if (typeof value === "object") return JSON.stringify(value);
+      return String(value);
+    }
+
+    function renderGroups() {
+      const root = $("groups");
+      root.replaceChildren();
+      for (const name of Object.keys(activeConfig().groups)) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `group-chip ${state.enabledGroups.has(name) ? "active" : ""}`;
+        button.textContent = name;
+        button.setAttribute("aria-pressed", String(state.enabledGroups.has(name)));
+        button.addEventListener("click", () => {
+          state.enabledGroups.has(name) ? state.enabledGroups.delete(name) : state.enabledGroups.add(name);
+          renderGroups();
+          renderTable();
+        });
+        root.appendChild(button);
+      }
+      const allButton = document.createElement("button");
+      allButton.type = "button";
+      allButton.className = "group-chip";
+      allButton.textContent = "Semua kolom";
+      allButton.addEventListener("click", () => {
+        state.enabledGroups = new Set(Object.keys(activeConfig().groups));
+        renderGroups();
+        renderTable();
+      });
+      root.appendChild(allButton);
+    }
+
+    function setEmpty(title, message, isError = false) {
+      $("dataTable").hidden = true;
+      $("emptyState").hidden = false;
+      $("emptyState").classList.toggle("error", isError);
+      $("emptyIcon").textContent = isError ? "!" : "⌁";
+      $("emptyTitle").textContent = title;
+      $("emptyMessage").textContent = message;
+    }
+
+    function renderTable() {
+      const table = $("dataTable");
+      table.replaceChildren();
+      const columns = visibleColumns();
+      if (!columns.length) {
+        setEmpty("Pilih kelompok kolom", "Aktifkan minimal satu kelompok kolom untuk menampilkan tabel.");
+        return;
+      }
+      if (!state.page.rows.length) {
+        setEmpty("Belum ada data", "Tidak ada baris yang cocok dengan filter ini. Periksa hasil ingestion, symbol, source key, dan rentang UTC.");
+        return;
+      }
+
+      table.hidden = false;
+      $("emptyState").hidden = true;
+      const head = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      for (const column of columns) {
+        const th = document.createElement("th");
+        th.className = cssFor(column);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "sort-button";
+        const active = state.page.sort_by === column;
+        button.innerHTML = `${column}${active ? `<span class="sort-indicator">${state.page.sort_direction === "asc" ? "↑" : "↓"}</span>` : ""}`;
+        button.title = `Urutkan berdasarkan ${column}`;
+        button.addEventListener("click", () => {
+          if (state.page.sort_by === column) {
+            $("sortDirection").value = state.page.sort_direction === "asc" ? "desc" : "asc";
+          }
+          state.page.sort_by = column;
+          state.page.offset = 0;
+          loadData();
+        });
+        th.appendChild(button);
+        headerRow.appendChild(th);
+      }
+      head.appendChild(headerRow);
+      table.appendChild(head);
+
+      const body = document.createElement("tbody");
+      for (const row of state.page.rows) {
+        const tr = document.createElement("tr");
+        for (const column of columns) {
+          const td = document.createElement("td");
+          const value = row[column];
+          td.className = `${cssFor(column)} ${value === null || value === undefined ? "null" : ""}`.trim();
+          td.title = value === null || value === undefined ? "NULL" : String(value);
+          if (typeof value === "boolean") {
+            const badge = document.createElement("span");
+            badge.className = `bool ${value ? "true" : "false"}`;
+            badge.textContent = value ? "● Valid" : "● Tidak valid";
+            td.appendChild(badge);
+          } else {
+            td.textContent = displayValue(value, column);
+          }
+          tr.appendChild(td);
+        }
+        body.appendChild(tr);
+      }
+      table.appendChild(body);
+    }
+
+    function queryParams() {
+      const params = new URLSearchParams({
+        dataset: state.dataset,
+        environment: $("environment").value,
+        limit: $("limit").value,
+        offset: String(state.page.offset),
+        quote_status: $("quoteStatus").value,
+        sort_direction: $("sortDirection").value
+      });
+      if (state.page.sort_by) params.set("sort_by", state.page.sort_by);
+      if ($("symbol").value.trim()) params.set("symbol", $("symbol").value.trim());
+      if ($("sourceKey").value.trim()) params.set("source_key", $("sourceKey").value.trim());
+      if (state.dataset !== "ticks" && $("timeframe").value) params.set("timeframe", $("timeframe").value);
+      if ($("startUtc").value) params.set("start_utc", new Date(`${$("startUtc").value}Z`).toISOString());
+      if ($("endUtc").value) params.set("end_utc", new Date(`${$("endUtc").value}Z`).toISOString());
+      return params;
+    }
+
+    function updateSummary() {
+      $("totalRows").textContent = integerFormat.format(state.page.total);
+      $("visibleRows").textContent = integerFormat.format(state.page.rows.length);
+      $("visibleNote").textContent = `Maksimal ${state.page.limit} baris`;
+      $("sortSummary").textContent = state.page.sort_direction.toUpperCase();
+      $("sortNote").textContent = state.page.sort_by;
+      let quality = 0;
+      if (state.dataset === "processed_m5") quality = state.page.rows.filter(row => row.bid_open !== null && row.ask_open !== null).length;
+      else if (state.dataset === "ticks") quality = state.page.rows.filter(row => row.is_valid_quote === true).length;
+      else quality = state.page.rows.filter(row => row.quality_status === "valid").length;
+      $("qualityRows").textContent = integerFormat.format(quality);
+      const first = state.page.total ? state.page.offset + 1 : 0;
+      const last = Math.min(state.page.offset + state.page.rows.length, state.page.total);
+      $("pageLabel").textContent = `${integerFormat.format(first)}–${integerFormat.format(last)} dari ${integerFormat.format(state.page.total)}`;
+      $("previous").disabled = state.page.offset === 0 || state.loading;
+      $("next").disabled = state.page.offset + state.page.limit >= state.page.total || state.loading;
+    }
+
+    function setStatus(kind, message) {
+      $("statusPill").className = `status-pill ${kind}`;
+      $("connectionStatus").textContent = message;
+    }
+
+    async function loadData() {
+      const requestId = ++state.requestId;
+      state.loading = true;
+      $("submitButton").disabled = true;
+      setStatus("", "Mengambil data…");
+      setEmpty("Memuat data…", "Dashboard sedang membaca PostgreSQL.");
+      try {
+        const response = await fetch(`/api/market-data?${queryParams()}`, { signal: AbortSignal.timeout(60000) });
+        const payload = await response.json();
+        if (requestId !== state.requestId) return;
+        if (!response.ok) throw new Error(payload.detail || "Database tidak dapat dibaca.");
+        state.page = payload;
+        $("sortDirection").value = payload.sort_direction;
+        $("totalNote").textContent = payload.title;
+        updateSummary();
+        renderTable();
+        setStatus("ready", "Database terhubung · read-only");
+        savePreferences();
+      } catch (error) {
+        if (requestId !== state.requestId) return;
+        state.page = { ...state.page, rows: [], total: 0, offset: 0, limit: Number($("limit").value) };
+        $("totalRows").textContent = "—";
+        $("visibleRows").textContent = "—";
+        $("qualityRows").textContent = "—";
+        $("pageLabel").textContent = "—";
+        setStatus("error", "Database belum siap");
+        const message = error.name === "TimeoutError" ? "Database terlalu lama merespons. Periksa PostgreSQL dan GOLD_DASHBOARD_*_DATABASE_URL." : error.message;
+        setEmpty("Data belum dapat ditampilkan", message, true);
+      } finally {
+        if (requestId !== state.requestId) return;
+        state.loading = false;
+        $("submitButton").disabled = false;
+        updateSummary();
+      }
+    }
+
+    function applyDataset(dataset, shouldLoad = true) {
+      state.dataset = dataset;
+      const config = activeConfig();
+      state.page = { columns: [], rows: [], total: 0, limit: Number($("limit").value), offset: 0, sort_by: dataset === "ticks" ? "tick_time_utc" : "open_time_utc", sort_direction: $("sortDirection").value, timestamp_column: dataset === "ticks" ? "tick_time_utc" : "open_time_utc" };
+      state.enabledGroups = new Set(config.defaults);
+      $("datasetEyebrow").textContent = config.eyebrow;
+      $("datasetTitle").textContent = config.title;
+      $("datasetDescription").textContent = config.description;
+      $("qualityLabel").textContent = config.qualityLabel;
+      $("timeframe").disabled = dataset === "ticks";
+      $("timeframe").value = config.defaultTimeframe;
+      $("quoteStatus").disabled = dataset === "bars";
+      $("quoteStatus").value = "all";
+      document.querySelectorAll(".dataset-tab").forEach(tab => {
+        const active = tab.dataset.dataset === dataset;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-selected", String(active));
+      });
+      renderGroups();
+      setEmpty("Memuat data…", "Dashboard sedang membaca PostgreSQL.");
+      if (shouldLoad) loadData();
+    }
+
+    function downloadCsv() {
+      const columns = visibleColumns();
+      if (!columns.length || !state.page.rows.length) return;
+      const escapeCsv = value => `"${String(value ?? "").replaceAll('"', '""')}"`;
+      const lines = [columns.map(escapeCsv).join(","), ...state.page.rows.map(row => columns.map(column => escapeCsv(row[column])).join(","))];
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${state.dataset}_page_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function configureAutoRefresh() {
+      if (state.refreshTimer) window.clearInterval(state.refreshTimer);
+      const seconds = Number($("autoRefresh").value);
+      state.refreshTimer = seconds > 0 ? window.setInterval(loadData, seconds * 1000) : null;
+    }
+
+    function savePreferences() {
+      localStorage.setItem("marketDashboardPreferences", JSON.stringify({
+        dataset: state.dataset,
+        environment: $("environment").value,
+        symbol: $("symbol").value,
+        sourceKey: $("sourceKey").value,
+        limit: $("limit").value
+      }));
+    }
+
+    function loadPreferences() {
+      try {
+        const preferences = JSON.parse(localStorage.getItem("marketDashboardPreferences") || "{}");
+        if (datasetConfigs[preferences.dataset]) state.dataset = preferences.dataset;
+        if (["demo", "live"].includes(preferences.environment)) $("environment").value = preferences.environment;
+        $("symbol").value = preferences.symbol || "";
+        $("sourceKey").value = preferences.sourceKey || "";
+        if (["25", "50", "100", "200"].includes(preferences.limit)) $("limit").value = preferences.limit;
+      } catch (_) { /* Ignore invalid browser-local preferences. */ }
+    }
+
+    document.querySelectorAll(".dataset-tab").forEach(tab => tab.addEventListener("click", () => applyDataset(tab.dataset.dataset)));
+    $("filters").addEventListener("submit", event => { event.preventDefault(); state.page.offset = 0; loadData(); });
+    $("sortDirection").addEventListener("change", () => { state.page.offset = 0; loadData(); });
+    $("previous").addEventListener("click", () => { state.page.offset = Math.max(0, state.page.offset - state.page.limit); loadData(); });
+    $("next").addEventListener("click", () => { state.page.offset += state.page.limit; loadData(); });
+    $("refresh").addEventListener("click", loadData);
+    $("download").addEventListener("click", downloadCsv);
+    $("autoRefresh").addEventListener("change", configureAutoRefresh);
+    $("resetFilters").addEventListener("click", () => {
+      $("environment").value = "demo";
+      $("symbol").value = "";
+      $("sourceKey").value = "";
+      $("startUtc").value = "";
+      $("endUtc").value = "";
+      $("sortDirection").value = "desc";
+      applyDataset(state.dataset);
+    });
+
+    loadPreferences();
+    applyDataset(state.dataset);
+  </script>
+</body>
+</html>

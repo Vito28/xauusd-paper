@@ -1,0 +1,370 @@
+{
+  "source_id": "one-source",
+  "first_bar_utc": "2025-09-01T00:00:00+00:00",
+  "last_bar_utc": "2026-05-08T00:15:00+00:00",
+  "observed_price_change_percent": -0.07963887845465756,
+  "max_observed_drawdown_percent": -2.9601697733814936,
+  "negative_return_sessions": 94,
+  "quality": {
+    "input_bars": 720,
+    "unclosed_bars": 0,
+    "invalid_price_bars": 0,
+    "retained_bars": 720,
+    "gap_transitions": 179,
+    "available_native_returns": 540,
+    "note": "Gap mencakup penutupan pasar; bukan persentase coverage kalender trading."
+  },
+  "years": [
+    {
+      "year": 2025,
+      "sessions": 88,
+      "native_bars": 352,
+      "first_session": "2025-09-01T00:00:00+00:00",
+      "last_session": "2025-12-31T00:00:00+00:00",
+      "within_observed_year_change_percent": -0.1771188900345333,
+      "negative_return_sessions": 45
+    },
+    {
+      "year": 2026,
+      "sessions": 92,
+      "native_bars": 368,
+      "first_session": "2026-01-01T00:00:00+00:00",
+      "last_session": "2026-05-08T00:00:00+00:00",
+      "within_observed_year_change_percent": -0.002209649530249269,
+      "negative_return_sessions": 49
+    }
+  ],
+  "interpretation": "Perubahan berbasis cakupan observasi, bukan return tahun penuh atau hasil strategi. Tahun/bulan terakhir dapat parsial.",
+  "return_model_metrics": [
+    {
+      "split": "walk_forward_1",
+      "model": "zero_return",
+      "train_n": 41,
+      "test_n": 8,
+      "train_target_end": "2025-10-30T00:00:00+00:00",
+      "test_decision_start": "2025-10-31T00:00:00+00:00",
+      "test_target_end": "2025-11-12T00:00:00+00:00",
+      "mae": 0.0015152113461407435,
+      "rmse": 0.00181731794220798
+    },
+    {
+      "split": "walk_forward_1",
+      "model": "last_return",
+      "train_n": 41,
+      "test_n": 8,
+      "train_target_end": "2025-10-30T00:00:00+00:00",
+      "test_decision_start": "2025-10-31T00:00:00+00:00",
+      "test_target_end": "2025-11-12T00:00:00+00:00",
+      "mae": 0.002024704510734221,
+      "rmse": 0.0022990726379635428
+    },
+    {
+      "split": "walk_forward_1",
+      "model": "UNI",
+      "train_n": 41,
+      "test_n": 8,
+      "train_target_end": "2025-10-30T00:00:00+00:00",
+      "test_decision_start": "2025-10-31T00:00:00+00:00",
+      "test_target_end": "2025-11-12T00:00:00+00:00",
+      "mae": 0.0017604396205902068,
+      "rmse": 0.002098460694564996
+    },
+    {
+      "split": "walk_forward_1",
+      "model": "BI",
+      "train_n": 41,
+      "test_n": 8,
+      "train_target_end": "2025-10-30T00:00:00+00:00",
+      "test_decision_start": "2025-10-31T00:00:00+00:00",
+      "test_target_end": "2025-11-12T00:00:00+00:00",
+      "mae": 0.001527623644942216,
+      "rmse": 0.0017165908834384878
+    },
+    {
+      "split": "walk_forward_1",
+      "model": "MULTI",
+      "train_n": 41,
+      "test_n": 8,
+      "train_target_end": "2025-10-30T00:00:00+00:00",
+      "test_decision_start": "2025-10-31T00:00:00+00:00",
+      "test_target_end": "2025-11-12T00:00:00+00:00",
+      "mae": 0.001614653898785499,
+      "rmse": 0.0018405575239817222
+    },
+    {
+      "split": "walk_forward_2",
+      "model": "zero_return",
+      "train_n": 49,
+      "test_n": 9,
+      "train_target_end": "2025-11-11T00:00:00+00:00",
+      "test_decision_start": "2025-11-12T00:00:00+00:00",
+      "test_target_end": "2025-11-25T00:00:00+00:00",
+      "mae": 0.0015319402111835245,
+      "rmse": 0.0017408282559600403
+    },
+    {
+      "split": "walk_forward_2",
+      "model": "last_return",
+      "train_n": 49,
+      "test_n": 9,
+      "train_target_end": "2025-11-11T00:00:00+00:00",
+      "test_decision_start": "2025-11-12T00:00:00+00:00",
+      "test_target_end": "2025-11-25T00:00:00+00:00",
+      "mae": 0.0015822177253963015,
+      "rmse": 0.0020854251017975297
+    },
+    {
+      "split": "walk_forward_2",
+      "model": "UNI",
+      "train_n": 49,
+      "test_n": 9,
+      "train_target_end": "2025-11-11T00:00:00+00:00",
+      "test_decision_start": "2025-11-12T00:00:00+00:00",
+      "test_target_end": "2025-11-25T00:00:00+00:00",
+      "mae": 0.0014849940811400705,
+      "rmse": 0.001685116991981383
+    },
+    {
+      "split": "walk_forward_2",
+      "model": "BI",
+      "train_n": 49,
+      "test_n": 9,
+      "train_target_end": "2025-11-11T00:00:00+00:00",
+      "test_decision_start": "2025-11-12T00:00:00+00:00",
+      "test_target_end": "2025-11-25T00:00:00+00:00",
+      "mae": 0.0014230517809087867,
+      "rmse": 0.001555342465607908
+    },
+    {
+      "split": "walk_forward_2",
+      "model": "MULTI",
+      "train_n": 49,
+      "test_n": 9,
+      "train_target_end": "2025-11-11T00:00:00+00:00",
+      "test_decision_start": "2025-11-12T00:00:00+00:00",
+      "test_target_end": "2025-11-25T00:00:00+00:00",
+      "mae": 0.0015813258241806829,
+      "rmse": 0.001765307232172112
+    },
+    {
+      "split": "walk_forward_3",
+      "model": "zero_return",
+      "train_n": 58,
+      "test_n": 8,
+      "train_target_end": "2025-11-22T00:00:00+00:00",
+      "test_decision_start": "2025-11-25T00:00:00+00:00",
+      "test_target_end": "2025-12-05T00:00:00+00:00",
+      "mae": 0.002192113697853104,
+      "rmse": 0.0028528839225806747
+    },
+    {
+      "split": "walk_forward_3",
+      "model": "last_return",
+      "train_n": 58,
+      "test_n": 8,
+      "train_target_end": "2025-11-22T00:00:00+00:00",
+      "test_decision_start": "2025-11-25T00:00:00+00:00",
+      "test_target_end": "2025-12-05T00:00:00+00:00",
+      "mae": 0.0031703060239327563,
+      "rmse": 0.003774980135903049
+    },
+    {
+      "split": "walk_forward_3",
+      "model": "UNI",
+      "train_n": 58,
+      "test_n": 8,
+      "train_target_end": "2025-11-22T00:00:00+00:00",
+      "test_decision_start": "2025-11-25T00:00:00+00:00",
+      "test_target_end": "2025-12-05T00:00:00+00:00",
+      "mae": 0.002200900731484748,
+      "rmse": 0.002850507653030081
+    },
+    {
+      "split": "walk_forward_3",
+      "model": "BI",
+      "train_n": 58,
+      "test_n": 8,
+      "train_target_end": "2025-11-22T00:00:00+00:00",
+      "test_decision_start": "2025-11-25T00:00:00+00:00",
+      "test_target_end": "2025-12-05T00:00:00+00:00",
+      "mae": 0.0020877247541009375,
+      "rmse": 0.0027918526910055714
+    },
+    {
+      "split": "walk_forward_3",
+      "model": "MULTI",
+      "train_n": 58,
+      "test_n": 8,
+      "train_target_end": "2025-11-22T00:00:00+00:00",
+      "test_decision_start": "2025-11-25T00:00:00+00:00",
+      "test_target_end": "2025-12-05T00:00:00+00:00",
+      "mae": 0.002057839816172541,
+      "rmse": 0.002844560877094196
+    },
+    {
+      "split": "walk_forward_4",
+      "model": "zero_return",
+      "train_n": 66,
+      "test_n": 9,
+      "train_target_end": "2025-12-04T00:00:00+00:00",
+      "test_decision_start": "2025-12-05T00:00:00+00:00",
+      "test_target_end": "2025-12-18T00:00:00+00:00",
+      "mae": 0.0015799797622484649,
+      "rmse": 0.001911562929777405
+    },
+    {
+      "split": "walk_forward_4",
+      "model": "last_return",
+      "train_n": 66,
+      "test_n": 9,
+      "train_target_end": "2025-12-04T00:00:00+00:00",
+      "test_decision_start": "2025-12-05T00:00:00+00:00",
+      "test_target_end": "2025-12-18T00:00:00+00:00",
+      "mae": 0.0028314570436462658,
+      "rmse": 0.003324601085065262
+    },
+    {
+      "split": "walk_forward_4",
+      "model": "UNI",
+      "train_n": 66,
+      "test_n": 9,
+      "train_target_end": "2025-12-04T00:00:00+00:00",
+      "test_decision_start": "2025-12-05T00:00:00+00:00",
+      "test_target_end": "2025-12-18T00:00:00+00:00",
+      "mae": 0.0016518617580964098,
+      "rmse": 0.0020608967024385223
+    },
+    {
+      "split": "walk_forward_4",
+      "model": "BI",
+      "train_n": 66,
+      "test_n": 9,
+      "train_target_end": "2025-12-04T00:00:00+00:00",
+      "test_decision_start": "2025-12-05T00:00:00+00:00",
+      "test_target_end": "2025-12-18T00:00:00+00:00",
+      "mae": 0.0017009739531074109,
+      "rmse": 0.001975500089613204
+    },
+    {
+      "split": "walk_forward_4",
+      "model": "MULTI",
+      "train_n": 66,
+      "test_n": 9,
+      "train_target_end": "2025-12-04T00:00:00+00:00",
+      "test_decision_start": "2025-12-05T00:00:00+00:00",
+      "test_target_end": "2025-12-18T00:00:00+00:00",
+      "mae": 0.0017037122079503542,
+      "rmse": 0.0019665955832116047
+    },
+    {
+      "split": "walk_forward_5",
+      "model": "zero_return",
+      "train_n": 75,
+      "test_n": 9,
+      "train_target_end": "2025-12-17T00:00:00+00:00",
+      "test_decision_start": "2025-12-18T00:00:00+00:00",
+      "test_target_end": "2025-12-31T00:00:00+00:00",
+      "mae": 0.0017356968907198895,
+      "rmse": 0.0020638560707208404
+    },
+    {
+      "split": "walk_forward_5",
+      "model": "last_return",
+      "train_n": 75,
+      "test_n": 9,
+      "train_target_end": "2025-12-17T00:00:00+00:00",
+      "test_decision_start": "2025-12-18T00:00:00+00:00",
+      "test_target_end": "2025-12-31T00:00:00+00:00",
+      "mae": 0.0027077554727990005,
+      "rmse": 0.0033075781651207207
+    },
+    {
+      "split": "walk_forward_5",
+      "model": "UNI",
+      "train_n": 75,
+      "test_n": 9,
+      "train_target_end": "2025-12-17T00:00:00+00:00",
+      "test_decision_start": "2025-12-18T00:00:00+00:00",
+      "test_target_end": "2025-12-31T00:00:00+00:00",
+      "mae": 0.0017483742833707047,
+      "rmse": 0.002097611855818756
+    },
+    {
+      "split": "walk_forward_5",
+      "model": "BI",
+      "train_n": 75,
+      "test_n": 9,
+      "train_target_end": "2025-12-17T00:00:00+00:00",
+      "test_decision_start": "2025-12-18T00:00:00+00:00",
+      "test_target_end": "2025-12-31T00:00:00+00:00",
+      "mae": 0.0018809702256646261,
+      "rmse": 0.0022680973377171274
+    },
+    {
+      "split": "walk_forward_5",
+      "model": "MULTI",
+      "train_n": 75,
+      "test_n": 9,
+      "train_target_end": "2025-12-17T00:00:00+00:00",
+      "test_decision_start": "2025-12-18T00:00:00+00:00",
+      "test_target_end": "2025-12-31T00:00:00+00:00",
+      "mae": 0.0020656397120177254,
+      "rmse": 0.0022880720976788116
+    },
+    {
+      "split": "holdout",
+      "model": "zero_return",
+      "train_n": 85,
+      "test_n": 91,
+      "train_target_end": "2025-12-31T00:00:00+00:00",
+      "test_decision_start": "2026-01-01T00:00:00+00:00",
+      "test_target_end": "2026-05-08T00:00:00+00:00",
+      "mae": 0.001463607698752086,
+      "rmse": 0.0018832852826629626
+    },
+    {
+      "split": "holdout",
+      "model": "last_return",
+      "train_n": 85,
+      "test_n": 91,
+      "train_target_end": "2025-12-31T00:00:00+00:00",
+      "test_decision_start": "2026-01-01T00:00:00+00:00",
+      "test_target_end": "2026-05-08T00:00:00+00:00",
+      "mae": 0.0020481330422501528,
+      "rmse": 0.0025656541822046412
+    },
+    {
+      "split": "holdout",
+      "model": "UNI",
+      "train_n": 85,
+      "test_n": 91,
+      "train_target_end": "2025-12-31T00:00:00+00:00",
+      "test_decision_start": "2026-01-01T00:00:00+00:00",
+      "test_target_end": "2026-05-08T00:00:00+00:00",
+      "mae": 0.0014661665197619922,
+      "rmse": 0.0018855170788291248
+    },
+    {
+      "split": "holdout",
+      "model": "BI",
+      "train_n": 85,
+      "test_n": 91,
+      "train_target_end": "2025-12-31T00:00:00+00:00",
+      "test_decision_start": "2026-01-01T00:00:00+00:00",
+      "test_target_end": "2026-05-08T00:00:00+00:00",
+      "mae": 0.0016631183556395914,
+      "rmse": 0.00215662834802333
+    },
+    {
+      "split": "holdout",
+      "model": "MULTI",
+      "train_n": 85,
+      "test_n": 91,
+      "train_target_end": "2025-12-31T00:00:00+00:00",
+      "test_decision_start": "2026-01-01T00:00:00+00:00",
+      "test_target_end": "2026-05-08T00:00:00+00:00",
+      "mae": 0.0017304750108594665,
+      "rmse": 0.002224875362518312
+    }
+  ]
+}

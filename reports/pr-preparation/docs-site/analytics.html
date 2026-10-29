@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Vito28" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Analytics dan Time Series - XAUUSD Market Data Collector</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Analytics dan Time Series";
+        var mkdocs_page_input_path = "analytics.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="index.html" class="icon icon-home"> XAUUSD Market Data Collector
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="index.html">Beranda</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Panduan Cepat</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Dashboard Data</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Analytics dan Time Series</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#analisis-sebelum-memilih-model">Analisis sebelum memilih model</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pengelolaan-data">Pengelolaan data</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#grafik-dan-insight">Grafik dan insight</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#model-uni-bi-dan-multi">Model UNI, BI dan MULTI</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pemakaian">Pemakaian</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#referensi-paper-dan-keputusan-penerapan">Referensi paper dan keputusan penerapan</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="architecture.html">Arsitektur</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="data-flow.html">Alur Data</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tooling</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/uv.html">uv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tooling/docker.html">Docker</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="reference/code-reference.html">Referensi Kode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="market-collector.html">Spesifikasi Awal</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XAUUSD Market Data Collector</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Analytics dan Time Series</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="analytics-data-dan-analisis-dalam-dua-file">Analytics: data dan analisis dalam dua file<a class="headerlink" href="#analytics-data-dan-analisis-dalam-dua-file" title="Permanent link">&para;</a></h1>
+<p><code>data.py</code> memuat query PostgreSQL read-only, pemeriksaan provenance/UTC,
+persiapan candle native, return yang memperhatikan gap, dan agregasi harian.
+<code>analytics.py</code> memuat grafik, model UNI/BI/MULTI, evaluasi model beku,
+eksperimen forecast XGBoost lama, serta satu CLI. Keduanya memakai pemisah
+<code># %%</code> seperti sel notebook. Import tidak menjalankan query atau training.</p>
+<h2 id="analisis-sebelum-memilih-model">Analisis sebelum memilih model<a class="headerlink" href="#analisis-sebelum-memilih-model" title="Permanent link">&para;</a></h2>
+<p>Harga yang lebih tinggi pada akhir 2016–2026 tidak berarti selalu naik.
+Pisahkan pertanyaan tren harga, distribusi perubahan, risiko penurunan, dan
+kemampuan memprediksi perubahan berikutnya. Level harga membantu membaca
+tren; log return <code>ln(close_t / close_t-1)</code> membuat perubahan antarperiode
+lebih mudah dibandingkan pada skala harga berbeda. Transformasi ini belum
+membuktikan stationarity: lihat perubahan distribusi/volatilitas dan ACF;
+uji ADF/KPSS dapat menjadi tahap penelitian berikutnya jika diperlukan.
+Penjelasan metodologinya tersedia di
+<a href="https://otexts.com/fpp3/stationarity.html">Forecasting: Principles and Practice</a>.</p>
+<p>Database yang diperiksa berisi satu source <code>metaquotes-demo-xauusd</code>, XAUUSD M5,
+dengan observasi hingga 30 September 2026. Cakupan akhir ini perlu diperiksa
+lagi pada setiap run; tahun 2026 dan tanggal terakhir belum bisa dianggap
+periode penuh. Hasil numerik run tersedia dalam <code>insights.json</code>, termasuk
+jumlah sesi turun, perubahan harga, maksimum drawdown, audit kualitas, jumlah
+observasi per tahun, serta metrik model jika diminta.</p>
+<h2 id="pengelolaan-data">Pengelolaan data<a class="headerlink" href="#pengelolaan-data" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Baca <code>market.bar_latest</code> untuk satu source, actual symbol, dan timeframe.
+   Query membatasi <code>[start, end)</code> dengan parameter terikat. Jangan gabungkan
+   broker/demo/live tanpa rancangan harmonisasi yang eksplisit.</li>
+<li>Wajibkan timezone; normalisasikan ke UTC dan urutkan. Tolak identitas
+   campuran serta timestamp duplikat. Timestamp naive tidak diasumsikan UTC.</li>
+<li>Gunakan candle yang sudah tertutup. Harga nonpositive/nonfinite atau
+   OHLC tidak konsisten menjadi <code>NaN</code> pada salinan analisis dan dihitung
+   dalam audit. Volume/spread negatif tidak dipakai. Data sumber tetap utuh.</li>
+<li>Return native M5 hanya dihitung ketika pasangan candle berjarak tepat
+   lima menit. Perubahan melintasi weekend, jeda sesi, atau gap tidak
+   dianggap return satu candle. Gap belum tentu data hilang; coverage yang
+   benar membutuhkan kalender trading broker dan requested partitions.</li>
+<li>Agregasi harian memakai tanggal open candle UTC dan close candle terakhir
+   yang terobservasi. Tidak ada interpolasi, forward-fill atau bar buatan.
+   Ini ringkasan sesi UTC, bukan klaim daily candle resmi broker. Return
+   harian membandingkan dua sesi terobservasi, termasuk jeda hingga empat
+   hari kalender; jeda lebih panjang membatalkan return. Hari dengan harga
+   terakhir invalid tetap memiliki close <code>NaN</code>.</li>
+<li>Nilai awal rolling window tetap missing. Volatilitas rolling memakai
+   20 return sesi terobservasi, tanpa annualisasi asumsi 252 hari. Realized
+   volatility hanya memakai return native yang tersedia dan disertai counts.
+   Tick volume menunjukkan aktivitas broker; <code>real_volume</code> nol tidak
+   diinterpretasikan sebagai total volume pasar emas.</li>
+<li>Heatmap return bulanan memakai close bulan sebelumnya, sehingga bulan
+   pertama tanpa anchor tetap kosong. Bulan tanpa data tidak diisi. Nilai
+   akhir bulan/tahun parsial harus dibaca bersama batas akhir observasi.</li>
+<li>Simpan hanya artifact turunan PNG/JSON/HTML. Seluruh transformasi memakai
+   salinan DataFrame dan tidak memperbarui database.</li>
+</ol>
+<h2 id="grafik-dan-insight">Grafik dan insight<a class="headerlink" href="#grafik-dan-insight" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Grafik</th>
+<th>Pertanyaan yang dijawab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UNI</td>
+<td>Harga, indeks awal 100 dengan skala log, drawdown</td>
+<td>Seberapa besar kenaikan relatif dan penurunan dari puncak?</td>
+</tr>
+<tr>
+<td>UNI</td>
+<td>Return dan volatilitas rolling</td>
+<td>Kapan fluktuasi menguat atau melemah?</td>
+</tr>
+<tr>
+<td>UNI</td>
+<td>Heatmap return bulanan</td>
+<td>Bulan/tahun mana turun atau naik; mana belum tersedia?</td>
+</tr>
+<tr>
+<td>UNI</td>
+<td>Boxplot return per tahun + jumlah sampel</td>
+<td>Apakah distribusi dan outlier berubah antarperiode?</td>
+</tr>
+<tr>
+<td>UNI</td>
+<td>ACF return dan absolute return</td>
+<td>Apakah ada dependensi lag atau volatility clustering?</td>
+</tr>
+<tr>
+<td>BI</td>
+<td>Hexbin aktivitas tick/spread relatif vs absolute return</td>
+<td>Apakah gerakan besar berasosiasi dengan aktivitas/biaya spread?</td>
+</tr>
+<tr>
+<td>MULTI</td>
+<td>Spearman fitur relatif + jumlah pasangan</td>
+<td>Variabel mana berasosiasi atau redundan?</td>
+</tr>
+<tr>
+<td>DATA</td>
+<td>Heatmap jumlah candle per bulan</td>
+<td>Periode mana perlu pemeriksaan cakupan?</td>
+</tr>
+<tr>
+<td>MODEL</td>
+<td>RMSE tiap fold dan holdout</td>
+<td>Apakah model memberi perbaikan dibanding baseline sederhana?</td>
+</tr>
+</tbody>
+</table>
+<p>Korelasi bersifat deskriptif, bukan bukti kausal atau kualitas prediksi.
+Korelasi OHLC mentah bisa didominasi tren dan skala; default analisis BI/MULTI
+memakai return, range relatif, spread relatif, dan aktivitas tick.
+Grafik tidak melakukan clipping outlier. ACF memakai lag observasi sesi,
+bukan hari kalender, tanpa klaim signifikansi atau stationarity.</p>
+<h2 id="model-uni-bi-dan-multi">Model UNI, BI dan MULTI<a class="headerlink" href="#model-uni-bi-dan-multi" title="Permanent link">&para;</a></h2>
+<p>Model memprediksi <strong>log return sesi terobservasi berikutnya</strong> setelah akhir
+sesi saat ini, menggunakan Ridge <code>alpha=1</code> yang tetap:</p>
+<ul>
+<li>UNI: return saat ini.</li>
+<li>BI: return dan rata-rata <code>(high-low)/close</code> sesi saat ini.</li>
+<li>MULTI: fitur BI + rata-rata <code>spread_price/close</code> + <code>log1p(total tick_volume)</code>.</li>
+<li>Baseline: prediksi nol return dan prediksi sama dengan return terakhir.</li>
+</ul>
+<p>Semua model memakai complete-case sample yang sama agar perbandingannya adil.
+Lima fold expanding window dibentuk pada periode sebelum 2026. Label yang
+mencapai waktu keputusan test dibuang dari training. StandardScaler di-fit
+hanya pada training setiap fold. Tidak ada shuffle atau tuning menggunakan
+test. Model akhir di-fit dengan label yang waktunya <strong>sebelum</strong> 1 Januari 2026.
+Holdout menerima fitur yang sudah tersedia pada akhir sesi saat itu;
+prediksi bersifat satu sesi ke depan, bukan recursive satu tahun.
+Tanggal terakhir yang terobservasi dikeluarkan secara konservatif dari model
+karena ingestion bisa belum mencakup satu sesi UTC penuh. Plot tetap
+menampilkannya. Periksa counts/calendar sebelum memperlakukan sesi lain
+sebagai lengkap; row count sendiri belum membuktikan kelengkapan.</p>
+<p>MAE/RMSE dihitung pada return, tanpa MAPE yang bermasalah pada return sekitar
+nol. Model lebih kompleks belum tentu lebih baik: bandingkan tiap fold dan
+holdout dengan baseline. Metrik ini belum mencakup spread transaksi, slippage,
+atau profit strategi. Model pada modul analytics menggunakan agregat harian;
+metriknya mengikuti target dan horizon harian tersebut.</p>
+<p>Eksperimen recursive XGBoost harga lama tersedia pada mode <code>forecast</code> dengan
+pemisahan pre-2026 dan actual 2026 yang sama. Regresi pohon pada level harga
+dan horizon recursive panjang perlu diperiksa dengan baseline/residual;
+kenaikan historis sendiri tidak menjamin kemampuan extrapolation.</p>
+<h2 id="pemakaian">Pemakaian<a class="headerlink" href="#pemakaian" title="Permanent link">&para;</a></h2>
+<pre><code class="language-powershell">uv run python -B -m analytics.analytics time-series `
+  --source-id 654c1aa6-b15d-4135-99b9-145e16b2b899 `
+  --symbol XAUUSD --timeframe M5 `
+  --start 2016-01-01T00:00:00Z `
+  --end 2026-10-01T00:00:00Z `
+  --include-models
+</code></pre>
+<p>Output default berada di
+<code>reports/analytics/time_series/&lt;source-id&gt;/&lt;timeframe&gt;/</code>.
+<code>--output-dir</code> memilih direktori lain; <code>--watch-seconds 60</code> memperbarui
+artifact dengan query baru. Model tambahan hanya dijalankan jika memakai
+<code>--include-models</code>; tanpa flag tersebut tersedia delapan PNG + insights JSON.</p>
+<p>Mode lain: <code>univariate</code>, <code>bivariate</code>, <code>multivariate</code>, <code>feature-eda</code>,
+<code>evaluate</code>, <code>forecast</code>. Gunakan <code>--help</code> pada masing-masing mode.
+Sepuluh plot univariat lama tetap tersedia. <code>feature-eda</code> dan <code>evaluate</code>
+masih membutuhkan tabel feature/model yang belum dibuat migration collector;
+model return baru langsung menggunakan native bars sehingga tidak bergantung
+pada tabel tersebut. Pemanggilan forecast lama yang langsung memakai flags
+masih diterima CLI. Import lama dari modul EDA/evaluation perlu diarahkan ke
+<code>analytics.analytics</code>; kedua file lama telah digabung.</p>
+<h2 id="referensi-paper-dan-keputusan-penerapan">Referensi paper dan keputusan penerapan<a class="headerlink" href="#referensi-paper-dan-keputusan-penerapan" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Paper</th>
+<th>Yang relevan</th>
+<th>Batas penerapan di proyek</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://academic.oup.com/jcde/article/10/3/1110/7148134">JCDE 2023</a></td>
+<td>Indikator teknikal dan seleksi fitur untuk sinyal</td>
+<td>Bukan alasan memakai semua indikator tanpa validasi; seleksi technical tetap hanya fit training.</td>
+</tr>
+<tr>
+<td><a href="https://www.mdpi.com/1911-8074/14/5/198">Sadorsky 2021</a></td>
+<td>Klasifikasi arah harga dengan tree-based models</td>
+<td>ETF emas/perak dan horizon paper berbeda dari native XAUUSD M5; akurasi paper tidak dipindahkan ke proyek.</td>
+</tr>
+<tr>
+<td><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0298426">Amini &amp; Kalantari 2024</a></td>
+<td>Forecast daily close CNN-Bi-LSTM dengan evaluasi error</td>
+<td>Dataset historis dan target berbeda; studi ini menjadi referensi pembandingan, belum implementasi deep learning.</td>
+</tr>
+<tr>
+<td><a href="https://www.mdpi.com/2227-7072/13/2/102">Taneva-Angelova dkk. 2025</a></td>
+<td>Penggabungan finansial, ekonomi dan sentimen untuk forecast multivariat</td>
+<td>Fitur eksternal belum tersedia di database; perlu sumber, release timestamp dan as-of join sebelum digunakan.</td>
+</tr>
+<tr>
+<td><a href="https://ejournal.undip.ac.id/index.php/jmasif/article/view/78091/0">Arif dkk., JMASIF</a></td>
+<td>Multivariate intraday LSTM dengan rolling time-series validation</td>
+<td>Ambil prinsip validasi waktu; scaler tetap fit training saja dan H1 paper tidak disamakan dengan M5 proyek.</td>
+</tr>
+</tbody>
+</table>
+<p>Tahap ini menerapkan pengelolaan data, grafik, baseline dan model return
+yang transparan terlebih dahulu. Pemilihan model lanjutan harus didasarkan
+pada hasil validasi di data proyek, bukan menyalin skor atau model terbaik
+dari paper dengan dataset/target berbeda.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="dashboard.html" class="btn btn-neutral float-left" title="Dashboard Data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="architecture.html" class="btn btn-neutral float-right" title="Arsitektur">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="dashboard.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="architecture.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
