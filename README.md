@@ -1,397 +1,443 @@
-# XAUUSD Market Data Collector
+# Technical Agent XAUUSD — Klasifikasi Selektif BUY / SELL / NO_TRADE
 
-Platform Python 3.12+ untuk mengambil native OHLC bar dan historical tick
-XAUUSD/GOLD dari API resmi MetaTrader 5, memvalidasinya, lalu menyimpannya ke
-PostgreSQL 16+. Lapisan collector menangani **data acquisition** untuk riset.
-Modul analytics menyediakan EDA, analisis time series, dan eksperimen forecast
-melalui pembacaan data secara read-only. Dashboard FastAPI menampilkan dataset
-tanpa menjalankan terminal MT5 atau mengubah data sumber.
+Repository ini berisi dua bagian:
 
-## Arsitektur
+1. **Data acquisition** (`market/`, `database/`): collector MetaTrader 5 yang
+   menyimpan candle dan tick XAUUSD ke PostgreSQL secara read-only dan dapat diaudit.
+2. **Technical Agent** (`technical/`): pipeline penelitian Machine Learning yang
+   membaca candle M5 dan mengeluarkan keputusan **BUY**, **SELL**, atau **NO_TRADE**,
+   dengan XGBoost resmi dan XGBoost yang diimplementasikan dari nol (NumPy).
+
+Technical Agent nantinya menjadi salah satu komponen sistem Multi-Agent Trading
+bersama Fundamental Agent berbasis LLM. Agent lain **belum** dibuat pada tahap ini.
+
+> **Status penelitian (29 Oktober 2026).** Pipeline, unit test, dan dokumentasi
+> sudah diimplementasikan dan diverifikasi pada data sintetis. Eksperimen pada
+> data XAUUSD riil dengan pipeline baru **belum dijalankan**, sehingga README ini
+> tidak memuat angka performa model. Semua alasan, rumus, sumber, dan status bukti
+> ada di [`SOURCE_OF_TRUTH.md`](SOURCE_OF_TRUTH.md) (selanjutnya disingkat **SoT**).
+
+---
+
+## 1. Latar belakang dan permasalahan
+
+Emas (XAUUSD) adalah aset yang banyak diperdagangkan dan berperan sebagai
+lindung nilai serta *safe haven* [29], [30]. Pada timeframe intraday, pergerakan
+harga emas bercampur dengan noise mikrostruktur, spread, dan pola volatilitas
+yang bergantung pada jam perdagangan [18], [21]. Akibatnya:
+
+- sebagian besar gerakan 5–30 menit terlalu kecil untuk ditransaksikan setelah biaya;
+- model yang dipaksa memprediksi arah di **setiap** candle cenderung mendekati tebakan acak;
+- metrik *accuracy* menyesatkan bila satu kelas mendominasi [28].
+
+Penelitian emas berbasis ML yang ditemukan kebanyakan memakai data harian,
+split acak, atau regresi level harga [4], [34], [35]. Studi klasifikasi arah
+intraday yang **selektif** (boleh abstain), **memperhitungkan spread**, dan
+divalidasi secara **walk-forward dengan purging** masih jarang; rujukan
+terdekat adalah studi selective classification pada futures emas [37].
+Analisis research gap lengkap ada di SoT bagian C.
+
+## 2. Tujuan Technical Agent
+
+1. Mengeluarkan BUY/SELL **hanya** ketika model cukup yakin; NO_TRADE boleh menjadi keputusan paling sering.
+2. Mengutamakan **precision** sinyal BUY dan SELL, dengan **F1-score** sebagai penyeimbang precision–recall.
+3. Menjaga metodologi yang valid: tanpa data leakage, tanpa memakai data 2026 untuk tuning.
+4. Menyediakan output terstruktur yang dapat diaudit untuk integrasi multi-agent.
+5. Membandingkan XGBoost resmi dengan implementasi from scratch berbasis rumus matematis.
+
+## 3. Mengapa Machine Learning
+
+Hubungan antara indikator teknikal dan pergerakan harga bersifat nonlinier,
+berubah antarperiode, dan saling berinteraksi (mis. momentum hanya berarti pada
+volatilitas tertentu). Model berbasis pohon seperti XGBoost dapat menangkap
+interaksi tersebut tanpa spesifikasi manual dan tetap kuat pada data tabular
+[1], [5], [7], [8]. Model ini juga menghasilkan probabilitas per kelas yang dapat
+dikalibrasi dan dipakai untuk keputusan abstain [11], [13], [15].
+Keputusan tidak memakai LSTM/GRU pada tahap ini dijelaskan di SoT D-05.
+
+## 4. Dataset historis XAUUSD
+
+| Atribut | Nilai |
+|---|---|
+| Sumber | MetaTrader 5, server MetaQuotes-Demo (akun demo) |
+| Penyimpanan | PostgreSQL, view `market.processed_m5` |
+| Timeframe | M5 native (M15 dan H1 juga dikumpulkan; M1 belum) |
+| Rentang | Januari 2016 – September 2026 (sekitar 754 ribu candle M5 valid menurut audit pipeline lama) |
+| Kolom | OHLC, tick volume, spread native, statistik spread dari tick |
+| Timezone | UTC |
+
+Data pengembangan dibatasi sampai **31 Desember 2025**. Data tahun 2026 hanya
+untuk pengujian. Provenance, jumlah gap, dan angka mana yang belum diverifikasi
+ulang ada di SoT bagian B. Spread akun demo belum tentu sama dengan akun live (SoT A-09).
+
+## 5. Pemilihan timeframe
+
+**M5 dipakai sebagai timeframe utama** (SoT D-01):
+
+- **M1** lebih bising dan spread relatif terhadap gerak per bar lebih besar.
+  Literatur realized volatility menunjukkan bahwa ketika noise mikrostruktur ada,
+  sampling paling sering tidak otomatis lebih baik, dan return 5 menit lazim dipakai [18], [19], [20].
+  Data M1 juga belum dikumpulkan. M1 direncanakan sebagai eksperimen ablation terpisah.
+- **M15** mengurangi jumlah sampel empat kali lipat tanpa alasan kuat.
+- Konteks jangka lebih panjang tetap tersedia lewat fitur M5 berjendela panjang
+  (mis. EMA 288 bar = 24 jam), sehingga tidak ada look-ahead dari resampling.
+
+Bukti literatur di atas bersifat tidak langsung (studi volatilitas, bukan
+klasifikasi arah); karena itu pemilihan M5 berstatus *design decision*.
+
+## 6. Pemilihan variabel dan indikator
+
+Pipeline lama memiliki 223 kandidat fitur yang banyak redundan. Pipeline baru
+memakai **41 fitur dalam 7 kelompok**:
+
+| Kelompok | Contoh fitur | Alasan |
+|---|---|---|
+| price_action | log return 1/3/6/12 bar, body/range candle dibagi ATR | momentum jangka sangat pendek |
+| trend | jarak close ke EMA 12/48/288 (÷ATR), ADX 14, +DI−−DI | arah dan kekuatan trend |
+| momentum | RSI 14, histogram MACD (12,26,9) ÷ATR, stochastic 14, posisi Donchian 48 | jenuh beli/jual, perubahan momentum |
+| volatility | ATR/close, ATR vs rata-rata 24 jam, realized vol, Bollinger (20,2) | rezim volatilitas |
+| volume | z-score log tick volume, rasio tick volume | aktivitas pasar |
+| spread | spread/ATR, z-score spread | biaya dan likuiditas |
+| time | jam (sin/cos), hari, sesi Asia/London/New York, overlap, candle sejak gap | pola intraday [21] |
+
+Periode indikator (RSI/ATR/ADX 14, MACD 12/26/9, Bollinger 20/2) adalah
+**konvensi** dari sumber aslinya [25]–[27], bukan nilai yang terbukti optimal.
+Definisi, rumus, dan risiko leakage setiap fitur ada di SoT bagian D.
+Kontribusi setiap kelompok akan diukur lewat ablation (belum dijalankan).
+
+## 7. Preprocessing dan feature engineering
+
+Preprocessing (`technical/data.py`):
+
+1. Tolak OHLC tidak valid dan timestamp di luar grid 5 menit.
+2. Hapus duplikat timestamp (pertahankan observasi terakhir).
+3. Pilih spread: native bar, atau rata-rata spread tick pada candle yang sama.
+4. Tandai gap (`gap_before`). Harga **tidak pernah** diisi atau diinterpolasi.
+
+Feature engineering (`technical/features.py`):
+
+- Fitur di baris *t* hanya memakai candle *t* dan sebelumnya (`rolling`, `ewm`, `shift(+n)`).
+  Hal ini diuji otomatis: mengubah candle masa depan tidak mengubah fitur masa lalu.
+- Sebagian besar fitur dinormalisasi dengan ATR atau harga agar harga emas tahun 2016 dan 2026 sebanding.
+- Nilai warm-up dibiarkan NaN. Imputasi untuk Logistic Regression di-fit hanya pada data TRAIN.
+
+## 8. Labeling tiga kelas
+
+Label menggunakan **triple-barrier** [3] (SoT D-03). Untuk candle keputusan *t*:
+
+$$\text{barrier}_t = k \cdot \text{ATR14}_t + \text{spread}_t$$
+
+| Kondisi dalam H candle berikutnya | Label |
+|---|---|
+| `high` menyentuh `close_t + barrier` lebih dulu | **BUY** |
+| `low` menyentuh `close_t − barrier` lebih dulu | **SELL** |
+| Tidak ada yang tersentuh, atau keduanya tersentuh di candle yang sama | **NO_TRADE** |
+| Horizon melewati gap, data belum lengkap, atau ATR/spread tidak tersedia | tidak dilabeli |
+
+- **Entry reference**: close candle *t*, yaitu waktu keputusan setelah candle tutup.
+- **Default**: H = 6 bar (30 menit) dan k = 1,0. Keduanya akan ditetapkan ulang dari
+  distribusi label 2016–2025 (`label-scan`) **sebelum** model dilatih (SoT D-02).
+- **Spread** ditambahkan ke barrier sehingga label BUY/SELL berarti gerak bersih
+  minimal k·ATR setelah biaya spread.
+- Metode **fixed horizon** (bandingkan `close_{t+H}` dengan barrier) tersedia sebagai pembanding.
+- Harga masa depan hanya dipakai untuk membuat label (ground truth), tidak pernah sebagai fitur.
+
+Label lama (spread + 1 bps, horizon 15 menit) menghasilkan NO_TRADE hanya sekitar 8%
+pada 2026 (SoT EXP-L01). Itu bertentangan dengan filosofi selektif, sehingga labelnya diganti.
+
+## 9. Arsitektur model: XGBoost dan XGBoost from scratch
+
+| Model | Peran | File |
+|---|---|---|
+| `always_no_trade` | baseline: selalu abstain | `technical/models.py` |
+| `persistence` | baseline naif: gerak H bar terakhir > barrier → searah | `technical/models.py` |
+| `logistic` | baseline linear (multinomial logistic regression) | `technical/models.py` |
+| `xgboost` | **model referensi utama** (`XGBClassifier`, `multi:softprob`, `hist`) | `technical/models.py` |
+| `xgboost_scratch` | gradient boosting multikelas dari nol, hanya NumPy | `technical/xgboost_scratch.py` |
+
+Implementasi from scratch mencakup base score, softmax, gradien, Hessian, histogram
+gradien, evaluasi split (termasuk arah default untuk nilai hilang), gain,
+regularisasi L1/L2, pruning dengan γ, shrinkage, early stopping, `predict_proba`,
+dan feature gain. Bagian ini **tidak setara penuh** dengan XGBoost resmi:
+tidak ada weighted quantile sketch, subsampling, paralelisasi, atau optimasi
+sistem (SoT E-10, E-11).
+
+Verifikasi (SoT F.1):
+
+- Pada fitur diskret yang kandidat split-nya sama, probabilitas scratch dan library
+  **identik** (selisih < 10⁻⁷).
+- Pada fitur kontinu, hasilnya berbeda sedikit karena titik potong kuantil
+  (data sintetis: argmax sama di 97,9% baris).
+- Konvensi `gamma` berbeda faktor 2 dan sudah dikonversi otomatis.
+
+LightGBM, CatBoost, ensemble, dan LSTM tidak diimplementasikan (SoT D-04, D-05, D-08).
+
+## 10. Rumus inti dan hubungannya dengan kode
+
+| Rumus | Fungsi di `xgboost_scratch.py` |
+|---|---|
+| $\mathcal{L}=\sum_i l(y_i,\hat{y}_i)+\sum_k\Omega(f_k)$, $\Omega(f)=\gamma T+\tfrac12\lambda\sum_j w_j^2$ | parameter `gamma`, `reg_lambda`, `reg_alpha` |
+| $\tilde{\mathcal{L}}^{(t)}=\sum_i[g_i f_t(x_i)+\tfrac12 h_i f_t(x_i)^2]+\Omega(f_t)$ | `GradientTree.build` (memakai g dan h) |
+| $p_{ik}=\operatorname{softmax}(z_i)_k$ | `softmax` |
+| $g_{ik}=p_{ik}-y_{ik}$, $h_{ik}=\max(2p_{ik}(1-p_{ik}),10^{-16})$ | `softmax_gradient_hessian` |
+| $w_j^*=-\dfrac{G_j}{H_j+\lambda}$ (dengan L1: $-T_\alpha(G_j)/(H_j+\lambda)$) | `leaf_weight`, `soft_threshold` |
+| $Gain=\tfrac12\left[\dfrac{G_L^2}{H_L+\lambda}+\dfrac{G_R^2}{H_R+\lambda}-\dfrac{(G_L+G_R)^2}{H_L+H_R+\lambda}\right]-\gamma$ | `split_gain`, `GradientTree.find_best_split` |
+| $\hat{y}^{(t)}=\hat{y}^{(t-1)}+\eta f_t(x)$ | loop boosting di `ScratchXGBoostClassifier.fit` |
+| $F_{0k}=\log\pi_k-\tfrac1K\sum_j\log\pi_j$ | `compute_initial_margin` |
+
+Penurunan lengkap setiap rumus, beserta tes yang memverifikasinya, ada di SoT bagian E.
+
+## 11. Strategi training, validation, dan testing
+
+Semua split bersifat **kronologis**, tanpa random split (`technical/splits.py`, SoT D-10).
+
+**Walk-forward expanding window** untuk tahun validasi Y ∈ {2021, …, 2025}:
+
+| Blok | Rentang | Digunakan untuk |
+|---|---|---|
+| TRAIN | 2016-01-01 → (Y−1)-07-01 | melatih model |
+| CALIBRATION | (Y−1)-07-01 → (Y−1)-10-01 | early stopping dan temperature scaling |
+| THRESHOLD | (Y−1)-10-01 → Y-01-01 | memilih threshold BUY/SELL |
+| EVALUATION | Y-01-01 → (Y+1)-01-01 | mengukur performa saja |
+
+- **Purging**: baris dipakai hanya jika `label_end_time + embargo` (6 bar) berada sebelum akhir bloknya [3].
+- Pemilihan model, label, fitur, dan hyperparameter dilakukan berdasarkan **rata-rata hasil fold validasi**.
+- Perintah pengembangan (`label-scan`, `walk-forward`, `ablation`, `compare-scratch`)
+  tidak memuat data setelah 31 Desember 2025 sama sekali.
+
+## 12. Pengujian out-of-sample 2026
+
+Fold final: TRAIN 2016 → 1 Juli 2025, CALIBRATION Juli–September 2025,
+THRESHOLD Oktober–Desember 2025, TEST mulai 1 Januari 2026.
+
+1. Model, kalibrasi, dan threshold dibekukan memakai data ≤ 2025.
+2. Untuk setiap candle 2026: fitur dihitung dari data sampai candle tersebut → probabilitas → keputusan.
+3. Prediksi dicatat dengan timestamp, probabilitas, dan reason code (`predictions_2026.csv`).
+4. Label dihitung dengan aturan yang sama. Hanya label dengan horizon lengkap yang dinilai.
+5. BUY dinilai benar **hanya** jika label aktual BUY. BUY pada label SELL atau NO_TRADE adalah false positive. Aturan yang sama berlaku untuk SELL.
+
+Periode uji yang benar-benar dinilai dicatat di `test_period.json`.
+Perintah ini wajib diberi `--confirm` agar tidak dijalankan berulang kali sebagai alat tuning.
+
+> **Penting (SoT A-05, D-12).** Pipeline generasi sebelumnya sudah pernah dilatih
+> sampai Maret 2026, dan hasil 2026 sudah dilihat sebelum desain ini dibuat.
+> Karena itu hasil 2026 harus disebut **retrospective out-of-sample**. Uji yang benar-benar
+> buta membutuhkan periode forward baru dengan konfigurasi yang dikunci lebih dulu.
+
+## 13. Metrik evaluasi
+
+Dihitung oleh `technical/evaluation.py` per blok evaluasi:
+
+- **Precision BUY dan SELL** (prioritas utama) beserta interval Wilson 95% [41];
+- **Recall dan F1** per kelas, **macro F1**, dan **directional macro F1** (rata-rata F1 BUY dan SELL);
+- **Confusion matrix** 3×3, distribusi label aktual dan prediksi;
+- **Signal coverage** (proporsi BUY + SELL), coverage BUY dan SELL;
+- **False positive** per arah, dan **kesalahan arah berlawanan** (BUY saat label SELL dan sebaliknya);
+- **Kalibrasi**: log loss, Brier multikelas, ECE top-label;
+- Pembanding: baseline always-NO_TRADE, persistence, dan logistic regression; hasil tanpa threshold (argmax) juga dilaporkan.
+
+NO_TRADE yang dominan tidak dianggap keberhasilan. Model yang tidak pernah
+memberi sinyal memiliki precision BUY/SELL "tidak terdefinisi" (bukan 100%) dan F1 = 0.
+
+## 14. Alur keputusan Technical Agent
 
 ```text
-MetaTrader 5 (terminal sudah login)
-        |
-        v
-MT5Provider -- preflight terminal/account/broker/server/symbol
-        |
-        +---- native bars (partition bulanan)
-        +---- native ticks (partition harian)
-        |
-        v
-normalisasi UTC + validasi tanpa fill/interpolasi
-        |
-        +---- valid   -> PostgreSQL market.*
-        +---- invalid -> market.rejection
-        |
-        v
-ingest.checkpoint + ingest.run -> coverage/audit -> pipeline riset berikutnya
+candle M5 tutup
+   → 41 fitur kausal
+   → XGBoost: [p_SELL, p_NO_TRADE, p_BUY]
+   → temperature scaling (T dari blok CALIBRATION)
+   → arah kandidat = BUY jika p_BUY ≥ p_SELL, selain itu SELL
+   → p_arah ≥ threshold_arah ?  ya → BUY/SELL   tidak → NO_TRADE
 ```
 
-PostgreSQL adalah satu-satunya source of truth market data. Tidak ada
-persistence market data ke CSV, Parquet, SQLite, pickle, JSON file, atau folder
-lokal. Penjelasan komponen dan boundary tersedia di
-[arsitektur](docs/architecture.md), sedangkan alur transaksi rinci ada di
-[alur data](docs/data-flow.md).
+Threshold dipilih per arah pada blok THRESHOLD: F1 tertinggi dengan syarat
+precision ≥ **1,2 × prevalensi kelas** dan minimal **30 sinyal**. Model acak
+memiliki precision sebesar prevalensi, sehingga syarat ini menuntut sinyal yang lebih
+baik dari acak. Jika tidak ada threshold yang lolos, arah tersebut **dinonaktifkan**
+dan dilaporkan (SoT D-09). Nilai 1,2 dan 30 adalah *design decision*.
 
-Workflow acquisition kini dipusatkan ke dua file dengan section seperti notebook:
-`market/profile.py` untuk membaca/menulis profile konfigurasi dan runtime settings,
-serta `market/collector.py` untuk MT5, validation, ingestion, coverage dan CLI.
-Lihat [panduan market](market/README.md) untuk peta section dan contoh penulisan TOML.
+Output untuk agent lain (`TechnicalSignal` di `technical/decision.py`):
 
-Persistence memakai dua file utama: `database/schema.py` untuk tabel/relasi dan
-`database/storage.py` untuk koneksi, transaksi, serta operasi repository.
-Riwayat Alembic tetap berada di `database/migrations/`. Peta section dan import
-terbaru dijelaskan di [panduan database](database/README.md).
+```json
+{
+  "timestamp": "2026-...T..:..:00+00:00",
+  "symbol": "XAUUSD",
+  "timeframe": "M5",
+  "model_version": "technical-xgboost-<config_hash>",
+  "signal": "BUY | SELL | NO_TRADE",
+  "confidence": 0.0,
+  "probabilities": {"SELL": 0.0, "NO_TRADE": 0.0, "BUY": 0.0},
+  "horizon_minutes": 30,
+  "reason_code": "BUY_PROBABILITY_ABOVE_THRESHOLD | BELOW_THRESHOLD | SELL_DISABLED_NO_VALID_THRESHOLD | ...",
+  "market_regime": {"trend_strength": "trending | ranging", "volatility": "low | normal | high"},
+  "feature_snapshot": {"rsi_14": 0.0, "adx_14": 0.0}
+}
+```
 
-## Persyaratan
+`confidence` adalah probabilitas terkalibrasi untuk keputusan yang dipilih.
+`market_regime` adalah ringkasan deskriptif (ADX ≥ 25 = trending; rasio ATR) dan
+tidak dipakai model untuk mengambil keputusan.
 
-- Windows 10/11 (package Python MetaTrader 5 dan terminal berjalan di Windows).
-- Python 3.12 atau lebih baru; versi dipilih oleh `uv` melalui `.python-version`.
-- [`uv`](https://docs.astral.sh/uv/) untuk dependency, lock, environment, dan
-  command execution.
-- PostgreSQL 16+; Compose menggunakan PostgreSQL 18.
-- MetaTrader 5 Terminal yang sudah login ke account yang tepat.
+## 15. Struktur direktori dan cara menjalankan
 
-Collector tidak melakukan login otomatis dan tidak menyimpan password/account
-number MT5. Install terminal dari broker, login secara manual, tampilkan simbol
-yang akan dipakai di Market Watch, lalu pastikan history sudah diunduh.
+```text
+README.md              dokumentasi utama (file ini)
+SOURCE_OF_TRUTH.md     bukti, rumus, keputusan, referensi
+configs/
+  brokers/*.toml       profile broker untuk collector
+  technical.toml       konfigurasi eksperimen Technical Agent
+market/                collector MT5 + dashboard data (tidak diubah)
+database/              schema, repository, migrasi Alembic (tidak diubah)
+analytics/             EDA time series (read-only)
+technical/
+  config.py            membaca dan memvalidasi technical.toml
+  data.py              membaca candle M5 (PostgreSQL/CSV) dan validasi
+  features.py          41 fitur kausal
+  labels.py            triple-barrier dan fixed-horizon
+  splits.py            walk-forward, purging, embargo, fold final
+  models.py            baseline, XGBoost resmi, adaptor scratch
+  xgboost_scratch.py   XGBoost from scratch (NumPy)
+  decision.py          kalibrasi, threshold, kontrak TechnicalSignal
+  evaluation.py        metrik klasifikasi dan kalibrasi
+  run.py               CLI eksperimen dan pencatatan run
+tests/                 unit test (termasuk tests/test_xgboost_scratch.py)
+runs/                  output eksperimen (di-ignore git)
+```
 
-## Instalasi dengan `uv`
+### Instalasi
 
-```powershell
+```bash
 uv sync --dev
-Copy-Item .env.example .env
+cp .env.example .env   # isi GOLD_DATABASE_URL untuk membaca PostgreSQL
 ```
 
-Jangan membuat `requirements.txt`; dependency authoritative ada di
-`pyproject.toml` dan resolusi terkunci di `uv.lock`. Panduan khusus, alasan
-penggunaan, serta daftar command `uv` tersedia di [docs/tooling/uv.md](docs/tooling/uv.md).
+Pengambilan data MT5 (hanya di Windows), migrasi database, dan Docker dijelaskan di
+[`market/README.md`](market/README.md) dan [`database/README.md`](database/README.md).
+Panduan grafik EDA (univariat, bivariat, multivariat) ada di [`analytics/README.md`](analytics/README.md).
 
-## Menjalankan FastAPI dan PostgreSQL 18 dengan Docker
+Laporan eksperimen pipeline lama (sebelum refactor) tetap disimpan sebagai arsip:
+[laporan baseline](technical/README_laporan_baseline.md),
+[laporan optimasi](technical/README_laporan_optimasi.md),
+[metodologi data XGBoost](technical/artifacts/direction_v3/laporan_metodologi_data_xgboost.md),
+dan [klasifikasi manual](analisis_teknikall/README_klasifikasi_manual.md).
+Kode dan artefak yang dirujuk laporan tersebut dapat dilihat di riwayat git
+sebelum commit refactor.
 
-Salin konfigurasi contoh lalu jalankan stack:
+### Menjalankan eksperimen (urutan yang disarankan)
 
-```powershell
-Copy-Item .env.example .env
-docker compose up --build
+```bash
+# 1. Pilih horizon dan k dari distribusi label 2016–2025 (tanpa model)
+uv run python -m technical.run label-scan
+
+# 2. Bandingkan baseline dan XGBoost dengan walk-forward 2021–2025
+uv run python -m technical.run walk-forward --models always_no_trade,persistence,logistic,xgboost
+
+# 3. Bandingkan XGBoost resmi vs from scratch pada fold 2025
+uv run python -m technical.run compare-scratch --year 2025
+
+# 4. Ablation kelompok fitur
+uv run python -m technical.run ablation
+
+# 5. Setelah konfigurasi dikunci: uji 2026 (sekali)
+uv run python -m technical.run final-test --model xgboost --confirm
 ```
 
-Compose menunggu PostgreSQL sehat, menjalankan `alembic upgrade head`, kemudian
-menjalankan FastAPI di `http://127.0.0.1:8080/`. Swagger tersedia di
-`http://127.0.0.1:8080/docs`. Data PostgreSQL disimpan dalam named volume
-`postgres_data`, sehingga tetap tersedia setelah container dihentikan.
+Tambahkan `--input-csv path.csv` untuk membaca ekspor `market.processed_m5`
+alih-alih PostgreSQL. Setiap run menulis `runs/<waktu>_<perintah>_<hash>/run.json`
+(berisi config, hash, commit git, versi paket, laporan data) beserta file metriknya.
+Estimasi waktu: training from scratch sekitar 9 menit per fold pada ukuran data penuh
+(estimasi dari data sintetis, SoT EXP-S04).
 
-Container Linux hanya menjalankan API/dashboard dan migrasi. Pengambilan data
-MetaTrader 5 tetap dijalankan dari Windows host karena package resmi
-`MetaTrader5` hanya tersedia untuk Windows. Panduan command, konfigurasi, dan
-operasional lengkap tersedia di [docs/tooling/docker.md](docs/tooling/docker.md).
+### Tes dan lint
 
-## PostgreSQL demo dan live
-
-Pisahkan kedua environment secara fisik, idealnya termasuk user dan secret:
-
-```powershell
-createdb gold_market_demo
-createdb gold_market_live
-```
-
-Contoh `.env` demo:
-
-```dotenv
-GOLD_ENVIRONMENT=demo
-GOLD_DATABASE_URL=postgresql+psycopg://gold_demo:password@localhost:5432/gold_market_demo
-GOLD_MT5_TERMINAL_PATH=C:\Program Files\Broker MT5\terminal64.exe
-GOLD_LOG_LEVEL=INFO
-```
-
-`GOLD_ENVIRONMENT` dan `GOLD_DATABASE_URL` wajib. Aplikasi menolak database yang
-jelas bernama environment lawan, profile yang tidak cocok, serta account MT5
-demo/live yang salah. `.env` diabaikan Git; jangan commit credential.
-
-## Broker profile
-
-Salin `configs/brokers/example_demo.toml`, lalu ubah identitas non-secret:
-
-```toml
-[source]
-source_key = "broker-a-demo-xauusd"
-broker_name = "Broker A"
-server_name = "Broker-A-Demo"
-environment = "demo"
-dataset_symbol = "XAUUSD"
-requested_symbol = "XAUUSDm"
-```
-
-`dataset_symbol` adalah identitas canonical riset. `requested_symbol` harus
-cocok persis dengan simbol broker. Jika hanya ada kandidat seperti `GOLD` atau
-`XAUUSD.a`, collector melaporkannya tetapi tidak memilih diam-diam.
-
-## Migrasi dan registrasi
-
-Jalankan migrasi pada database environment aktif:
-
-```powershell
-uv run alembic upgrade head
-```
-
-Validasi terminal/account tanpa menampilkan nomor account:
-
-```powershell
-uv run python -m market.collector mt5-info --profile example_demo
-uv run python -m market.collector symbol-info --profile example_demo
-```
-
-Registrasikan provenance broker/server/environment/symbol:
-
-```powershell
-uv run python -m market.collector source-register --profile example_demo
-```
-
-`source_key` stabil. Kunci yang sama tidak dapat digunakan ulang untuk source
-dengan broker, server, environment, atau actual symbol berbeda.
-
-## Historical collection
-
-Base timeframe riset adalah native M5. Bar diambil per bulan, bukan satu call
-10 tahun:
-
-```powershell
-uv run python -m market.collector ingest-bars `
-  --profile example_demo `
-  --start 2016-01-01T00:00:00Z `
-  --end 2026-01-01T00:00:00Z `
-  --timeframe M5
-```
-
-Tick memiliki availability berbeda dan diambil per UTC day:
-
-```powershell
-uv run python -m market.collector ingest-ticks `
-  --profile example_demo `
-  --start 2025-01-01T00:00:00Z `
-  --end 2026-01-01T00:00:00Z
-```
-
-Request 10 tahun tidak berarti broker menyediakan 10 tahun. Empty partition
-dicatat sebagai coverage yang valid; collector tidak menciptakan data untuk
-menutupi history yang tidak tersedia.
-
-## Incremental sync, resume, dan idempotensi
-
-```powershell
-uv run python -m market.collector sync-bars --profile example_demo --timeframe M5
-uv run python -m market.collector sync-ticks --profile example_demo
-```
-
-`ingest.checkpoint` adalah state resume authoritative. Partition `fetched` atau
-`empty` dilewati pada request identik. Exact bar duplicate di-skip; payload bar
-yang direvisi broker disimpan sebagai observation baru dan `market.bar_latest`
-memilih revision terbaru. Tick memakai fingerprint native + occurrence ordinal
-karena MT5 tidak memberi global tick primary key.
-
-Bulk bar dan tick ditulis dalam batch terbatas (maksimal 1.000 row per
-statement) agar jumlah parameter setiap query tetap di bawah batas protokol
-PostgreSQL 65.535. Jika satu partisi gagal saat penyimpanan, transaksinya
-di-rollback dan checkpoint berstatus `failed`; jalankan ulang rentang yang sama
-setelah penyebab diperbaiki.
-
-Setiap partition memakai retry terbatas (default jeda 1, 2, 4 detik) dan
-transaction sendiri. Batch lama yang sudah committed tidak hilang bila batch
-baru gagal.
-
-## Status, coverage, dan validasi
-
-```powershell
-uv run python -m market.collector status --profile example_demo
-uv run python -m market.collector coverage --profile example_demo
-uv run python -m market.collector validate --profile example_demo
-```
-
-`market.data_coverage` membedakan requested range dan actual first/last record.
-Gap adalah candidate untuk investigasi—weekend, holiday, session broker, atau
-history unavailable dapat menjelaskannya—dan tidak diperbaiki otomatis.
-
-## Partitioning PostgreSQL
-
-Parent `market.bar_observation` dan `market.tick_observation` dipartisi RANGE
-berdasarkan timestamp UTC. Fungsi `market.ensure_monthly_partitions` membuat
-child partition bulanan tepat sebelum bulk insert. Jangan membuat ratusan
-migration manual. Index utama mengikuti `(source_id, timeframe, open_time_utc)`
-untuk bar dan `(source_id, tick_time_utc)` untuk tick.
-
-## Semantik data penting
-
-- Native MT5 OHLC berasal dari `copy_rates_range`; field `spread` adalah spread
-  point pada bar, bukan historical Bid/Ask OHLC lengkap.
-- `market.quote_ohlc_m5` dihitung hanya dari historical Bid/Ask tick yang valid.
-  Jika tick tidak tersedia, quote OHLC juga tidak tersedia—bukan nol/synthetic.
-- `market.processed_m5` menyediakan satu view siap-baca yang menggabungkan
-  native M5 terbaru dengan `bid_*`, `ask_*`, statistik `spread_*`, dan provenance
-  source. Kolom quote bernilai `NULL` jika tick interval tersebut tidak tersedia.
-- `tick_volume` pada bar adalah jumlah perubahan/tick yang dilaporkan broker.
-  `real_volume` pada bar dan `volume_real` pada tick adalah field berbeda dan
-  sering bernilai nol bila broker tidak menyediakannya; nol bukan error otomatis.
-- Semua timestamp canonical berupa timezone-aware UTC / `TIMESTAMPTZ`.
-- Bar invalid dan tick invalid masuk `market.rejection`; tidak ada forward fill,
-  backfill harga, outlier deletion, atau interpolation.
-
-Lihat dataset M5 gabungan tanpa membuat file Parquet:
-
-```sql
-SELECT *
-FROM market.processed_m5
-ORDER BY open_time_utc DESC
-LIMIT 100;
-```
-
-Atau jalankan tabel web lokal read-only:
-
-```powershell
-uv run alembic upgrade head
-uv run python -m market.dashboard
-```
-
-Buka `http://127.0.0.1:8080/`. Dashboard dapat berpindah antara market bars,
-raw ticks, dan gabungan M5. Tersedia filter waktu/symbol/source/timeframe,
-sorting kolom ASC/DESC, pagination, refresh otomatis, kelompok kolom, dan
-unduhan CSV untuk halaman aktif.
-
-## Testing dan dokumentasi
-
-```powershell
-uv run ruff format --check .
-uv run ruff check .
+```bash
 uv run pytest
-uv run python scripts/generate_code_reference.py
+uv run ruff check .
 ```
 
-Integration test PostgreSQL hanya berjalan jika `GOLD_TEST_DATABASE_URL`
-menunjuk database test disposable yang sudah dimigrasi. Jangan arahkan variable
-itu ke demo/live research database. Referensi AST hasil generate berada di
-[docs/reference/code-reference.md](docs/reference/code-reference.md).
+## 16. Keterbatasan
 
-## Website dokumentasi lokal
+- **Belum ada backtesting.** Precision dan F1 adalah metrik klasifikasi, bukan profit.
+  Prediksi arah yang benar belum tentu menguntungkan setelah biaya, slippage, dan manajemen posisi [31], [32].
+- Belum ada hasil eksperimen data riil dengan pipeline baru (SoT F.3).
+- Data 2026 adalah **retrospective** out-of-sample (lihat bagian 12).
+- Satu sumber data (akun demo MetaQuotes); spread demo dapat berbeda dari live.
+  Spread saat exit diasumsikan sama dengan saat entry.
+- Urutan sentuhan barrier di dalam satu candle M5 tidak diketahui (diselesaikan secara konservatif dengan NO_TRADE).
+- Label dengan horizon tumpang tindih membuat sampel tidak independen, sehingga interval Wilson cenderung terlalu sempit.
+- Kalibrasi dan early stopping memakai blok yang sama (SoT D-13), dan threshold hanya dipilih dari 3 bulan data.
+- Hanya informasi teknikal; peristiwa makro dan berita tidak terlihat oleh model.
 
-Dokumentasi Markdown dapat dibuka sebagai website lokal dengan MkDocs:
+## 17. Rencana lanjutan
 
-```powershell
-uv run mkdocs serve
-```
+**Backtesting** (belum diimplementasikan). Output `predictions_2026.csv` sudah
+memuat timestamp, close, barrier, probabilitas, dan sinyal, sehingga dapat diumpankan ke
+backtester yang memodelkan spread bid/ask, slippage, komisi, position sizing,
+stop loss/take profit (sejalan dengan barrier), larangan posisi tumpang tindih, dan drawdown.
 
-Lalu buka `http://127.0.0.1:8000/`. Server melakukan reload otomatis saat file
-di `docs/` atau `mkdocs.yml` berubah. Untuk memeriksa website tanpa menjalankan
-server, gunakan `uv run mkdocs build --strict`.
+**Integrasi Fundamental Agent (LLM).** Technical Agent bertanggung jawab atas
+sinyal teknikal jangka pendek beserta probabilitas dan alasannya; ia tidak membaca
+berita atau data makro dan tidak mengeksekusi order. Fundamental Agent nantinya
+memberi konteks makro/berita dengan timestamp ketersediaan yang jelas. Komponen
+keputusan dan manajemen risiko akan menggabungkan `TechnicalSignal` dengan
+output Fundamental Agent, misalnya memveto sinyal teknikal menjelang rilis data penting.
 
-## Analytics Matplotlib
+**Eksperimen berikutnya**: hasil EXP-R01–R05 (SoT F.3); M1 sebagai ablation;
+pendekatan dua tahap atau meta-labeling [3], [40]; uji forward baru setelah konfigurasi dikunci.
 
-Analytics berisi dua file Python: `data.py` untuk query read-only dan
-persiapan data; `analytics.py` untuk UNI, BI, MULTI, grafik time series,
-model return dengan validasi waktu, evaluasi dan forecast. Kode memakai
-pemisah `# %%` seperti notebook. Lihat [analytics README](docs/analytics.md)
-untuk metodologi, batas interpretasi dan referensi paper.
+## 18. Referensi utama
 
-```powershell
-uv run python -B -m analytics.analytics univariate `
-  --source-id <uuid> `
-  --symbol XAUUSD `
-  --timeframe M5 `
-  --start 2026-01-01T00:00:00Z `
-  --end 2026-02-01T00:00:00Z `
-  --columns close tick_volume spread_price
-```
+Daftar lengkap (41 referensi, termasuk status verifikasinya) ada di SoT bagian H.
+Referensi yang dikutip di README ini:
 
-Mode EDA yang tersedia adalah `univariate`, `bivariate`, `multivariate`, dan
-`feature-eda`. Evaluasi dijalankan melalui `python -m analytics.analytics evaluate`.
-Feature EDA dan model evaluation memerlukan tabel dari pipeline feature/model
-mendatang; migration collector saat ini baru menyediakan raw market data. PNG
-tersimpan di `reports/analytics/` dan tidak menggantikan PostgreSQL sebagai
-source of truth. Subfolder outputnya adalah `univariate/`, `bivariate/`,
-`multivariate/`, `feature_eda/`, dan `model_evaluation/`. Menjalankan command
-yang sama akan mengganti PNG turunan dengan hasil terbaru.
+[1] T. Chen and C. Guestrin, "XGBoost: A scalable tree boosting system," in *Proc. 22nd ACM SIGKDD*, 2016, pp. 785–794, doi: 10.1145/2939672.2939785.
 
-Agar EDA terus membaca perubahan baru setelah ingestion, gunakan polling:
+[3] M. López de Prado, *Advances in Financial Machine Learning*. Hoboken, NJ, USA: Wiley, 2018.
 
-```powershell
-uv run python -B -m analytics.analytics univariate `
-  --source-id <uuid> `
-  --symbol XAUUSD `
-  --timeframe M5 `
-  --start 2016-01-01T00:00:00Z `
-  --end 2027-01-01T00:00:00Z `
-  --watch-seconds 60 `
-  --columns close tick_volume spread_price
-```
+[4] P. Sadorsky, "Predicting gold and silver price direction using tree-based classifiers," *J. Risk Financial Manag.*, vol. 14, no. 5, Art. 198, 2021, doi: 10.3390/jrfm14050198.
 
-Setiap 60 detik command meng-query PostgreSQL ulang dan menimpa PNG yang sama.
-Tekan `Ctrl+C` untuk berhenti. Watcher menggunakan polling, bukan trigger
-database; perubahan terlihat setelah transaksi ingestion sudah committed.
+[5] C. Krauss, X. A. Do, and N. Huck, "Deep neural networks, gradient-boosted trees, random forests: Statistical arbitrage on the S&P 500," *Eur. J. Oper. Res.*, vol. 259, no. 2, pp. 689–702, 2017, doi: 10.1016/j.ejor.2016.10.031.
 
-### Forecast XGBoost 2026 tanpa data leakage
+[7] L. Grinsztajn, E. Oyallon, and G. Varoquaux, "Why do tree-based models still outperform deep learning on typical tabular data?," in *NeurIPS 35 Datasets and Benchmarks*, 2022, doi: 10.52202/068431-0037.
 
-analytics.analytics mengagregasi bar native menjadi close harian lalu melatih
-XGBoost hanya dengan data sebelum 2026-01-01T00:00:00Z, sehingga harga terakhir
-yang dapat dipakai model adalah 31 Desember 2025. Prediksi 2026 dibuat secara
-recursive: setiap lag setelah Januari 2026 berasal dari forecast sebelumnya,
-bukan harga aktual. Harga 2026 dimuat pada query terpisah hanya untuk garis
-hijau dan metrik pembanding.
+[8] R. Shwartz-Ziv and A. Armon, "Tabular data: Deep learning is not all you need," *Inf. Fusion*, vol. 81, pp. 84–90, 2022, doi: 10.1016/j.inffus.2021.11.011.
 
-```powershell
-uv run python -B -m analytics.analytics forecast `
-  --source-id <uuid> `
-  --symbol XAUUSD `
-  --timeframe M5 `
-  --history-start 2016-01-01T00:00:00Z `
-  --actual-end 2026-11-01T00:00:00Z
-```
+[11] C. K. Chow, "On optimum recognition error and reject tradeoff," *IEEE Trans. Inf. Theory*, vol. 16, no. 1, pp. 41–46, 1970, doi: 10.1109/TIT.1970.1054406.
 
-Output berada di reports/analytics/xgboost_forecast/: dashboard.html interaktif
-yang mendukung zoom, pan, hover, dan date-range slider; grafik historis
-biru/forecast merah/aktual hijau, actual-vs-predicted, residual, perbandingan
-bulanan, distribusi error, serta metrics.json berisi MAE, MSE, RMSE, dan MAPE.
---actual-end hanya menentukan
-seberapa jauh ground truth tersedia untuk dibandingkan; close pada rentang itu
-tidak pernah menjadi input XGBoost.
+[13] A. Niculescu-Mizil and R. Caruana, "Predicting good probabilities with supervised learning," in *Proc. 22nd ICML*, 2005, pp. 625–632, doi: 10.1145/1102351.1102430.
 
-## Troubleshooting
+[15] C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, "On calibration of modern neural networks," in *Proc. 34th ICML*, PMLR vol. 70, 2017, pp. 1321–1330.
 
-- **MT5 initialization failed**: buka terminal Windows, login, cek path
-  `terminal64.exe`, lalu jalankan `mt5-info`.
-- **Environment/account mismatch**: jangan mengubah label profile untuk
-  mengakali validasi; login ke account yang sesuai atau gunakan `.env`/database
-  environment yang benar.
-- **Server/broker mismatch**: samakan profile dengan nilai aktual yang tampil
-  dari terminal. Source key lama tidak boleh dipakai untuk provenance baru.
-- **Symbol unavailable/ambiguous**: gunakan nama exact dari Market Watch dan
-  aktifkan simbol tersebut; jangan mengandalkan substring.
-- **History pendek/empty**: di MT5 buka chart M5 dan muat history, cek batas
-  “Max bars in chart”, lalu periksa `coverage`. Availability broker tetap batas
-  akhir dan tidak boleh disebut lengkap tanpa bukti.
-- **PostgreSQL unavailable**: cek service, database, role, network, dan DSN.
-  DSN disembunyikan dari logs.
-- **Migration gagal**: pastikan role boleh membuat schema, table, view, function,
-  dan partition pada database yang dituju.
+[18] Y. Aït-Sahalia, P. A. Mykland, and L. Zhang, "How often to sample a continuous-time process in the presence of market microstructure noise," *Rev. Financ. Stud.*, vol. 18, no. 2, pp. 351–416, 2005, doi: 10.1093/rfs/hhi016.
 
-## Struktur proyek
+[19] T. G. Andersen, T. Bollerslev, F. X. Diebold, and P. Labys, "The distribution of realized exchange rate volatility," *J. Amer. Statist. Assoc.*, vol. 96, no. 453, pp. 42–55, 2001, doi: 10.1198/016214501750332965.
 
-```text
-market/                 domain, MT5 boundary, validation, services, CLI
-database/               SQLAlchemy mappings, repositories, Alembic migration
-analytics/              pembacaan read-only, EDA, time series dan forecast
-configs/brokers/        profile non-secret per broker/server/environment
-tests/                  unit tests dan integration test opt-in
-docs/                   arsitektur, alur, tooling, dan generated reference
-scripts/                deterministic documentation generator
-```
+[20] P. R. Hansen and A. Lunde, "Realized variance and market microstructure noise," *J. Bus. Econ. Statist.*, vol. 24, no. 2, pp. 127–161, 2006, doi: 10.1198/073500106000000071.
 
-Dokumentasi adalah bagian Definition of Done: perubahan behavior harus mengubah
-docstring, test, serta dokumen arsitektur terkait pada commit yang sama.
+[21] T. G. Andersen and T. Bollerslev, "Intraday periodicity and volatility persistence in financial markets," *J. Empir. Finance*, vol. 4, no. 2–3, pp. 115–158, 1997, doi: 10.1016/S0927-5398(97)00004-2.
 
-## Insight time series
+[25] J. W. Wilder Jr., *New Concepts in Technical Trading Systems*. Greensboro, NC, USA: Trend Research, 1978.
 
-Gunakan `uv run python -B -m analytics.analytics time-series --source-id <uuid> --symbol XAUUSD --timeframe M5 --start 2016-01-01T00:00:00Z --end 2026-10-01T00:00:00Z --include-models`.
-Laporan mencakup tren/drawdown, return/volatilitas, distribusi tahunan, return
-bulanan, ACF, aktivitas/spread, Spearman, counts dan perbandingan model
-UNI/BI/MULTI versus baseline. Tahun/bulan terakhir mengikuti cakupan
-observasi dan dapat parsial; harga meningkat jangka panjang belum berarti
-setiap sesi naik. Output berada di `reports/analytics/time_series/`.
+[26] G. Appel, *Technical Analysis: Power Tools for Active Investors*. FT Press, 2005.
+
+[27] J. Bollinger, *Bollinger on Bollinger Bands*. New York, NY, USA: McGraw-Hill, 2001.
+
+[28] T. Saito and M. Rehmsmeier, "The precision-recall plot is more informative than the ROC plot when evaluating binary classifiers on imbalanced datasets," *PLoS ONE*, vol. 10, no. 3, e0118432, 2015, doi: 10.1371/journal.pone.0118432.
+
+[29] D. G. Baur and B. M. Lucey, "Is gold a hedge or a safe haven? An analysis of stocks, bonds and gold," *Financ. Rev.*, vol. 45, no. 2, pp. 217–229, 2010, doi: 10.1111/j.1540-6288.2010.00244.x.
+
+[30] F. A. O'Connor, B. M. Lucey, J. A. Batten, and D. G. Baur, "The financial economics of gold — A survey," *Int. Rev. Financ. Anal.*, vol. 41, pp. 186–205, 2015, doi: 10.1016/j.irfa.2015.07.005.
+
+[31] D. H. Bailey, J. M. Borwein, M. López de Prado, and Q. J. Zhu, "The probability of backtest overfitting," *J. Comput. Finance*, vol. 20, no. 4, 2017, doi: 10.21314/JCF.2016.322.
+
+[32] D. H. Bailey, J. M. Borwein, M. López de Prado, and Q. J. Zhu, "Pseudo-mathematics and financial charlatanism," *Notices Amer. Math. Soc.*, vol. 61, no. 5, pp. 458–471, 2014, doi: 10.1090/noti1105.
+
+[34] A. Amini and R. Kalantari, "Gold price prediction by a CNN-Bi-LSTM model along with automatic parameter tuning," *PLoS ONE*, vol. 19, no. 3, e0298426, 2024, doi: 10.1371/journal.pone.0298426.
+
+[35] M. Arif *et al.*, "Multivariate LSTM-based intraday gold price prediction with rolling time series validation," *J. Masyarakat Informatika*, vol. 17, no. 1, pp. 26–38, 2026, doi: 10.14710/jmasif.17.1.78091.
+
+[37] N. Chalkidis and R. Savani, "Trading via selective classification," in *Proc. 2nd ACM ICAIF*, 2021, pp. 1–9, doi: 10.1145/3490354.3494379.
+
+[40] J. F. Joubert, "Meta-labeling: Theory and framework," *J. Financial Data Sci.*, vol. 4, no. 3, pp. 31–44, 2022, doi: 10.3905/jfds.2022.1.098.
+
+[41] E. B. Wilson, "Probable inference, the law of succession, and statistical inference," *J. Amer. Statist. Assoc.*, vol. 22, no. 158, pp. 209–212, 1927, doi: 10.1080/01621459.1927.10502953.
