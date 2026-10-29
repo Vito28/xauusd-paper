@@ -416,6 +416,10 @@ bagian 10 juga memakai modul standard-library-only yang sama, bukan XGBoost.
 
 ## Penelusuran sumber
 
+> Catatan: file di bawah ini sudah dihapus dari `main` saat refactor Technical
+> Agent dan masih tersedia di riwayat git (`git show a0e31c0:<path>`). Versi
+> barunya adalah `technical/xgboost_scratch.py`.
+
 - [File program lengkap](xgboost_matematis.py).
 - [Penjelasan arsitektur matematis](../docs/xgboost-matematis.md).
 - [Hasil verifikasi yang tersimpan](artifacts/final_2026/parity_report.json).
