@@ -1,0 +1,71 @@
+# Konfigurasi eksperimen Technical Agent XAUUSD.
+# Setiap nilai di sini dijelaskan asal-usulnya di SOURCE_OF_TRUTH.md (bagian A, D, G).
+# Ubah file ini, bukan kode, ketika ingin menjalankan eksperimen lain.
+
+[data]
+source_key = "metaquotes-demo-xauusd"
+symbol = "XAUUSD"
+timeframe = "M5"
+history_start = "2016-01-01T00:00:00Z"
+# Batas akhir data pengembangan (eksklusif): seluruh training, tuning,
+# kalibrasi, dan pemilihan threshold harus selesai sebelum timestamp ini.
+development_end = "2026-01-01T00:00:00Z"
+# Batas akhir data uji 2026 (eksklusif). Hanya label yang horizonnya lengkap dinilai.
+test_end = "2027-01-01T00:00:00Z"
+
+[labels]
+# "triple_barrier" (utama) atau "fixed_horizon" (pembanding/ablation).
+method = "triple_barrier"
+horizon_bars = 6            # 6 x M5 = 30 menit
+atr_period = 14
+barrier_atr_multiple = 1.0  # lebar barrier = k * ATR14 + spread saat keputusan
+
+[splits]
+# Walk-forward expanding window: setiap tahun di bawah menjadi tahun evaluasi.
+validation_years = [2021, 2022, 2023, 2024, 2025]
+# Embargo tambahan (dalam bar M5) di akhir setiap blok, selain purging label.
+embargo_bars = 6
+
+[features]
+# Kelompok fitur yang dipakai. Hapus nama kelompok untuk ablation.
+groups = ["price_action", "trend", "momentum", "volatility", "volume", "spread", "time"]
+
+[xgboost]
+n_estimators = 300
+max_depth = 4
+learning_rate = 0.05
+min_child_weight = 20.0
+reg_lambda = 5.0
+reg_alpha = 0.0
+gamma = 0.0
+subsample = 0.8
+colsample_bytree = 0.8
+max_bin = 64
+early_stopping_rounds = 30
+
+[scratch]
+# XGBoost from scratch (NumPy). Default dibuat sebanding dengan [xgboost],
+# tetapi tanpa subsampling agar hasilnya deterministik.
+n_estimators = 150
+max_depth = 4
+learning_rate = 0.05
+min_child_weight = 20.0
+reg_lambda = 5.0
+reg_alpha = 0.0
+gamma = 0.0
+max_bin = 64
+
+[decision]
+# Threshold confidence dipilih per kelas pada blok "threshold" (bukan data uji).
+threshold_grid_start = 0.34
+threshold_grid_stop = 0.90
+threshold_grid_step = 0.02
+# Precision kelas harus minimal (lift x prevalensi kelas tersebut di blok threshold).
+min_precision_lift = 1.2
+# Minimum jumlah sinyal di blok threshold agar threshold dianggap dapat dipercaya.
+min_signals = 30
+
+[run]
+random_state = 42
+n_jobs = 4
+output_dir = "runs"

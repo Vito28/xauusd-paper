@@ -1,105 +1,173 @@
-"""Reproducible M5 feature, selection, and walk-forward configuration."""
+"""Membaca dan memvalidasi konfigurasi eksperimen dari configs/technical.toml."""
 
-from dataclasses import dataclass, field
+import tomllib
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-LABELS = ("SELL", "NO_TRADE", "BUY")
-ROOT = Path(__file__).resolve().parent
+import pandas as pd
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_CONFIG_PATH = PROJECT_ROOT / "configs" / "technical.toml"
+
+# Urutan kelas tetap dipakai di seluruh proyek: indeks 0, 1, 2.
+SELL = 0
+NO_TRADE = 1
+BUY = 2
+CLASS_NAMES = ["SELL", "NO_TRADE", "BUY"]
+
+ALL_FEATURE_GROUPS = [
+    "price_action",
+    "trend",
+    "momentum",
+    "volatility",
+    "volume",
+    "spread",
+    "time",
+]
 
 
-@dataclass(frozen=True)
-class Config:
-    """Control research cost and causal indicator parameters without changing M5.
+@dataclass
+class DataConfig:
+    source_key: str = "metaquotes-demo-xauusd"
+    symbol: str = "XAUUSD"
+    timeframe: str = "M5"
+    history_start: str = "2016-01-01T00:00:00Z"
+    development_end: str = "2026-01-01T00:00:00Z"
+    test_end: str = "2027-01-01T00:00:00Z"
 
-    ReliefF uses a bounded TRAIN reference sample and bounded query anchors.
-    All model-fitting rows remain chronological; sampling affects ReliefF only.
-    Session hours are local wall-clock hours, with DST handled by IANA zones.
-    """
 
-    horizon_bars: int = 3
-    minimum_edge_bps: float = 1.0
+@dataclass
+class LabelConfig:
+    method: str = "triple_barrier"
+    horizon_bars: int = 6
+    atr_period: int = 14
+    barrier_atr_multiple: float = 1.0
+
+
+@dataclass
+class SplitConfig:
+    validation_years: list[int] = field(default_factory=lambda: [2021, 2022, 2023, 2024, 2025])
+    embargo_bars: int = 6
+
+
+@dataclass
+class FeatureConfig:
+    groups: list[str] = field(default_factory=lambda: list(ALL_FEATURE_GROUPS))
+
+
+@dataclass
+class XGBoostConfig:
+    n_estimators: int = 300
+    max_depth: int = 4
+    learning_rate: float = 0.05
+    min_child_weight: float = 20.0
+    reg_lambda: float = 5.0
+    reg_alpha: float = 0.0
+    gamma: float = 0.0
+    subsample: float = 0.8
+    colsample_bytree: float = 0.8
+    max_bin: int = 64
+    early_stopping_rounds: int = 30
+
+
+@dataclass
+class ScratchConfig:
+    n_estimators: int = 150
+    max_depth: int = 4
+    learning_rate: float = 0.05
+    min_child_weight: float = 20.0
+    reg_lambda: float = 5.0
+    reg_alpha: float = 0.0
+    gamma: float = 0.0
+    max_bin: int = 64
+
+
+@dataclass
+class DecisionConfig:
+    threshold_grid_start: float = 0.34
+    threshold_grid_stop: float = 0.90
+    threshold_grid_step: float = 0.02
+    min_precision_lift: float = 1.2
+    min_signals: int = 30
+
+
+@dataclass
+class RunConfig:
     random_state: int = 42
-    relieff_top_k: int = 40
-    relieff_max_samples: int = 10000
-    relieff_anchors: int = 512
-    relieff_neighbors: int = 10
-    rfecv_min_features: int = 10
-    rfecv_step: int = 5
-    cv_splits: int = 3
-    n_estimators: int = 160
-    early_stopping_rounds: int = 20
-    regression_top_k: int = 40
-    target_precision: float = 0.90
-    min_policy_signals: int = 50
-    interval_alpha: float = 0.20
-    require_interval_agreement: bool = True
-    slippage_bps: float = 0.0
-    final_tune_start: str = "2025-01-01T00:00:00Z"
-    final_calibration_start: str = "2025-07-01T00:00:00Z"
-    final_policy_start: str = "2025-10-01T00:00:00Z"
-    final_test_start: str = "2026-01-01T00:00:00Z"
     n_jobs: int = 4
-    max_missing: float = 0.4
-    near_constant: float = 0.999
-    rolling_window: int = 288
-    ma_windows: tuple[int, ...] = (5, 8, 12, 24, 48, 96, 144, 288)
-    oscillator_windows: tuple[int, ...] = (7, 14, 21, 28)
-    volatility_windows: tuple[int, ...] = (6, 12, 24, 48, 96, 288)
-    macd_configs: tuple[tuple[int, int, int], ...] = ((8, 21, 5), (12, 26, 9), (19, 39, 9))
-    lag_bars: tuple[int, ...] = (1, 3, 6)
-    sessions: dict[str, tuple[str, int, int]] = field(
-        default_factory=lambda: {
-            "asia_session": ("Asia/Tokyo", 9, 18),
-            "london_session": ("Europe/London", 8, 17),
-            "new_york_session": ("America/New_York", 8, 17),
-        }
+    output_dir: str = "runs"
+
+
+@dataclass
+class TechnicalConfig:
+    data: DataConfig = field(default_factory=DataConfig)
+    labels: LabelConfig = field(default_factory=LabelConfig)
+    splits: SplitConfig = field(default_factory=SplitConfig)
+    features: FeatureConfig = field(default_factory=FeatureConfig)
+    xgboost: XGBoostConfig = field(default_factory=XGBoostConfig)
+    scratch: ScratchConfig = field(default_factory=ScratchConfig)
+    decision: DecisionConfig = field(default_factory=DecisionConfig)
+    run: RunConfig = field(default_factory=RunConfig)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def load_config(path: Path | str = DEFAULT_CONFIG_PATH) -> TechnicalConfig:
+    """Baca file TOML lalu ubah setiap bagian menjadi dataclass yang tervalidasi."""
+    with open(path, "rb") as file:
+        raw = tomllib.load(file)
+
+    config = TechnicalConfig(
+        data=DataConfig(**raw.get("data", {})),
+        labels=LabelConfig(**raw.get("labels", {})),
+        splits=SplitConfig(**raw.get("splits", {})),
+        features=FeatureConfig(**raw.get("features", {})),
+        xgboost=XGBoostConfig(**raw.get("xgboost", {})),
+        scratch=ScratchConfig(**raw.get("scratch", {})),
+        decision=DecisionConfig(**raw.get("decision", {})),
+        run=RunConfig(**raw.get("run", {})),
     )
+    validate_config(config)
+    return config
 
-    def __post_init__(self) -> None:
-        """Reject invalid costs, windows, and selection settings before loading data."""
-        import math
 
-        positive = (
-            self.horizon_bars,
-            self.relieff_top_k,
-            self.relieff_max_samples,
-            self.relieff_anchors,
-            self.relieff_neighbors,
-            self.rfecv_min_features,
-            self.rfecv_step,
-            self.n_estimators,
-            self.early_stopping_rounds,
-            self.regression_top_k,
-            self.min_policy_signals,
-            self.n_jobs,
-            self.rolling_window,
-        )
-        if min(positive) < 1 or self.cv_splits < 2:
-            raise ValueError("Horizon, windows, dan selection settings harus positif")
-        if not math.isfinite(self.minimum_edge_bps) or self.minimum_edge_bps < 0:
-            raise ValueError("minimum_edge_bps harus finite dan tidak negatif")
-        if not 0 <= self.max_missing < 1 or not 0 < self.near_constant <= 1:
-            raise ValueError("Quality filter settings tidak valid")
-        if not 0.5 < self.target_precision <= 1 or not 0 < self.interval_alpha < 1:
-            raise ValueError("Target precision harus >0.5 sampai 1; interval alpha harus (0,1)")
-        if not math.isfinite(self.slippage_bps) or self.slippage_bps < 0:
-            raise ValueError("Slippage bps harus finite dan tidak negatif")
-        from analytics.data import parse_utc
+def validate_config(config: TechnicalConfig) -> None:
+    """Tolak konfigurasi yang melanggar aturan penelitian sebelum data dibaca."""
+    if config.data.timeframe != "M5":
+        raise ValueError("Pipeline ini dirancang untuk timeframe M5")
 
-        boundaries = [
-            parse_utc(value)
-            for value in (
-                self.final_tune_start,
-                self.final_calibration_start,
-                self.final_policy_start,
-                self.final_test_start,
-            )
-        ]
-        if any(a >= b for a, b in zip(boundaries, boundaries[1:], strict=False)):
-            raise ValueError("Tanggal TUNE/CALIBRATION/POLICY/TEST harus berurutan")
-        if any(
-            w < 2 for w in (*self.ma_windows, *self.oscillator_windows, *self.volatility_windows)
-        ) or any(lag < 1 for lag in self.lag_bars):
-            raise ValueError("Lookback minimal 2 dan lag minimal 1")
-        if any(not (0 < fast < slow and signal > 0) for fast, slow, signal in self.macd_configs):
-            raise ValueError("MACD membutuhkan 0 < fast < slow dan signal positif")
+    history_start = pd.Timestamp(config.data.history_start)
+    development_end = pd.Timestamp(config.data.development_end)
+    test_end = pd.Timestamp(config.data.test_end)
+    if history_start.tzinfo is None or development_end.tzinfo is None or test_end.tzinfo is None:
+        raise ValueError("Semua timestamp konfigurasi wajib memiliki timezone (UTC)")
+    if not history_start < development_end < test_end:
+        raise ValueError("Urutan wajib: history_start < development_end < test_end")
+
+    if config.labels.method not in ("triple_barrier", "fixed_horizon"):
+        raise ValueError("labels.method harus 'triple_barrier' atau 'fixed_horizon'")
+    if config.labels.horizon_bars < 1:
+        raise ValueError("labels.horizon_bars minimal 1")
+    if config.labels.atr_period < 2:
+        raise ValueError("labels.atr_period minimal 2")
+    if config.labels.barrier_atr_multiple <= 0:
+        raise ValueError("labels.barrier_atr_multiple harus positif")
+
+    if config.splits.embargo_bars < 0:
+        raise ValueError("splits.embargo_bars tidak boleh negatif")
+    for year in config.splits.validation_years:
+        validation_start = pd.Timestamp(f"{year}-01-01", tz="UTC")
+        if validation_start >= development_end:
+            raise ValueError(f"Tahun validasi {year} melewati development_end")
+
+    for group in config.features.groups:
+        if group not in ALL_FEATURE_GROUPS:
+            raise ValueError(f"Kelompok fitur tidak dikenal: {group}")
+    if len(config.features.groups) == 0:
+        raise ValueError("Minimal satu kelompok fitur")
+
+    if config.decision.min_precision_lift < 1.0:
+        raise ValueError("min_precision_lift minimal 1.0 (tidak lebih buruk dari acak)")
+    if config.decision.min_signals < 1:
+        raise ValueError("decision.min_signals minimal 1")
