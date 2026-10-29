@@ -69,7 +69,6 @@ penggabungan source Python tidak membutuhkan migrasi database baru.
 uv run alembic history
 uv run pytest -m "not integration" -q
 uv run ruff check database market analytics tests
-uv run python scripts/generate_code_reference.py
 ```
 
 Test PostgreSQL online tetap menggunakan `GOLD_TEST_DATABASE_URL` ke database

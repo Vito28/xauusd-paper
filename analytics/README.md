@@ -3,7 +3,7 @@
 `data.py` memuat query PostgreSQL read-only, pemeriksaan provenance/UTC,
 persiapan candle native, return yang memperhatikan gap, dan agregasi harian.
 `analytics.py` memuat grafik, model UNI/BI/MULTI, evaluasi model beku,
-eksperimen forecast XGBoost lama, serta satu CLI. Keduanya memakai pemisah
+serta satu CLI. Keduanya memakai pemisah
 `# %%` seperti sel notebook. Import tidak menjalankan query atau training.
 
 ## Analisis sebelum memilih model
@@ -104,11 +104,6 @@ holdout dengan baseline. Metrik ini belum mencakup spread transaksi, slippage,
 atau profit strategi. Model pada modul analytics menggunakan agregat harian;
 metriknya mengikuti target dan horizon harian tersebut.
 
-Eksperimen recursive XGBoost harga lama tersedia pada mode `forecast` dengan
-pemisahan pre-2026 dan actual 2026 yang sama. Regresi pohon pada level harga
-dan horizon recursive panjang perlu diperiksa dengan baseline/residual;
-kenaikan historis sendiri tidak menjamin kemampuan extrapolation.
-
 ## Pemakaian
 
 ```powershell
@@ -127,13 +122,12 @@ artifact dengan query baru. Model tambahan hanya dijalankan jika memakai
 `--include-models`; tanpa flag tersebut tersedia delapan PNG + insights JSON.
 
 Mode lain: `univariate`, `bivariate`, `multivariate`, `feature-eda`,
-`evaluate`, `forecast`. Gunakan `--help` pada masing-masing mode.
+`evaluate`. Gunakan `--help` pada masing-masing mode.
 Sepuluh plot univariat lama tetap tersedia. `feature-eda` dan `evaluate`
 masih membutuhkan tabel feature/model yang belum dibuat migration collector;
 model return baru langsung menggunakan native bars sehingga tidak bergantung
-pada tabel tersebut. Pemanggilan forecast lama yang langsung memakai flags
-masih diterima CLI. Import lama dari modul EDA/evaluation perlu diarahkan ke
-`analytics.analytics`; kedua file lama telah digabung.
+pada tabel tersebut. Eksperimen forecast XGBoost rekursif harga harian
+sudah dihapus (lihat `SOURCE_OF_TRUTH.md`); model prediksi ada di `technical/`.
 
 ## Referensi paper dan keputusan penerapan
 
