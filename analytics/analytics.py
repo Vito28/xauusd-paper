@@ -1,9 +1,9 @@
 """Notebook-style UNI, BI, MULTI, time-series and model analysis.
 
 Read-only inputs and causal data transformations live in analytics.data.
-This file owns figures, descriptive relationships, frozen-model evaluation,
-and the existing pre-2026 XGBoost experiment. Run --help for the unified CLI.
-See docs/analytics.md for assumptions, paper references and interpretation.
+This file owns figures, descriptive relationships and frozen-model evaluation.
+Run --help for the unified CLI. See analytics/README.md for assumptions,
+paper references and interpretation.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import json
 import re
 import sys
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +38,6 @@ from analytics.data import (
     load_market_data,
     load_predictions,
     monthly_returns,
-    prepare_daily_close,
     prepare_daily_summary,
     prepare_time_series,
     prepare_univariate_data,
@@ -48,7 +47,6 @@ from analytics.data import (
 # %% [markdown] 01 | Konfigurasi laporan dan kontrak variabel
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORT_ROOT = PROJECT_ROOT / "reports" / "analytics"
-FORECAST_REPORT_ROOT = REPORT_ROOT / "xgboost_forecast"
 EVALUATION_REPORT_ROOT = REPORT_ROOT / "model_evaluation"
 FORECAST_START_UTC = pd.Timestamp("2026-01-01T00:00:00Z")
 DEFAULT_HISTORY_START = "2016-01-01T00:00:00Z"
@@ -729,475 +727,6 @@ def plot_accuracy_by_month(frame: pd.DataFrame, output_path: Path) -> Path:
     return save_plot(output_path)
 
 
-# %% 08 | Forecast XGBoost: histori < 2026, aktual hanya untuk evaluasi
-
-
-def split_training_and_actual(
-    daily_close: pd.DataFrame,
-    *,
-    forecast_start: pd.Timestamp = FORECAST_START_UTC,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Split model-visible history from ground truth with a strict UTC cutoff.
-
-    Args:
-        daily_close: Daily close data from prepare_daily_close.
-        forecast_start: First instant excluded from training; by default
-            2026-01-01 UTC, retaining history only through 31 December 2025.
-
-    Returns:
-        The pair (history, actual). Actual is intended only for visualisation
-        and metrics, never for model fitting or recursive inference.
-    """
-
-    cutoff = _as_utc_timestamp(forecast_start, "forecast_start")
-    validated = _validated_daily_close(daily_close)
-    history = validated.loc[validated["timestamp_utc"] < cutoff].copy()
-    actual = validated.loc[validated["timestamp_utc"] >= cutoff].copy()
-    if history.empty:
-        raise ValueError("Data historis sebelum cut-off forecast tidak tersedia")
-    if actual.empty:
-        raise ValueError("Data aktual pada/selepas cut-off forecast tidak tersedia")
-    return history.reset_index(drop=True), actual.reset_index(drop=True)
-
-
-def build_lagged_training_data(
-    history: pd.DataFrame,
-    lag_count: int,
-    *,
-    forecast_start: pd.Timestamp = FORECAST_START_UTC,
-) -> tuple[pd.DataFrame, list[str]]:
-    """Create prior-close lag features from history strictly before 2026.
-
-    Args:
-        history: The history half from split_training_and_actual.
-        lag_count: Number of earlier daily closes for each model row.
-
-    Returns:
-        Model-ready target_close rows and the ordered lag feature names.
-    """
-
-    if lag_count < 1:
-        raise ValueError("lag_count harus lebih besar dari nol")
-    _ensure_history_precedes_cutoff(history, forecast_start)
-    validated = _validated_daily_close(history)
-    if len(validated) < lag_count + 2:
-        raise ValueError("Data historis tidak cukup untuk lag dan target forecasting")
-    data = validated.rename(columns={"close": "target_close"}).copy()
-    features = [f"lag_{number}" for number in range(1, lag_count + 1)]
-    for number, feature in enumerate(features, start=1):
-        data[feature] = data["target_close"].shift(number)
-    return data.dropna().reset_index(drop=True), features
-
-
-def train_xgboost_forecaster(
-    history: pd.DataFrame,
-    *,
-    lag_count: int = 30,
-    random_state: int = 42,
-    model_parameters: Mapping[str, Any] | None = None,
-    forecast_start: pd.Timestamp = FORECAST_START_UTC,
-) -> tuple[Any, list[str]]:
-    """Fit XGBoost only from pre-2026 daily prices.
-
-    Args:
-        history: Daily close frame whose timestamps must all precede 2026.
-        lag_count: Number of prior closes supplied to XGBoost.
-        random_state: Reproducible estimator seed.
-        model_parameters: Optional non-safety-critical XGBoost overrides.
-
-    Returns:
-        A fitted XGBRegressor and its required ordered feature names.
-
-    Raises:
-        ValueError: If history contains 2026 prices or protected model
-            parameters are overridden.
-    """
-
-    _ensure_history_precedes_cutoff(history, forecast_start)
-    training, features = build_lagged_training_data(
-        history, lag_count, forecast_start=forecast_start
-    )
-    from xgboost import XGBRegressor
-
-    parameters: dict[str, Any] = {
-        "objective": "reg:squarederror",
-        "n_estimators": 400,
-        "max_depth": 6,
-        "learning_rate": 0.03,
-        "subsample": 0.9,
-        "colsample_bytree": 0.9,
-        "random_state": random_state,
-        "n_jobs": 1,
-    }
-    if model_parameters:
-        forbidden = {"objective", "random_state", "n_jobs"}.intersection(model_parameters)
-        if forbidden:
-            raise ValueError(f"Parameter XGBoost tidak boleh dioverride: {sorted(forbidden)}")
-        parameters.update(model_parameters)
-    model = XGBRegressor(**parameters)
-    model.fit(training[features], training["target_close"])
-    return model, features
-
-
-def forecast_recursively(
-    model: Any,
-    history: pd.DataFrame,
-    forecast_dates: Sequence[pd.Timestamp],
-    *,
-    lag_count: int,
-    forecast_start: pd.Timestamp = FORECAST_START_UTC,
-) -> pd.DataFrame:
-    """Produce 2026 prices using only prior history and prior predictions.
-
-    Actual 2026 values are absent from this interface. After the first
-    forecast, each newly predicted close is appended to the next lag window.
-    """
-
-    cutoff = _as_utc_timestamp(forecast_start, "forecast_start")
-    _ensure_history_precedes_cutoff(history, cutoff)
-    if lag_count < 1:
-        raise ValueError("lag_count harus lebih besar dari nol")
-    values = _validated_daily_close(history)["close"].astype(float).tolist()
-    if len(values) < lag_count:
-        raise ValueError("Data historis tidak cukup untuk recursive forecast")
-    dates = pd.DatetimeIndex(pd.to_datetime(list(forecast_dates), utc=True, errors="raise"))
-    if dates.empty:
-        raise ValueError("Minimal satu tanggal forecast diperlukan")
-    if not dates.is_monotonic_increasing or dates.has_duplicates:
-        raise ValueError("Tanggal forecast harus unik dan berurutan naik")
-    if (dates < cutoff).any():
-        raise ValueError(f"Tanggal forecast tidak boleh sebelum {cutoff.isoformat()}")
-    features = [f"lag_{number}" for number in range(1, lag_count + 1)]
-    predictions: list[float] = []
-    for _ in dates:
-        row = pd.DataFrame([list(reversed(values[-lag_count:]))], columns=features)
-        prediction = float(model.predict(row)[0])
-        if not np.isfinite(prediction) or prediction <= 0:
-            raise RuntimeError("Model menghasilkan forecast close yang tidak valid")
-        predictions.append(prediction)
-        values.append(prediction)
-    return pd.DataFrame({"timestamp_utc": dates, "forecast_close": predictions})
-
-
-def forecast_dates_for_actual(actual: pd.DataFrame) -> pd.DatetimeIndex:
-    """Return business-day prediction dates through the latest actual date.
-
-    Only an availability date is used; no actual close value enters forecasting.
-    """
-
-    end = _validated_daily_close(actual)["timestamp_utc"].max().normalize()
-    return pd.date_range(FORECAST_START_UTC, end, freq="B", tz="UTC")
-
-
-def align_actual_and_forecast(actual: pd.DataFrame, forecast: pd.DataFrame) -> pd.DataFrame:
-    """Join actual and forecast prices on exact dates and compute residuals."""
-
-    observed = _validated_daily_close(actual).rename(columns={"close": "actual_close"})
-    predicted = _validated_forecast(forecast)
-    comparison = observed.merge(predicted, on="timestamp_utc", how="inner", validate="one_to_one")
-    if comparison.empty:
-        raise ValueError("Tidak ada tanggal yang sama antara actual dan forecast")
-    comparison["residual"] = comparison["actual_close"] - comparison["forecast_close"]
-    return comparison
-
-
-def calculate_forecast_metrics(comparison: pd.DataFrame) -> dict[str, float]:
-    """Calculate MAE, RMSE, and MAPE for aligned actual and forecast prices."""
-
-    aligned = _validated_comparison(comparison)
-    valid = aligned.loc[aligned["actual_close"] != 0]
-    if valid.empty:
-        raise ValueError("Tidak ada pasangan actual/forecast valid untuk metrik")
-    return {
-        "mae": float(mean_absolute_error(valid["actual_close"], valid["forecast_close"])),
-        "mse": float(mean_squared_error(valid["actual_close"], valid["forecast_close"])),
-        "rmse": float(np.sqrt(mean_squared_error(valid["actual_close"], valid["forecast_close"]))),
-        "mape_percent": float(
-            (
-                np.abs(
-                    (valid["actual_close"] - valid["forecast_close"]) / valid["actual_close"]
-                ).mean()
-            )
-            * 100
-        ),
-        "observations": float(len(valid)),
-    }
-
-
-def create_interactive_dashboard(
-    history: pd.DataFrame,
-    forecast: pd.DataFrame,
-    actual: pd.DataFrame,
-    comparison: pd.DataFrame,
-    metrics: Mapping[str, float],
-    output_path: Path,
-    *,
-    forecast_start: pd.Timestamp = FORECAST_START_UTC,
-) -> Path:
-    """Write a self-contained Plotly dashboard with zoom, pan, and hover.
-
-    The dashboard contains the same blue historical, red forecast, and green
-    actual series as the static report, plus residuals and evaluation metrics.
-    Plotly JavaScript is embedded so the HTML remains interactive offline.
-    """
-
-    from plotly import graph_objects as go
-    from plotly.subplots import make_subplots
-
-    historical = _validated_daily_close(history)
-    predicted = _validated_forecast(forecast)
-    observed = _validated_daily_close(actual)
-    aligned = _validated_comparison(comparison)
-    cutoff = _as_utc_timestamp(forecast_start, "forecast_start")
-    figure = make_subplots(
-        rows=2,
-        cols=1,
-        shared_xaxes=True,
-        vertical_spacing=0.08,
-        row_heights=[0.72, 0.28],
-        subplot_titles=("Price forecast", "Residual: actual - forecast"),
-    )
-    figure.add_trace(
-        go.Scatter(
-            x=historical["timestamp_utc"],
-            y=historical["close"],
-            name="Historical used by model",
-            line={"color": "#2563eb", "width": 1.5},
-        ),
-        row=1,
-        col=1,
-    )
-    figure.add_trace(
-        go.Scatter(
-            x=predicted["timestamp_utc"],
-            y=predicted["forecast_close"],
-            name="XGBoost forecast",
-            line={"color": "#dc2626", "width": 2.2},
-        ),
-        row=1,
-        col=1,
-    )
-    figure.add_trace(
-        go.Scatter(
-            x=observed["timestamp_utc"],
-            y=observed["close"],
-            name="Actual comparison only",
-            line={"color": "#16a34a", "width": 1.8},
-        ),
-        row=1,
-        col=1,
-    )
-    figure.add_trace(
-        go.Bar(
-            x=aligned["timestamp_utc"],
-            y=aligned["residual"],
-            name="Residual",
-            marker_color=np.where(aligned["residual"] >= 0, "#16a34a", "#dc2626"),
-        ),
-        row=2,
-        col=1,
-    )
-    figure.add_vline(x=cutoff.timestamp() * 1000, line_dash="dash", line_color="#111827")
-    figure.update_xaxes(rangeslider={"visible": True}, row=2, col=1)
-    figure.update_yaxes(title_text="Close price", row=1, col=1)
-    figure.update_yaxes(title_text="Price error", row=2, col=1)
-    figure.update_layout(
-        title=(
-            "XAUUSD XGBoost Forecast"
-            f" | MAE {metrics['mae']:.4f}"
-            f" | RMSE {metrics['rmse']:.4f}"
-            f" | MAPE {metrics['mape_percent']:.2f}%"
-        ),
-        template="plotly_white",
-        hovermode="x unified",
-        height=850,
-        dragmode="zoom",
-        legend={"orientation": "h", "y": 1.06},
-    )
-    path = Path(output_path)
-    if path.suffix.lower() != ".html":
-        raise ValueError("Dashboard interaktif wajib berupa file HTML")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    figure.write_html(path, include_plotlyjs=True, full_html=True)
-    if not path.exists() or path.stat().st_size == 0:
-        raise RuntimeError(f"Dashboard HTML gagal dibuat: {path}")
-    return path
-
-
-def plot_historical_forecast_actual(
-    history: pd.DataFrame, forecast: pd.DataFrame, actual: pd.DataFrame, output_path: Path
-) -> Path:
-    """Save the principal blue-history, red-forecast, green-actual time series."""
-
-    historical = _validated_daily_close(history)
-    predicted = _validated_forecast(forecast)
-    observed = _validated_daily_close(actual)
-    plt.figure(figsize=(15, 7))
-    plt.plot(
-        historical["timestamp_utc"],
-        historical["close"],
-        color="tab:blue",
-        label="Historical used by model (through 2025)",
-        linewidth=1.1,
-    )
-    plt.plot(
-        predicted["timestamp_utc"],
-        predicted["forecast_close"],
-        color="tab:red",
-        label="XGBoost recursive forecast (2026)",
-        linewidth=1.4,
-    )
-    plt.plot(
-        observed["timestamp_utc"],
-        observed["close"],
-        color="tab:green",
-        label="Actual XAUUSD (comparison only)",
-        linewidth=1.2,
-    )
-    plt.axvline(
-        FORECAST_START_UTC, color="black", linestyle="--", linewidth=0.8, label="Training cut-off"
-    )
-    plt.title("XAUUSD: Historical Data, XGBoost Forecast, and Actual Price")
-    plt.xlabel("UTC date")
-    plt.ylabel("Close price")
-    plt.legend(loc="best")
-    plt.grid(alpha=0.2)
-    return _save_plot(output_path)
-
-
-def plot_actual_vs_predicted(comparison: pd.DataFrame, output_path: Path) -> Path:
-    """Save an aligned 2026 actual-versus-XGBoost-forecast line chart."""
-
-    aligned = _validated_comparison(comparison)
-    plt.figure(figsize=(13, 6))
-    plt.plot(aligned["timestamp_utc"], aligned["actual_close"], color="tab:green", label="Actual")
-    plt.plot(
-        aligned["timestamp_utc"],
-        aligned["forecast_close"],
-        color="tab:red",
-        label="XGBoost forecast",
-    )
-    plt.title("XAUUSD 2026: Actual vs Predicted")
-    plt.xlabel("UTC date")
-    plt.ylabel("Close price")
-    plt.legend()
-    plt.grid(alpha=0.2)
-    return _save_plot(output_path)
-
-
-def plot_residuals(comparison: pd.DataFrame, output_path: Path) -> Path:
-    """Save actual-minus-forecast residuals over the reporting period."""
-
-    aligned = _validated_comparison(comparison)
-    plt.figure(figsize=(13, 5))
-    plt.axhline(0, color="black", linewidth=0.8)
-    plt.plot(aligned["timestamp_utc"], aligned["residual"], color="tab:purple")
-    plt.title("XAUUSD 2026: Prediction Residuals (Actual - Forecast)")
-    plt.xlabel("UTC date")
-    plt.ylabel("Price residual")
-    plt.grid(alpha=0.2)
-    return _save_plot(output_path)
-
-
-def plot_monthly_comparison(comparison: pd.DataFrame, output_path: Path) -> Path:
-    """Save monthly mean actual and forecast closes for 2026."""
-
-    aligned = _validated_comparison(comparison)
-    monthly = (
-        aligned.set_index("timestamp_utc")[["actual_close", "forecast_close"]].resample("MS").mean()
-    )
-    positions = np.arange(len(monthly))
-    plt.figure(figsize=(12, 6))
-    plt.bar(positions - 0.19, monthly["actual_close"], 0.38, color="tab:green", label="Actual")
-    plt.bar(
-        positions + 0.19, monthly["forecast_close"], 0.38, color="tab:red", label="XGBoost forecast"
-    )
-    plt.xticks(positions, monthly.index.strftime("%Y-%m"), rotation=45, ha="right")
-    plt.title("XAUUSD 2026: Monthly Mean Actual vs Forecast")
-    plt.xlabel("UTC month")
-    plt.ylabel("Mean close price")
-    plt.legend()
-    return _save_plot(output_path)
-
-
-def plot_error_distribution(comparison: pd.DataFrame, output_path: Path, bins: int = 30) -> Path:
-    """Save the distribution of actual-minus-forecast residuals."""
-
-    if bins < 1:
-        raise ValueError("bins harus lebih besar dari nol")
-    aligned = _validated_comparison(comparison)
-    plt.figure(figsize=(10, 5))
-    plt.hist(aligned["residual"], bins=bins, color="tab:purple", edgecolor="white")
-    plt.axvline(0, color="black", linewidth=0.8)
-    plt.title("XAUUSD 2026: Prediction Error Distribution")
-    plt.xlabel("Residual (actual - forecast)")
-    plt.ylabel("Number of days")
-    return _save_plot(output_path)
-
-
-def generate_forecast_reports(
-    source_id: str,
-    symbol: str,
-    timeframe: str,
-    *,
-    history_start: str = DEFAULT_HISTORY_START,
-    actual_end: str,
-    lag_count: int = 30,
-    output_dir: Path = FORECAST_REPORT_ROOT,
-) -> tuple[dict[str, Path], dict[str, float]]:
-    """Load data, forecast without leakage, and write PNG/metric report artifacts.
-
-    The history query ends precisely at 2026-01-01 UTC. The actual query starts
-    then and is intentionally kept separate from all model arguments.
-    """
-
-    _as_utc_timestamp(history_start, "history_start")
-    end = _as_utc_timestamp(actual_end, "actual_end")
-    if end <= FORECAST_START_UTC:
-        raise ValueError("actual_end harus sesudah 2026-01-01 UTC")
-    cutoff = FORECAST_START_UTC.isoformat().replace("+00:00", "Z")
-    history = prepare_daily_close(
-        load_market_data(source_id, symbol, timeframe, history_start, cutoff)
-    )
-    actual = prepare_daily_close(load_market_data(source_id, symbol, timeframe, cutoff, actual_end))
-    _ensure_history_precedes_cutoff(history)
-    model, _ = train_xgboost_forecaster(history, lag_count=lag_count)
-    forecast = forecast_recursively(
-        model, history, forecast_dates_for_actual(actual), lag_count=lag_count
-    )
-    comparison = align_actual_and_forecast(actual, forecast)
-    metrics = calculate_forecast_metrics(comparison)
-    destination = Path(output_dir)
-    paths = {
-        "historical_forecast_actual": plot_historical_forecast_actual(
-            history, forecast, actual, destination / "historical_forecast_actual.png"
-        ),
-        "actual_vs_predicted": plot_actual_vs_predicted(
-            comparison, destination / "actual_vs_predicted.png"
-        ),
-        "residuals": plot_residuals(comparison, destination / "residuals.png"),
-        "monthly_comparison": plot_monthly_comparison(
-            comparison, destination / "monthly_comparison.png"
-        ),
-        "error_distribution": plot_error_distribution(
-            comparison, destination / "error_distribution.png"
-        ),
-        "interactive_dashboard": create_interactive_dashboard(
-            history,
-            forecast,
-            actual,
-            comparison,
-            metrics,
-            destination / "dashboard.html",
-        ),
-    }
-    metrics_path = destination / "metrics.json"
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    metrics_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
-    paths["metrics"] = metrics_path
-    return paths, metrics
-
-
 def _as_utc_timestamp(value: pd.Timestamp | str, name: str) -> pd.Timestamp:
     """Parse one timezone-aware UTC timestamp."""
 
@@ -1207,86 +736,16 @@ def _as_utc_timestamp(value: pd.Timestamp | str, name: str) -> pd.Timestamp:
     return parsed.tz_convert("UTC")
 
 
-def _require_columns(frame: pd.DataFrame, columns: Sequence[str]) -> None:
-    """Reject missing input columns with a readable error."""
-
-    missing = [column for column in columns if column not in frame.columns]
-    if missing:
-        raise ValueError(f"Kolom tidak ditemukan: {missing}")
 
 
-def _validated_daily_close(frame: pd.DataFrame) -> pd.DataFrame:
-    """Return finite, positive, unique, chronologically ordered daily closes."""
-
-    _require_columns(frame, ("timestamp_utc", "close"))
-    local = frame[["timestamp_utc", "close"]].copy()
-    local["timestamp_utc"] = pd.to_datetime(local["timestamp_utc"], utc=True, errors="coerce")
-    local["close"] = pd.to_numeric(local["close"], errors="coerce")
-    local = local.replace([np.inf, -np.inf], np.nan).dropna()
-    local = local.loc[local["close"] > 0].sort_values("timestamp_utc")
-    local = local.drop_duplicates("timestamp_utc", keep="last").reset_index(drop=True)
-    if local.empty:
-        raise ValueError("Tidak ada daily close valid")
-    return local
 
 
-def _validated_forecast(frame: pd.DataFrame) -> pd.DataFrame:
-    """Return finite, positive, unique, chronologically ordered forecast closes."""
-
-    _require_columns(frame, ("timestamp_utc", "forecast_close"))
-    local = frame[["timestamp_utc", "forecast_close"]].copy()
-    local["timestamp_utc"] = pd.to_datetime(local["timestamp_utc"], utc=True, errors="coerce")
-    local["forecast_close"] = pd.to_numeric(local["forecast_close"], errors="coerce")
-    local = local.replace([np.inf, -np.inf], np.nan).dropna()
-    local = local.loc[local["forecast_close"] > 0].sort_values("timestamp_utc")
-    local = local.drop_duplicates("timestamp_utc", keep="last").reset_index(drop=True)
-    if local.empty:
-        raise ValueError("Tidak ada forecast close valid")
-    return local
 
 
-def _validated_comparison(frame: pd.DataFrame) -> pd.DataFrame:
-    """Return valid aligned actual and forecast data with a residual column."""
-
-    _require_columns(frame, ("timestamp_utc", "actual_close", "forecast_close"))
-    local = frame[["timestamp_utc", "actual_close", "forecast_close"]].copy()
-    local["timestamp_utc"] = pd.to_datetime(local["timestamp_utc"], utc=True, errors="coerce")
-    for column in ("actual_close", "forecast_close"):
-        local[column] = pd.to_numeric(local[column], errors="coerce")
-    local = local.replace([np.inf, -np.inf], np.nan).dropna().sort_values("timestamp_utc")
-    if local.empty:
-        raise ValueError("Tidak ada data comparison valid")
-    local["residual"] = local["actual_close"] - local["forecast_close"]
-    return local
 
 
-def _ensure_history_precedes_cutoff(
-    history: pd.DataFrame,
-    forecast_start: pd.Timestamp = FORECAST_START_UTC,
-) -> None:
-    """Reject values on/after the configured cutoff before model inference."""
-
-    cutoff = _as_utc_timestamp(forecast_start, "forecast_start")
-    if (_validated_daily_close(history)["timestamp_utc"] >= cutoff).any():
-        raise ValueError(
-            f"Data training/recursive state tidak boleh memuat harga mulai {cutoff.isoformat()}"
-        )
 
 
-def _save_plot(output_path: Path) -> Path:
-    """Save and close the active Matplotlib figure as a non-empty PNG."""
-
-    path = Path(output_path)
-    if path.suffix.lower() != ".png":
-        plt.close()
-        raise ValueError("Output analytics wajib berupa file PNG")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    plt.tight_layout()
-    plt.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close()
-    if not path.exists() or path.stat().st_size == 0:
-        raise RuntimeError(f"PNG gagal dibuat: {path}")
-    return path
 
 
 # %% 09A | UNI TIME SERIES: tren, drawdown, distribusi return dan volatilitas
@@ -1716,22 +1175,6 @@ def run_evaluation(arguments: argparse.Namespace) -> list[Path]:
     return paths
 
 
-def run_forecast(arguments: argparse.Namespace) -> list[Path]:
-    """Execute the retained pre-2026 recursive XGBoost experiment and display its metrics."""
-
-    paths, metrics = generate_forecast_reports(
-        arguments.source_id,
-        arguments.symbol,
-        arguments.timeframe,
-        history_start=arguments.history_start,
-        actual_end=arguments.actual_end,
-        lag_count=arguments.lag_count,
-        output_dir=arguments.output_dir,
-    )
-    print(json.dumps(metrics, indent=2), flush=True)
-    return list(paths.values())
-
-
 # %% 10 | CLI: pemuatan sumber dan eksekusi laporan
 
 
@@ -1850,7 +1293,7 @@ def run_feature_eda(arguments: argparse.Namespace) -> list[Path]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build the unified UNI, BI, MULTI, time-series, evaluation and forecast CLI."""
+    """Build the unified UNI, BI, MULTI, time-series and evaluation CLI."""
 
     parser = argparse.ArgumentParser(
         description="UNI, BI, MULTI, time-series insights and temporal model evaluation."
@@ -1924,26 +1367,13 @@ def build_parser() -> argparse.ArgumentParser:
     evaluation.add_argument("--top-n", type=int, default=20)
     evaluation.set_defaults(handler=run_evaluation)
 
-    forecast = commands.add_parser("forecast", help="Eksperimen recursive XGBoost 2026")
-    forecast.add_argument("--source-id", required=True)
-    forecast.add_argument("--symbol", default="XAUUSD")
-    forecast.add_argument("--timeframe", default="M5")
-    forecast.add_argument("--history-start", default=DEFAULT_HISTORY_START)
-    forecast.add_argument("--actual-end", required=True)
-    forecast.add_argument("--lag-count", type=int, default=30)
-    forecast.add_argument("--output-dir", type=Path, default=FORECAST_REPORT_ROOT)
-    forecast.set_defaults(handler=run_forecast, watch_seconds=None)
     return parser
 
 
 def main() -> None:
     """Run EDA once or poll PostgreSQL and refresh PNG reports continuously."""
 
-    argv = sys.argv[1:]
-    # CLI-01 | Pertahankan pemanggilan forecast lama yang langsung memakai flags.
-    if argv and argv[0].startswith("--") and argv[0] not in {"--help", "-h"}:
-        argv = ["forecast", *argv]
-    arguments = build_parser().parse_args(argv)
+    arguments = build_parser().parse_args(sys.argv[1:])
     if arguments.watch_seconds is not None and arguments.watch_seconds <= 0:
         raise ValueError("--watch-seconds harus lebih besar dari nol")
     while True:
