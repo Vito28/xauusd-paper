@@ -84,8 +84,9 @@ uv run python -m market.collector coverage --profile example_demo
 ```
 
 Console script `uv run market ...` dan perintah lama `python -m market.cli ...`
-tetap mengarah ke app yang sama. Dashboard tetap dijalankan melalui
-`uv run python -m market.dashboard`.
+tetap mengarah ke app yang sama. Dashboard (live, backtest, dan data browser)
+dijalankan melalui `uv run python -m market.dashboard` atau
+`uv run uvicorn dashboard.app:app --port 8080`; lihat README utama.
 
 ## Verifikasi
 
@@ -171,8 +172,8 @@ uv run alembic upgrade head
 uv run python -m market.dashboard
 ```
 
-Buka `http://127.0.0.1:8080/`. Pilih tab Market bars, Raw ticks, atau Gabungan
-M5. Kolom Bid/Ask/spread pada gabungan akan `NULL` apabila broker tidak
+Buka `http://127.0.0.1:8080/data`. Pilih tab Market bars, Raw ticks, atau Gabungan
+M5. Halaman `/` adalah dashboard live MT5 dan `/backtest` dashboard backtesting. Kolom Bid/Ask/spread pada gabungan akan `NULL` apabila broker tidak
 menyediakan historical tick untuk candle terkait.
 
 ### 8. Docker (opsional, API/dashboard + PostgreSQL 18)
@@ -182,5 +183,6 @@ Copy-Item .env.example .env
 docker compose up --build
 ```
 
-Compose menjalankan `alembic upgrade head` lalu FastAPI di `http://127.0.0.1:8080/`.
+Compose menjalankan `alembic upgrade head` lalu FastAPI di `http://127.0.0.1:8080/`
+(data browser di `/data`, hasil `runs/` di-mount read-only untuk `/backtest`).
 Pengambilan data MT5 tetap dari Windows host karena package `MetaTrader5` hanya tersedia di Windows.

@@ -2,10 +2,10 @@
 
 Dokumen ini adalah pusat pertanggungjawaban ilmiah dan teknis untuk Technical
 Agent. `README.md` menjelaskan **apa** yang dibangun dan **bagaimana** cara
-menjalankannya; dokumen ini menjelaskan **mengapa** setiap keputusan diambil,
+menjalankannya, `docs/METHODOLOGY.md` menjelaskan metodologinya; dokumen ini menjelaskan **mengapa** setiap keputusan diambil,
 **apa buktinya**, dan **sejauh mana** klaim tersebut sudah diverifikasi.
 
-Terakhir diperbarui: 29 Oktober 2026.
+Terakhir diperbarui: 30 Oktober 2026.
 
 ## Kategori bukti
 
@@ -342,6 +342,10 @@ Tanggal semua keputusan: 29 Oktober 2026 (refactor), kecuali disebut lain.
 | D-13 | Early stopping XGBoost memakai blok CALIBRATION | Holdout terpisah dari akhir TRAIN | — | Menjaga TRAIN tetap utuh dan tidak menyentuh THRESHOLD/EVALUATION | Kalibrasi sedikit optimistis karena blok yang sama dipakai untuk memilih jumlah pohon | implemented (design decision) |
 | D-14 | Gaya kode eksplisit (loop dan if/else jelas, tanpa one-liner padat); aturan ruff SIM102/108/114 dinonaktifkan untuk `technical/` | Gaya ringkas | Permintaan pemilik proyek | Keterbacaan untuk audit akademik | — | implemented |
 | D-15 | Hapus forecast XGBoost rekursif harga harian (`analytics`), folder `docs/`, MkDocs, dan generator referensi kode; dependency `mkdocs` dan `plotly` dibuang | Pertahankan | Forecast rekursif level harga tidak sesuai rumusan masalah klasifikasi (A-01) | Satu sumber dokumentasi: README + SoT + README per modul | Panduan collector dipindah ke `market/README.md`, panduan EDA ke `analytics/README.md` | implemented |
+| D-16 | Backtesting memakai prediksi out-of-sample per fold walk-forward (2021–2025) dan fold final (2026), disimpan di `runs/<id>/backtest/`; akurasi klasifikasi, ketepatan arah, dan simulasi P&L dilaporkan terpisah | Melatih ulang model untuk backtest; satu metrik gabungan | A-06, [31], [32] | Setiap prediksi dibuat model yang tersedia pada waktu itu; metrik yang berbeda tidak dicampur | Simulasi tingkat candle: bid OHLC, ask = bid + spread, spread keluar = spread masuk, tanpa slippage/komisi, posisi boleh tumpang tindih (docs/METHODOLOGY.md §15) | implemented |
+| D-17 | Hasil sinyal dinilai dengan definisi label (CORRECT/INCORRECT/NEUTRAL), bukan sekadar tanda perubahan harga | Kenaikan harga apa pun = BUY benar | D-03 | Konsisten dengan target training; kenaikan di bawah barrier tidak cukup menutup biaya | Ketepatan arah tanpa ambang tetap ditampilkan sebagai ukuran terpisah | implemented |
+| D-18 | Horizon tetap 6 bar (30 menit), bukan 15 menit | 3 bar (15 menit) | D-02, EXP-L01 | Pada 15 menit gerak tipikal terlalu kecil terhadap spread; horizon final tetap ditentukan EXP-R01 (`label-scan`) | Dashboard membaca horizon dari `run.json`, tidak di-hardcode | implemented (menunggu EXP-R01) |
+| D-19 | Dashboard live: MT5 → LiveService → WebSocket; tanpa MT5 tampil "disconnected" dan grafik historis PostgreSQL berlabel, tanpa data dummy; prediksi live memakai `live_bundle.joblib` dari final-test dan dicatat terpisah (`runs/live/`) | Data simulasi saat MT5 tidak ada | — | Tidak menyesatkan pengguna; prediksi live tidak tercampur dengan backtest | Paket MetaTrader5 hanya Windows; epoch MT5 diperlakukan sebagai UTC seperti collector | implemented |
 
 ---
 
