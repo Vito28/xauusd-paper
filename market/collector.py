@@ -143,7 +143,9 @@ class MT5Provider:
         try:
             module = importlib.import_module("MetaTrader5")
         except ImportError as exc:
-            raise MT5Error("MetaTrader5 package is unavailable on this Windows host") from exc
+            raise MT5Error(
+                "MetaTrader5 package is unavailable (requires Windows with an MT5 terminal)"
+            ) from exc
         kwargs = {"path": str(self._terminal_path)} if self._terminal_path else {}
         if not module.initialize(**kwargs):
             raise MT5Error(f"MT5 initialization failed: {module.last_error()}")
@@ -317,6 +319,32 @@ class MT5Provider:
         end_epoch = int(partition.end_utc.timestamp())
         rows = [{name: row[name].item() for name in names} for row in result]
         return [row for row in rows if start_epoch <= int(row["time"]) < end_epoch]
+
+    # MT5-07 | Snapshot live untuk dashboard: tick terakhir dan N bar terakhir (read-only).
+    def latest_tick(self, symbol: str) -> dict[str, Any]:
+        """Return the newest Bid/Ask tick known by the terminal for ``symbol``."""
+
+        api = self._api()
+        tick = api.symbol_info_tick(symbol)
+        if tick is None:
+            raise MT5Error(f"symbol_info_tick failed: {api.last_error()}")
+        return self._as_dict(tick)
+
+    def recent_bars(self, symbol: str, timeframe: str, count: int) -> list[dict[str, Any]]:
+        """Return the newest ``count`` native bars, oldest first.
+
+        The last element is the bar that is still forming at request time.
+        """
+
+        api = self._api()
+        timeframe_constant = getattr(api, f"TIMEFRAME_{timeframe}", None)
+        if timeframe_constant is None:
+            raise MT5PreflightError(f"unsupported MT5 timeframe: {timeframe}")
+        result = api.copy_rates_from_pos(symbol, timeframe_constant, 0, count)
+        if result is None:
+            raise MT5Error(f"copy_rates_from_pos failed: {api.last_error()}")
+        names = result.dtype.names or ()
+        return [{name: row[name].item() for name in names} for row in result]
 
     # MT5-06 | Fetch historical ticks; identity milidetik dipertahankan untuk normalisasi.
     def fetch_ticks(self, symbol: str, partition: TimePartition) -> list[dict[str, Any]]:

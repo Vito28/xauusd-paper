@@ -1,6 +1,6 @@
-"""Read-only FastAPI browser for bars, ticks, and unified M5 data.
+"""Read-only FastAPI router for browsing bars, ticks, and unified M5 data.
 
-The dashboard exposes one responsive HTML interface and paginated JSON APIs
+The router exposes one responsive HTML interface (``/data``) and paginated JSON APIs
 backed by PostgreSQL. Dataset names, selected columns, and sort columns come
 from server-side whitelists; user values remain bound SQL parameters. This
 module never initializes MetaTrader 5 and never mutates collected market data.
@@ -8,15 +8,13 @@ module never initializes MetaTrader 5 and never mutates collected market data.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
-from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
@@ -250,26 +248,15 @@ def get_database(environment: Environment) -> Database:
     return database
 
 
-@asynccontextmanager
-async def lifespan(_: FastAPI) -> Iterator[None]:
+def dispose_databases() -> None:
     """Dispose every lazily created demo/live engine when the web server stops."""
 
-    yield
     for database in _databases.values():
         database.dispose()
     _databases.clear()
 
 
-app = FastAPI(
-    title="XAUUSD Market Data Browser",
-    summary="Inspect native bars, raw ticks, and unified M5 observations.",
-    description=(
-        "A local, read-only browser for PostgreSQL market data. It exposes "
-        "whitelisted filters and sorting and never communicates with MetaTrader 5."
-    ),
-    version="0.3.0",
-    lifespan=lifespan,
-)
+router = APIRouter()
 
 
 def query_market_data(
@@ -390,14 +377,14 @@ def query_processed_m5(
     )
 
 
-@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/data", response_class=HTMLResponse, include_in_schema=False)
 def dashboard_page() -> HTMLResponse:
     """Serve the interactive market-data interface without querying PostgreSQL."""
 
     return HTMLResponse(_page_path.read_text(encoding="utf-8"))
 
 
-@app.get(
+@router.get(
     "/api/market-data",
     response_model=MarketDataPage,
     summary="Browse a market dataset",
@@ -485,7 +472,7 @@ def market_data(
         ) from exc
 
 
-@app.get(
+@router.get(
     "/api/processed-m5",
     response_model=ProcessedM5Page,
     summary="Browse processed M5 market data",
@@ -545,9 +532,9 @@ def processed_m5_data(
 
 
 def run() -> None:
-    """Start the read-only dashboard on the local loopback interface."""
+    """Start the combined research dashboard (live, backtest, data) on loopback."""
 
-    uvicorn.run("market.dashboard:app", host="127.0.0.1", port=8080)
+    uvicorn.run("dashboard.app:app", host="127.0.0.1", port=8080)
 
 
 if __name__ == "__main__":

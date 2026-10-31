@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XAUUSD Backtest</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17V9m5 10V5m5 12V8m5 11V3"/></svg>
+      </div>
+      <div>XAUUSD Research<small>Backtest &amp; Prediction Analysis</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/">Live</a>
+      <a href="/backtest" class="active">Backtest</a>
+      <a href="/data">Data</a>
+      <a href="/docs" target="_blank" rel="noreferrer">API</a>
+    </nav>
+    <div class="spacer"></div>
+    <span class="pill" id="periodPill"><i></i><span>Belum memilih run</span></span>
+  </header>
+
+  <main class="page">
+    <section class="panel">
+      <div class="controls">
+        <label class="field"><span>Run</span><select id="runSelect"></select></label>
+        <label class="field"><span>Model</span><select id="modelSelect"></select></label>
+        <label class="field"><span>Periode out-of-sample</span><select id="periodSelect"></select></label>
+        <label class="field"><span>Dari (UTC)</span><input type="date" id="startDate"></label>
+        <label class="field"><span>Sampai (UTC)</span><input type="date" id="endDate"></label>
+        <button class="primary" id="applyRange" type="button">Terapkan</button>
+        <div class="spacer" style="flex:1"></div>
+        <label class="field"><span>Lot simulasi</span><input type="number" id="lotInput" value="0.01" min="0.01" step="0.01" style="width:90px"></label>
+        <label class="field"><span>Leverage</span><input type="number" id="leverageInput" value="100" min="1" step="1" style="width:80px"></label>
+      </div>
+      <p class="note" id="periodNote"></p>
+    </section>
+
+    <div class="banner info" id="emptyBanner" hidden></div>
+
+    <section class="metric-groups" id="metrics">
+      <div class="panel">
+        <h2>1 · Akurasi klasifikasi <span class="hint">vs label triple-barrier</span></h2>
+        <div class="metric-grid" id="classificationCards"></div>
+        <div id="perClass"></div>
+        <div id="confusion"></div>
+      </div>
+      <div class="panel">
+        <h2>2 · Ketepatan arah &amp; hasil sinyal</h2>
+        <div class="metric-grid" id="directionCards"></div>
+        <div id="outcomeSplit"></div>
+        <h2 style="margin-top:16px">Distribusi confidence sinyal</h2>
+        <div id="confidenceHist"></div>
+      </div>
+      <div class="panel">
+        <h2>3 · Simulasi trading <span class="hint">offline, setelah spread</span></h2>
+        <div class="metric-grid" id="simulationCards"></div>
+        <div class="chart small" id="equityChart" style="margin-top:12px"></div>
+        <p class="note" id="simulationNote"></p>
+      </div>
+    </section>
+
+    <section class="grid-main">
+      <div class="panel">
+        <h2>Candlestick + sinyal <span class="hint">▲ BUY · ▼ SELL · NO_TRADE tanpa marker · klik marker/baris untuk detail</span></h2>
+        <div class="chart-wrap">
+          <div class="legend" id="legend"></div>
+          <div class="chart" id="chart"></div>
+          <div class="overlay" id="chartOverlay" hidden><div><strong>Memuat…</strong><span id="chartOverlayText"></span></div></div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="panel">
+          <h2>Detail prediksi</h2>
+          <div id="detailPanel"><p class="muted">Pilih sinyal di grafik atau di tabel.</p></div>
+        </div>
+        <div class="panel">
+          <details class="help">
+            <summary>Cara membaca</summary>
+            <ul>
+              <li><b>Marker</b> diletakkan pada candle saat sinyal dibuat (keputusan di <i>close</i> candle). Garis putus-putus: harga entry, TP, dan SL simulasi.</li>
+              <li><b>Entry referensi</b>: BUY memakai <b>Ask</b> = close (bid) + spread; SELL memakai <b>Bid</b> = close. OHLC MT5 adalah harga bid; ini simulasi tingkat candle, bukan eksekusi tick.</li>
+              <li><b>CORRECT</b>: barrier searah (k·ATR + spread) tersentuh lebih dulu dalam horizon. <b>INCORRECT</b>: barrier lawan lebih dulu. <b>NEUTRAL</b>: tidak ada barrier tersentuh, jadi kenaikan kecil tidak dihitung sebagai BUY benar. <b>PENDING</b>: horizon belum selesai. <b>UNAVAILABLE</b>: horizon melewati gap pasar sehingga tidak bisa dinilai.</li>
+              <li><b>Arah HIT/MISS</b> hanya membandingkan tanda close t+H − close t, tanpa ambang. Ukuran ini sengaja dipisah dari akurasi label.</li>
+              <li>Setiap periode berasal dari fold walk-forward: model hanya dilatih dengan data sebelum periode tersebut.</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Riwayat prediksi <span class="hint" id="tableCount"></span></h2>
+      <div class="controls" style="margin-bottom:10px">
+        <div class="segmented" id="signalFilter">
+          <button type="button" data-value="ALL" class="active">Semua</button>
+          <button type="button" data-value="BUY">BUY</button>
+          <button type="button" data-value="SELL">SELL</button>
+        </div>
+        <div class="segmented" id="resultFilter">
+          <button type="button" data-value="ALL" class="active">Semua hasil</button>
+          <button type="button" data-value="CORRECT">Correct</button>
+          <button type="button" data-value="INCORRECT">Incorrect</button>
+          <button type="button" data-value="NEUTRAL">Neutral</button>
+          <button type="button" data-value="PENDING">Pending</button>
+          <button type="button" data-value="UNAVAILABLE">Unavailable</button>
+        </div>
+        <label class="field" style="flex-direction:row"><input type="checkbox" id="rangeOnly"> <span style="align-self:center">hanya rentang grafik</span></label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Waktu sinyal (UTC)</th><th>Sinyal</th><th class="num">Conf.</th><th class="num">Entry ref.</th>
+              <th class="num">Spread</th><th class="num">Barrier ±</th><th class="num">Harga t+H</th>
+              <th class="num">Return aktual</th><th>Label aktual</th><th>Hasil</th><th>Arah</th><th>Model</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span id="pageInfo"></span>
+        <span>
+          <button type="button" class="ghost" id="prevPage">‹ Sebelumnya</button>
+          <button type="button" class="ghost" id="nextPage">Berikutnya ›</button>
+        </span>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/backtest.js"></script>
+</body>
+</html>
