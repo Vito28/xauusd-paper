@@ -1,6 +1,6 @@
 # Optimasi Baseline XGBoost — Metrik, Hasil, Interpretasi, dan Temuan Awal
 
-Dokumen ini melanjutkan [laporan eksperimen baseline](README_laporan_baseline.md)
+Dokumen ini melanjutkan [laporan eksperimen baseline](laporan_baseline.md)
 dan disusun pada 21 Oktober 2026 dari artifact `direction_v3/final_2026`.
 Tidak ada training ulang atau perubahan model dalam penyusunan laporan ini.
 
@@ -244,7 +244,7 @@ dan evaluasi baru setelah periode yang telah ditinjau.
 - [Audit selective policy](artifacts/direction_v3/final_2026/policy.json).
 - [Prediksi per candle](artifacts/direction_v3/final_2026/predictions.csv).
 - [Konfigurasi eksperimen](artifacts/direction_v3/config.json).
-- [Laporan baseline](README_laporan_baseline.md).
+- [Laporan baseline](laporan_baseline.md).
 
 Dummy Classifier, Logistic Regression sebagai classifier trading, dan
 Random Forest belum menjadi pembanding terukur pada artifact ini. Tidak ada

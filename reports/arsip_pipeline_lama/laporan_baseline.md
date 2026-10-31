@@ -336,7 +336,7 @@ hasil Dummy Classifier, Logistic Regression, dan Random Forest belum tersedia.
 - [Policy dan gate audit](artifacts/direction_v3/final_2026/policy.json).
 - [Metrik fold 2024](artifacts/direction_v3/fold_2024/metrics.json).
 - [Metrik fold 2025](artifacts/direction_v3/fold_2025/metrics.json).
-- [Penjelasan persiapan data](artifacts/direction_v3/laporan_metodologi_data_xgboost.md).
+- [Penjelasan persiapan data](laporan_metodologi_data.md).
 
 README ini melaporkan artifact yang tersedia. Pembuatan laporan tidak
 menjalankan ulang training, mengubah ambang policy, atau menambahkan hasil
