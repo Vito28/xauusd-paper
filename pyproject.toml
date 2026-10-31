@@ -17,6 +17,7 @@ dependencies = [
     "structlog>=25.1",
     "typer>=0.15",
     "uvicorn>=0.54.0",
+    "websockets>=15.0",
     "xgboost>=3.4.1",
 ]
 
@@ -41,13 +42,15 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 # Kode Technical Agent sengaja ditulis eksplisit (if/else bertingkat, tanpa ternary)
 # agar mudah dibaca dan dicocokkan dengan rumus di SOURCE_OF_TRUTH.md.
 "technical/*.py" = ["SIM102", "SIM108", "SIM114"]
+"dashboard/*.py" = ["SIM102", "SIM105", "SIM108", "SIM114"]
 
 [tool.coverage.run]
-source = ["market", "database"]
+source = ["market", "database", "technical", "dashboard"]
 branch = true
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28",
     "pytest>=8.3",
     "pytest-cov>=6.0",
     "ruff>=0.11",
