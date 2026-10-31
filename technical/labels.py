@@ -66,6 +66,9 @@ def make_labels(
       label_end_time   : waktu paling akhir yang informasinya dipakai label
                          (= prediction_time + H x 5 menit). Dipakai untuk purging.
       label_status     : AVAILABLE, PENDING, GAP, atau INPUT_MISSING.
+      future_close     : close candle t+H (harga bid pada akhir horizon).
+      up_touch_step    : langkah pertama high menyentuh entry + barrier (NaN jika tidak).
+      down_touch_step  : langkah pertama low menyentuh entry - barrier (NaN jika tidak).
     """
     if method not in ("triple_barrier", "fixed_horizon"):
         raise ValueError(f"Metode label tidak dikenal: {method}")
@@ -132,6 +135,10 @@ def make_labels(
         minutes=horizon_bars * M5_MINUTES
     )
     result["label_status"] = status
+    # Langkah (1..H) ketika barrier atas/bawah pertama kali tersentuh; NaN jika tidak.
+    # Dipakai simulasi trading (technical/simulation.py), bukan oleh model.
+    result["up_touch_step"] = np.where(first_up_step == never, np.nan, first_up_step)
+    result["down_touch_step"] = np.where(first_down_step == never, np.nan, first_down_step)
     return result
 
 

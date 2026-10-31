@@ -7,13 +7,15 @@ Perintah:
   ablation        Walk-forward XGBoost dengan menghapus satu kelompok fitur per run.
   compare-scratch Bandingkan XGBoost resmi vs from scratch pada satu fold validasi.
   final-test      Latih model final (data <= 2025) lalu uji di 2026. Wajib --confirm.
+                  Juga menyimpan bundle model (live_bundle.joblib) untuk dashboard live.
 
 Contoh:
   uv run python -m technical.run walk-forward --models logistic,xgboost
   uv run python -m technical.run walk-forward --input-csv data/xauusd_m5.csv
 
 Setiap run menulis folder runs/<waktu>_<perintah>_<hash>/ berisi config,
-laporan data, metrik, dan (untuk final-test) prediksi per candle.
+laporan data, metrik, dan (walk-forward/final-test) prediksi out-of-sample per
+candle di backtest/ untuk dashboard backtesting (lihat technical/backtest.py).
 """
 
 import argparse
@@ -26,11 +28,12 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 
+from technical.backtest import build_prediction_frame, period_candles, save_period
 from technical.config import (
-    CLASS_NAMES,
     PROJECT_ROOT,
     TechnicalConfig,
     load_config,
@@ -289,6 +292,27 @@ def public_result(result: dict) -> dict:
     return cleaned
 
 
+def predict_period(result: dict, fold, candles, features, labels, config, model_version):
+    """Prediksi SEMUA candle di periode evaluasi fold dengan model fold tersebut.
+
+    Termasuk candle yang labelnya belum lengkap (PENDING/GAP), supaya dashboard
+    menampilkan seluruh sinyal yang benar-benar akan dikeluarkan model.
+    Model, temperature, dan threshold hanya berasal dari blok sebelum periode ini.
+    """
+    start = fold.evaluation_start
+    end = fold.evaluation_end
+    in_period = (labels["prediction_time"] >= start) & (labels["prediction_time"] < end)
+    rows = labels.index[in_period]
+    raw = result["_model"].predict_proba(features.loc[rows])
+    calibrated = apply_temperature(raw, result["_temperature"])
+    decisions, reasons = decide(calibrated, result["_thresholds"])
+    frame = build_prediction_frame(
+        candles, labels, rows, calibrated, decisions, reasons, fold.name, model_version
+    )
+    chart_candles = period_candles(candles, start, end, config.labels.horizon_bars)
+    return frame, chart_candles, rows, calibrated, decisions, reasons
+
+
 def summarize_folds(fold_results: list[dict]) -> dict:
     """Rata-rata dan simpangan baku metrik utama antar fold."""
     keys = {
@@ -352,7 +376,8 @@ def command_label_scan(config: TechnicalConfig, input_csv: str | None) -> Path:
     return directory
 
 
-def command_walk_forward(config, input_csv, model_names, groups=None) -> dict:
+def command_walk_forward(config, input_csv, model_names, groups=None, save_directory=None) -> dict:
+    """Walk-forward validasi. Jika save_directory diisi, prediksi tiap fold disimpan."""
     if groups is None:
         groups = config.features.groups
     candles, report = load_candles(config, input_csv, config.data.development_end)
@@ -362,10 +387,16 @@ def command_walk_forward(config, input_csv, model_names, groups=None) -> dict:
     results = {}
     for model_name in model_names:
         fold_results = []
+        model_version = f"technical-{model_name}-{config_hash(config)}"
         for fold in folds:
             print(f"[{model_name}] {fold.name}")
             fold_result = run_fold(model_name, fold, features, labels, baseline_inputs, config)
             fold_results.append(fold_result)
+            if save_directory is not None and not is_rule_baseline(model_name):
+                frame, chart_candles, *_ = predict_period(
+                    fold_result, fold, candles, features, labels, config, model_version
+                )
+                save_period(save_directory, model_name, fold.name, frame, chart_candles)
         results[model_name] = {
             "folds": [public_result(r) for r in fold_results],
             "summary": summarize_folds(fold_results),
@@ -380,8 +411,8 @@ def command_walk_forward(config, input_csv, model_names, groups=None) -> dict:
 
 
 def command_walk_forward_and_save(config, input_csv, model_names) -> Path:
-    output = command_walk_forward(config, input_csv, model_names)
     directory = create_run_directory(config, "walk-forward")
+    output = command_walk_forward(config, input_csv, model_names, save_directory=directory)
     write_json(directory / "metrics.json", clean_for_json(output["results"]))
     write_run_metadata(
         directory,
@@ -485,31 +516,10 @@ def command_final_test(config: TechnicalConfig, input_csv: str | None, model_nam
     result = run_fold(model_name, fold, features, labels, baseline_inputs, config)
     model = result["_model"]
 
-    # Prediksi untuk SEMUA candle 2026 (termasuk yang labelnya belum lengkap).
-    test_start = pd.Timestamp(config.data.development_end)
-    test_end = pd.Timestamp(config.data.test_end)
-    in_test = (labels["prediction_time"] >= test_start) & (labels["prediction_time"] < test_end)
-    test_rows = labels.index[in_test]
-
-    raw = model.predict_proba(features.loc[test_rows])
-    calibrated = apply_temperature(raw, result["_temperature"])
-    decisions, reasons = decide(calibrated, result["_thresholds"])
-
-    predictions = pd.DataFrame(index=test_rows)
-    predictions["prediction_time"] = labels.loc[test_rows, "prediction_time"]
-    predictions["label_end_time"] = labels.loc[test_rows, "label_end_time"]
-    predictions["close"] = candles.loc[test_rows, "close"]
-    predictions["barrier"] = labels.loc[test_rows, "barrier"]
-    predictions["probability_sell"] = calibrated[:, 0]
-    predictions["probability_no_trade"] = calibrated[:, 1]
-    predictions["probability_buy"] = calibrated[:, 2]
-    predictions["signal"] = [CLASS_NAMES[value] for value in decisions]
-    predictions["reason_code"] = reasons
-    predictions["label_status"] = labels.loc[test_rows, "label_status"]
-    actual = []
-    for value in labels.loc[test_rows, "label"]:
-        actual.append(CLASS_NAMES[int(value)] if pd.notna(value) else "")
-    predictions["actual_label"] = actual
+    model_version = f"technical-{model_name}-{config_hash(config)}"
+    predictions, chart_candles, test_rows, calibrated, decisions, reasons = predict_period(
+        result, fold, candles, features, labels, config, model_version
+    )
 
     evaluated = result["_blocks"]["evaluation"]
     period = {
@@ -521,7 +531,6 @@ def command_final_test(config: TechnicalConfig, input_csv: str | None, model_nam
         "status_counts": labels.loc[test_rows, "label_status"].value_counts().to_dict(),
     }
 
-    model_version = f"technical-{model_name}-{config_hash(config)}"
     last_row = test_rows[-1]
     latest_signal = build_signal(
         timestamp=labels.loc[last_row, "prediction_time"].isoformat(),
@@ -536,7 +545,23 @@ def command_final_test(config: TechnicalConfig, input_csv: str | None, model_nam
     )
 
     directory = create_run_directory(config, "final-test")
-    predictions.to_csv(directory / "predictions_2026.csv", index=False)
+    save_period(directory, model_name, fold.name, predictions, chart_candles)
+    # Bundle untuk prediksi live: model + kalibrasi + threshold dari data <= 2025 saja.
+    joblib.dump(
+        {
+            "model": model,
+            "temperature": result["_temperature"],
+            "thresholds": result["_thresholds"],
+            "feature_groups": list(config.features.groups),
+            "features": list(features.columns),
+            "horizon_bars": config.labels.horizon_bars,
+            "atr_period": config.labels.atr_period,
+            "barrier_atr_multiple": config.labels.barrier_atr_multiple,
+            "model_version": model_version,
+            "trained_until": config.data.development_end,
+        },
+        directory / "live_bundle.joblib",
+    )
     write_json(directory / "metrics.json", clean_for_json(public_result(result)))
     write_json(directory / "test_period.json", clean_for_json(period))
     write_json(directory / "latest_signal.json", clean_for_json(latest_signal.to_dict()))
