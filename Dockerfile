@@ -29,4 +29,4 @@ USER app
 
 EXPOSE 8080
 
-CMD ["uv", "run", "--no-sync", "uvicorn", "market.dashboard:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uv", "run", "--no-sync", "uvicorn", "dashboard.app:app", "--host", "0.0.0.0", "--port", "8080"]

@@ -11,29 +11,15 @@ import pandas as pd
 import pytest
 
 from analytics.analytics import (
-    FORECAST_START_UTC,
-    align_actual_and_forecast,
-    build_lagged_training_data,
     build_parser,
-    calculate_forecast_metrics,
-    create_interactive_dashboard,
-    forecast_dates_for_actual,
-    forecast_recursively,
     paired_values,
-    plot_actual_vs_predicted,
     plot_confusion_matrix,
     plot_correlation_matrix,
-    plot_error_distribution,
     plot_feature_histogram,
     plot_histogram,
-    plot_historical_forecast_actual,
     plot_missing_values,
-    plot_monthly_comparison,
-    plot_residuals,
     plot_scatter,
     plot_time_series,
-    split_training_and_actual,
-    train_xgboost_forecaster,
     validate_evaluation_split,
     validate_feature_selection,
 )
@@ -212,83 +198,3 @@ def test_eda_parser_accepts_watch_interval() -> None:
         ]
     )
     assert arguments.watch_seconds == 60
-
-
-def daily_close_frame() -> pd.DataFrame:
-    """Return deterministic daily closes spanning the training cutoff."""
-
-    dates = pd.date_range("2025-10-01", "2026-01-16", freq="B", tz="UTC")
-    return pd.DataFrame(
-        {"timestamp_utc": dates, "close": 2500.0 + np.arange(len(dates), dtype=float)}
-    )
-
-
-class ConstantRegressor:
-    """Minimal deterministic estimator for recursive forecasting tests."""
-
-    def predict(self, features: pd.DataFrame) -> np.ndarray:
-        """Return the prior forecast plus one without observing actual data."""
-
-        return features["lag_1"].to_numpy() + 1.0
-
-
-def test_xgboost_forecasting_excludes_2026_from_training_and_state() -> None:
-    """Training rows and recursive state reject actual prices after the cutoff."""
-
-    history, actual = split_training_and_actual(daily_close_frame())
-    training, expected_features = build_lagged_training_data(history, lag_count=5)
-    assert history["timestamp_utc"].max() < FORECAST_START_UTC
-    assert actual["timestamp_utc"].min() >= FORECAST_START_UTC
-    assert training["timestamp_utc"].max() < FORECAST_START_UTC
-    model, features = train_xgboost_forecaster(
-        history,
-        lag_count=5,
-        model_parameters={"n_estimators": 5, "max_depth": 2},
-    )
-    assert features == expected_features
-    forecast = forecast_recursively(
-        model,
-        history,
-        forecast_dates_for_actual(actual),
-        lag_count=5,
-    )
-    assert forecast["timestamp_utc"].min() >= FORECAST_START_UTC
-    with pytest.raises(ValueError, match="tidak boleh memuat harga mulai"):
-        train_xgboost_forecaster(daily_close_frame(), lag_count=5)
-    with pytest.raises(ValueError, match="tidak boleh memuat harga mulai"):
-        forecast_recursively(
-            ConstantRegressor(),
-            daily_close_frame(),
-            forecast_dates_for_actual(actual),
-            lag_count=5,
-        )
-
-
-def test_xgboost_visualisation_reports_create_pngs(tmp_path: Path) -> None:
-    """The reusable comparison visualisations create closed, non-empty PNGs."""
-
-    history, actual = split_training_and_actual(daily_close_frame())
-    forecast = forecast_recursively(
-        ConstantRegressor(),
-        history,
-        forecast_dates_for_actual(actual),
-        lag_count=5,
-    )
-    comparison = align_actual_and_forecast(actual, forecast)
-    metrics = calculate_forecast_metrics(comparison)
-    assert set(metrics) == {"mae", "mse", "rmse", "mape_percent", "observations"}
-    assert_png(plot_historical_forecast_actual(history, forecast, actual, tmp_path / "main.png"))
-    assert_png(plot_actual_vs_predicted(comparison, tmp_path / "actual_vs_predicted.png"))
-    assert_png(plot_residuals(comparison, tmp_path / "residuals.png"))
-    assert_png(plot_monthly_comparison(comparison, tmp_path / "monthly.png"))
-    assert_png(plot_error_distribution(comparison, tmp_path / "errors.png"))
-    dashboard = create_interactive_dashboard(
-        history,
-        forecast,
-        actual,
-        comparison,
-        metrics,
-        tmp_path / "dashboard.html",
-    )
-    assert dashboard.exists()
-    assert dashboard.stat().st_size > 0

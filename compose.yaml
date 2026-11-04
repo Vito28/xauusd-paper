@@ -33,6 +33,13 @@ services:
       GOLD_LOG_LEVEL: ${GOLD_LOG_LEVEL:-INFO}
       GOLD_SAFETY_LAG_SECONDS: ${GOLD_SAFETY_LAG_SECONDS:-5}
       GOLD_STORE_VALID_TICK_RAW_PAYLOAD: "false"
+      GOLD_DASHBOARD_DEMO_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-gold_user}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-gold_market_demo}
+      # Paket MetaTrader5 hanya ada di Windows; di container halaman live menampilkan
+      # status disconnected dan grafik historis PostgreSQL.
+      GOLD_LIVE_ENABLED: "false"
+    volumes:
+      # Hasil technical.run (backtest + live_bundle) dibaca read-only oleh dashboard.
+      - ./runs:/app/runs:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,7 +49,7 @@ services:
       - -c
       - >-
         uv run --no-sync alembic upgrade head &&
-        exec uv run --no-sync uvicorn market.dashboard:app
+        exec uv run --no-sync uvicorn dashboard.app:app
         --host 0.0.0.0 --port 8080
     ports:
       - "8080:8080"

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XAUUSD Live Monitor</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17V9m5 10V5m5 12V8m5 11V3"/></svg>
+      </div>
+      <div>XAUUSD Research<small>Technical Agent · M5</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/" class="active">Live</a>
+      <a href="/backtest">Backtest</a>
+      <a href="/data">Data</a>
+      <a href="/docs" target="_blank" rel="noreferrer">API</a>
+    </nav>
+    <div class="spacer"></div>
+    <span class="pill warn" id="socketPill"><i></i><span>Menghubungkan…</span></span>
+    <span class="pill" id="mt5Pill"><i></i><span>MT5: –</span></span>
+  </header>
+
+  <main class="page">
+    <div class="banner" id="sourceBanner" hidden></div>
+
+    <section class="stats" aria-label="Market overview">
+      <div class="stat"><div class="label">Symbol</div><div class="value" id="symbol">XAUUSD</div><div class="sub" id="timeframe">Timeframe M5</div></div>
+      <div class="stat bid"><div class="label">Bid</div><div class="value num" id="bid">–</div><div class="sub">harga jual</div></div>
+      <div class="stat ask"><div class="label">Ask</div><div class="value num" id="ask">–</div><div class="sub">harga beli</div></div>
+      <div class="stat"><div class="label">Spread</div><div class="value num" id="spread">–</div><div class="sub" id="spreadPoints">–</div></div>
+      <div class="stat"><div class="label">Tick terakhir</div><div class="value num" id="tickTime" style="font-size:16px">–</div><div class="sub">UTC</div></div>
+      <div class="stat"><div class="label">Status MT5</div><div class="value" id="mt5Status" style="font-size:16px">–</div><div class="sub" id="mt5Reason">–</div></div>
+    </section>
+
+    <section class="grid-main">
+      <div class="panel chart-wrap">
+        <h2>Candlestick XAUUSD M5 <span class="hint" id="chartSource">–</span></h2>
+        <div class="chart-wrap">
+          <div class="legend" id="legend"></div>
+          <div class="chart" id="chart"></div>
+          <div class="overlay" id="chartOverlay">
+            <div><strong>Belum ada data grafik</strong><span id="chartOverlayText">Menunggu MT5 atau data historis PostgreSQL…</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="panel">
+          <h2>Prediksi XGBoost <span class="hint" id="predHorizon"></span></h2>
+          <div id="predictionPanel"></div>
+        </div>
+        <div class="panel">
+          <h2>Riwayat prediksi live <span class="hint">terpisah dari backtest</span></h2>
+          <div class="table-wrap" style="max-height:300px">
+            <table>
+              <thead><tr><th>Waktu</th><th>Sinyal</th><th class="num">Conf.</th><th>Status</th></tr></thead>
+              <tbody id="liveHistory"><tr><td colspan="4" class="muted">Belum ada prediksi.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <details class="help">
+        <summary>Cara kerja halaman ini</summary>
+        <ul>
+          <li>Alur: <b>MetaTrader 5 → LiveService (polling 1 detik) → FastAPI WebSocket <code>/ws/live</code> → browser</b>. Tidak ada order yang dikirim ke broker.</li>
+          <li>Paket Python <code>MetaTrader5</code> hanya berjalan di Windows dengan terminal MT5 yang sudah login. Di Linux/Docker status akan <b>Tidak terhubung</b> dan grafik memakai data historis PostgreSQL (diberi label jelas, bukan harga live).</li>
+          <li>Prediksi dibuat hanya ketika sebuah candle M5 <b>selesai</b>, memakai model dari <code>runs/*/live_bundle.joblib</code> (hasil <code>final-test</code>, dilatih dengan data ≤ 2025). Model tidak dilatih ulang di sini.</li>
+          <li>Status <b>PENDING</b> berarti horizon belum selesai; hasil aktual baru diisi (<b>EVALUATED</b>) setelah candle t+H tersedia, dengan definisi label triple-barrier yang sama seperti training.</li>
+          <li><b>NO_TRADE</b> ditampilkan sebagai status, bukan sinyal transaksi.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/live.js"></script>
+</body>
+</html>

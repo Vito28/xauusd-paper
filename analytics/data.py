@@ -238,33 +238,6 @@ def load_feature_importance(source_id: str, model_version: str) -> pd.DataFrame:
 # %% 04 | Agregasi close harian untuk eksperimen forecast
 
 
-def prepare_daily_close(bars: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate valid intraday bars to final UTC daily closing prices.
-
-    Args:
-        bars: Market frame from analytics.data with open_time_utc and close.
-
-    Returns:
-        A new ordered frame containing timestamp_utc and close. Missing days
-        remain missing; this function never interpolates market prices.
-    """
-
-    require_columns(bars, ("open_time_utc", "close"))
-    daily = bars[["open_time_utc", "close"]].copy()
-    daily["open_time_utc"] = pd.to_datetime(daily["open_time_utc"], utc=True, errors="coerce")
-    daily["close"] = pd.to_numeric(daily["close"], errors="coerce")
-    daily = daily.replace([np.inf, -np.inf], np.nan).dropna()
-    daily = daily.loc[daily["close"] > 0].sort_values("open_time_utc")
-    if daily.empty:
-        raise ValueError("Tidak ada close harga yang valid untuk agregasi harian")
-    return (
-        daily.set_index("open_time_utc")["close"]
-        .resample("1D")
-        .last()
-        .dropna()
-        .rename_axis("timestamp_utc")
-        .reset_index()
-    )
 
 
 # %% 05 | Persiapan time series: provenance, candle tertutup dan kualitas

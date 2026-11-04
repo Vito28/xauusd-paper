@@ -1,14 +1,33 @@
+# Rahasia dan environment lokal
 .env
+.env.*
+!.env.example
 .venv/
+.uv-cache/
+.docker-data/
+
+# Cache Python dan tooling
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .pytest_tmp*/
 .ruff_cache/
-.uv-cache/
-.docker-data/
-
+.mypy_cache/
 .coverage
 htmlcov/
+
+# Output eksperimen dan model (dapat direproduksi dengan technical.run)
+runs/
+*.joblib
+*.npz
+
+# Log dan file sementara
 *.log
+*.tmp
 .agents
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

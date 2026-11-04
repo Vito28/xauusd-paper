@@ -1,6 +1,8 @@
 .git
 .gitignore
 .env
+.env.*
+!.env.example
 .venv
 __pycache__
 *.py[cod]
@@ -9,9 +11,6 @@ __pycache__
 .uv-cache
 .coverage
 htmlcov
-site
 reports
-teknikal/*.joblib
-teknikal/*.csv
-teknikal/*.png
+runs
 *.log
