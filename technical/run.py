@@ -16,13 +16,13 @@ Contoh:
 Setiap run menulis folder runs/<waktu>_<perintah>_<hash>/ berisi config,
 laporan data, metrik, dan (walk-forward/final-test) prediksi out-of-sample per
 candle di backtest/ untuk dashboard backtesting (lihat technical/backtest.py).
+Metrik puncak memori bernilai null pada platform tanpa modul resource.
 """
 
 import argparse
 import hashlib
 import json
 import platform
-import resource
 import subprocess
 import time
 from datetime import UTC, datetime
@@ -104,9 +104,17 @@ def package_versions() -> dict:
     }
 
 
-def peak_memory_mb() -> float:
-    # Linux: ru_maxrss dalam kilobyte. Ini puncak memori proses sejak start.
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+def peak_memory_mb() -> float | None:
+    """Kembalikan puncak memori proses dalam MiB jika tersedia di platform ini."""
+    try:
+        import resource
+    except ImportError:
+        return None
+
+    peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    if platform.system() == "Darwin":
+        return peak_rss / (1024 * 1024)
+    return peak_rss / 1024
 
 
 def create_run_directory(config: TechnicalConfig, command: str) -> Path:
