@@ -6,23 +6,38 @@ Model yang tersedia:
                     barrier yang sama dengan label sehingga adil dibandingkan.
   logistic        : multinomial logistic regression (baseline linear).
   xgboost         : XGBoost resmi (library) - model referensi utama.
+  xgboost_balanced: XGBoost dengan bobot kelas balanced (pembanding threshold moving).
   xgboost_scratch : implementasi NumPy di technical/xgboost_scratch.py.
+  random_forest   : bagging pohon dalam (anggota ensemble, menurunkan variance).
+  ensemble        : soft voting berbobot beberapa model di atas (technical/ensemble.py).
 
 Semua preprocessing (imputasi, scaling, binning) di-fit hanya pada data TRAIN.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.utils.class_weight import compute_sample_weight
 from xgboost import XGBClassifier
 
 from technical.config import BUY, NO_TRADE, SELL, TechnicalConfig
+from technical.ensemble import SoftVotingEnsemble
 from technical.xgboost_scratch import ScratchXGBoostClassifier
 
-MODEL_NAMES = ["always_no_trade", "persistence", "logistic", "xgboost", "xgboost_scratch"]
+MODEL_NAMES = [
+    "always_no_trade",
+    "persistence",
+    "logistic",
+    "xgboost",
+    "xgboost_balanced",
+    "xgboost_scratch",
+    "random_forest",
+    "ensemble",
+]
 
 
 class AlwaysNoTradeModel:
@@ -79,8 +94,11 @@ class LogisticModel:
 
 
 class LibraryXGBoostModel:
-    def __init__(self, config: TechnicalConfig):
+    def __init__(self, config: TechnicalConfig, balanced: bool = False):
         settings = config.xgboost
+        # balanced=True: kelas jarang diberi bobot n / (K * n_kelas) agar kesalahan padanya
+        # lebih mahal. Default False karena ketidakseimbangan ditangani threshold per arah.
+        self.balanced = balanced
         self.early_stopping_rounds = settings.early_stopping_rounds
         self.model = XGBClassifier(
             objective="multi:softprob",
@@ -103,11 +121,20 @@ class LibraryXGBoostModel:
         )
 
     def fit(self, features, labels, eval_features=None, eval_labels=None):
+        sample_weight = None
+        if self.balanced:
+            sample_weight = compute_sample_weight("balanced", labels)
         if eval_features is None:
             self.model.set_params(early_stopping_rounds=None)
-            self.model.fit(features, labels, verbose=False)
+            self.model.fit(features, labels, sample_weight=sample_weight, verbose=False)
         else:
-            self.model.fit(features, labels, eval_set=[(eval_features, eval_labels)], verbose=False)
+            self.model.fit(
+                features,
+                labels,
+                sample_weight=sample_weight,
+                eval_set=[(eval_features, eval_labels)],
+                verbose=False,
+            )
         return self
 
     def predict_proba(self, features) -> np.ndarray:
@@ -149,6 +176,33 @@ class ScratchModel:
         return self.model.best_iteration
 
 
+class RandomForestModel:
+    """Bagging: banyak pohon dalam pada sampel bootstrap dan subset fitur acak.
+
+    Pohon dalam memiliki bias rendah tetapi variance tinggi; merata-ratakan ratusan pohon
+    menurunkan variance. Nilai hilang ditangani langsung oleh scikit-learn >= 1.4.
+    """
+
+    def __init__(self, config: TechnicalConfig):
+        settings = config.random_forest
+        self.model = RandomForestClassifier(
+            n_estimators=settings.n_estimators,
+            max_depth=settings.max_depth,
+            min_samples_leaf=settings.min_samples_leaf,
+            max_features=settings.max_features,
+            max_samples=settings.max_samples,
+            random_state=config.run.random_state,
+            n_jobs=config.run.n_jobs,
+        )
+
+    def fit(self, features, labels, eval_features=None, eval_labels=None):
+        self.model.fit(features, labels)
+        return self
+
+    def predict_proba(self, features) -> np.ndarray:
+        return align_probabilities(self.model.predict_proba(features), self.model.classes_)
+
+
 def align_probabilities(probabilities: np.ndarray, classes: np.ndarray) -> np.ndarray:
     """Pastikan kolom probabilitas selalu berurutan SELL, NO_TRADE, BUY."""
     aligned = np.zeros((len(probabilities), 3))
@@ -166,8 +220,14 @@ def create_model(name: str, config: TechnicalConfig):
         return LogisticModel(config.run.random_state)
     if name == "xgboost":
         return LibraryXGBoostModel(config)
+    if name == "xgboost_balanced":
+        return LibraryXGBoostModel(config, balanced=True)
     if name == "xgboost_scratch":
         return ScratchModel(config)
+    if name == "random_forest":
+        return RandomForestModel(config)
+    if name == "ensemble":
+        return SoftVotingEnsemble(config)
     raise ValueError(f"Model tidak dikenal: {name}. Pilihan: {MODEL_NAMES}")
 
 

@@ -264,12 +264,23 @@ def test_no_signal_gives_undefined_precision_not_perfect() -> None:
 
 
 @pytest.mark.parametrize(
-    "model_name", ["always_no_trade", "persistence", "logistic", "xgboost", "xgboost_scratch"]
+    "model_name",
+    [
+        "always_no_trade",
+        "persistence",
+        "logistic",
+        "xgboost",
+        "xgboost_balanced",
+        "xgboost_scratch",
+        "random_forest",
+        "ensemble",
+    ],
 )
 def test_run_fold_end_to_end_on_synthetic_data(model_name: str) -> None:
     config = TechnicalConfig()
     config.xgboost.n_estimators = 20
     config.scratch.n_estimators = 5
+    config.random_forest.n_estimators = 20
     config.decision.min_signals = 5
     config.run.n_jobs = 1
 

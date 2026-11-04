@@ -3,7 +3,8 @@
 Perintah:
   label-scan      Distribusi label untuk beberapa horizon dan multiple ATR,
                   hanya pada data pengembangan (< development_end). Tanpa model.
-  walk-forward    Validasi walk-forward 2021-2025 untuk model yang dipilih.
+  walk-forward    Validasi walk-forward 2021-2025 untuk model yang dipilih
+                  (termasuk random_forest, xgboost_balanced, dan ensemble).
   ablation        Walk-forward XGBoost dengan menghapus satu kelompok fitur per run.
   compare-scratch Bandingkan XGBoost resmi vs from scratch pada satu fold validasi.
   final-test      Latih model final (data <= 2025) lalu uji di 2026. Wajib --confirm.
@@ -11,6 +12,7 @@ Perintah:
 
 Contoh:
   uv run python -m technical.run walk-forward --models logistic,xgboost
+  uv run python -m technical.run walk-forward --models xgboost,random_forest,ensemble
   uv run python -m technical.run walk-forward --input-csv data/xauusd_m5.csv
 
 Setiap run menulis folder runs/<waktu>_<perintah>_<hash>/ berisi config,
@@ -249,6 +251,9 @@ def run_fold(model_name, fold, features, labels, baseline_inputs, config) -> dic
     }
     if hasattr(model, "best_iteration"):
         result["best_iteration"] = model.best_iteration()
+    if hasattr(model, "report"):
+        # Ensemble: bobot, temperatur, log loss, dan keragaman anggota pada blok CALIBRATION.
+        result["ensemble"] = model.report()
 
     evaluation_raw = model.predict_proba(evaluation_x)
 

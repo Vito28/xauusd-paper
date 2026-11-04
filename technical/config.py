@@ -83,6 +83,21 @@ class ScratchConfig:
 
 
 @dataclass
+class RandomForestConfig:
+    n_estimators: int = 300
+    max_depth: int = 12
+    min_samples_leaf: int = 100
+    max_features: float = 0.33
+    max_samples: float = 0.5
+
+
+@dataclass
+class EnsembleConfig:
+    members: list[str] = field(default_factory=lambda: ["xgboost", "random_forest", "logistic"])
+    weight_step: float = 0.05
+
+
+@dataclass
 class DecisionConfig:
     threshold_grid_start: float = 0.34
     threshold_grid_stop: float = 0.90
@@ -106,6 +121,8 @@ class TechnicalConfig:
     features: FeatureConfig = field(default_factory=FeatureConfig)
     xgboost: XGBoostConfig = field(default_factory=XGBoostConfig)
     scratch: ScratchConfig = field(default_factory=ScratchConfig)
+    random_forest: RandomForestConfig = field(default_factory=RandomForestConfig)
+    ensemble: EnsembleConfig = field(default_factory=EnsembleConfig)
     decision: DecisionConfig = field(default_factory=DecisionConfig)
     run: RunConfig = field(default_factory=RunConfig)
 
@@ -125,6 +142,8 @@ def load_config(path: Path | str = DEFAULT_CONFIG_PATH) -> TechnicalConfig:
         features=FeatureConfig(**raw.get("features", {})),
         xgboost=XGBoostConfig(**raw.get("xgboost", {})),
         scratch=ScratchConfig(**raw.get("scratch", {})),
+        random_forest=RandomForestConfig(**raw.get("random_forest", {})),
+        ensemble=EnsembleConfig(**raw.get("ensemble", {})),
         decision=DecisionConfig(**raw.get("decision", {})),
         run=RunConfig(**raw.get("run", {})),
     )
@@ -166,6 +185,18 @@ def validate_config(config: TechnicalConfig) -> None:
             raise ValueError(f"Kelompok fitur tidak dikenal: {group}")
     if len(config.features.groups) == 0:
         raise ValueError("Minimal satu kelompok fitur")
+
+    allowed_members = ["xgboost", "xgboost_balanced", "random_forest", "logistic"]
+    if len(config.ensemble.members) < 2:
+        raise ValueError("ensemble.members minimal dua model")
+    for member in config.ensemble.members:
+        if member not in allowed_members:
+            raise ValueError(
+                f"Anggota ensemble tidak dikenal: {member}. Pilihan: {allowed_members}"
+            )
+    units = 1 / config.ensemble.weight_step
+    if not 0 < config.ensemble.weight_step <= 0.5 or abs(units - round(units)) > 1e-9:
+        raise ValueError("ensemble.weight_step harus membagi 1 habis, misalnya 0.05 atau 0.1")
 
     if config.decision.min_precision_lift < 1.0:
         raise ValueError("min_precision_lift minimal 1.0 (tidak lebih buruk dari acak)")

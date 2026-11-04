@@ -55,6 +55,20 @@ reg_alpha = 0.0
 gamma = 0.0
 max_bin = 64
 
+[random_forest]
+# Anggota bagging ensemble: pohon dalam pada sampel bootstrap -> menurunkan variance.
+n_estimators = 300
+max_depth = 12
+min_samples_leaf = 100   # data M5 bising: daun minimal 100 candle
+max_features = 0.33      # proporsi fitur acak per split (membuat pohon beragam)
+max_samples = 0.5        # proporsi baris per pohon (bootstrap), juga mempercepat training
+
+[ensemble]
+# Soft voting berbobot. Setiap anggota dikalibrasi (temperature scaling), lalu bobot dipilih
+# pada blok CALIBRATION dari grid kelipatan weight_step yang jumlahnya 1.
+members = ["xgboost", "random_forest", "logistic"]
+weight_step = 0.05
+
 [decision]
 # Threshold confidence dipilih per kelas pada blok "threshold" (bukan data uji).
 threshold_grid_start = 0.34
