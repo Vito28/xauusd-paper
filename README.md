@@ -40,7 +40,7 @@ MetaTrader 5 ──(market/collector, Windows)──► PostgreSQL market.proces
       │                          technical/data.py      preprocessing & validasi
       │                          technical/features.py  41 fitur kausal
       │                          technical/labels.py    label triple-barrier
-      │                          technical/models.py    XGBoost (+ baseline, scratch)
+      │                          technical/models.py    XGBoost, Random Forest, ensemble, baseline
       │                          technical/splits.py    walk-forward + purging/embargo
       │                          technical/evaluation.py metrik klasifikasi
       │                          technical/backtest.py  prediksi vs harga aktual
@@ -84,13 +84,15 @@ uv run python -m technical.run label-scan
 
 # 2. Walk-forward 2021–2025 (expanding window). Prediksi setiap fold disimpan untuk dashboard.
 uv run python -m technical.run walk-forward --models always_no_trade,persistence,logistic,xgboost
+#    Ensemble dan pembandingnya (lebih lama karena melatih beberapa model per fold):
+uv run python -m technical.run walk-forward --models xgboost,xgboost_balanced,random_forest,ensemble
 
 # 3. (opsional) XGBoost resmi vs from scratch, ablation kelompok fitur
 uv run python -m technical.run compare-scratch --year 2025
 uv run python -m technical.run ablation
 
 # 4. Setelah konfigurasi dikunci: uji out-of-sample 2026 (sekali). Juga membuat
-#    runs/<id>/live_bundle.joblib yang dipakai prediksi live.
+#    runs/<id>/live_bundle.joblib yang dipakai prediksi live. --model boleh ensemble.
 uv run python -m technical.run final-test --model xgboost --confirm
 ```
 
