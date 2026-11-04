@@ -143,7 +143,20 @@ pada 2026 (SoT EXP-L01). Itu bertentangan dengan filosofi selektif, sehingga lab
 | `persistence` | baseline naif: gerak H bar terakhir > barrier → searah | `technical/models.py` |
 | `logistic` | baseline linear (multinomial logistic regression) | `technical/models.py` |
 | `xgboost` | **model referensi utama** (`XGBClassifier`, `multi:softprob`, `hist`) | `technical/models.py` |
+| `xgboost_balanced` | XGBoost dengan bobot kelas *balanced*; pembanding penanganan imbalance lewat threshold | `technical/models.py` |
 | `xgboost_scratch` | gradient boosting multikelas dari nol, hanya NumPy | `technical/xgboost_scratch.py` |
+| `random_forest` | bagging pohon dalam (anggota ensemble, menurunkan variance) | `technical/models.py` |
+| `ensemble` | soft voting berbobot `xgboost` + `random_forest` + `logistic` | `technical/ensemble.py` |
+
+**Ensemble.** Anggota dipilih agar kesalahannya berbeda: boosting (menurunkan bias),
+bagging (menurunkan variance), dan model linear. Setiap anggota dilatih pada TRAIN,
+dikalibrasi dengan temperature scaling pada CALIBRATION, lalu bobotnya dipilih dari grid
+simpleks (kelipatan 0,05, jumlah 1) yang meminimalkan log loss campuran pada CALIBRATION.
+Bobot tidak dipelajari dari prediksi in-sample sehingga tidak bocor seperti stacking yang
+salah, dan grid memuat bobot satu anggota saja sehingga campuran tidak lebih buruk daripada
+anggota terbaik pada blok itu. Threshold tetap dipilih pada blok THRESHOLD. Laporan per fold
+(`metrics.json`, kunci `ensemble`) memuat bobot, temperatur, log loss setiap anggota, dan
+keragaman antaranggota (proporsi beda prediksi dan korelasi kesalahan).
 
 Implementasi from scratch mencakup base score, softmax, gradien, Hessian, histogram
 gradien, evaluasi split (termasuk arah default untuk nilai hilang), gain,
