@@ -10,6 +10,7 @@ Model yang tersedia:
   xgboost_scratch : implementasi NumPy di technical/xgboost_scratch.py.
   random_forest   : bagging pohon dalam (anggota ensemble, menurunkan variance).
   ensemble        : soft voting berbobot beberapa model di atas (technical/ensemble.py).
+  xgboost_selected: XGBoost dengan feature selection di dalam fold (technical/feature_selection.py).
 
 Semua preprocessing (imputasi, scaling, binning) di-fit hanya pada data TRAIN.
 """
@@ -26,6 +27,7 @@ from xgboost import XGBClassifier
 
 from technical.config import BUY, NO_TRADE, SELL, TechnicalConfig
 from technical.ensemble import SoftVotingEnsemble
+from technical.feature_selection import FeatureSelectedModel
 from technical.xgboost_scratch import ScratchXGBoostClassifier
 
 MODEL_NAMES = [
@@ -37,6 +39,7 @@ MODEL_NAMES = [
     "xgboost_scratch",
     "random_forest",
     "ensemble",
+    "xgboost_selected",
 ]
 
 
@@ -228,6 +231,8 @@ def create_model(name: str, config: TechnicalConfig):
         return RandomForestModel(config)
     if name == "ensemble":
         return SoftVotingEnsemble(config)
+    if name == "xgboost_selected":
+        return FeatureSelectedModel(config, base_model="xgboost")
     raise ValueError(f"Model tidak dikenal: {name}. Pilihan: {MODEL_NAMES}")
 
 

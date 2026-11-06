@@ -274,6 +274,7 @@ def test_no_signal_gives_undefined_precision_not_perfect() -> None:
         "xgboost_scratch",
         "random_forest",
         "ensemble",
+        "xgboost_selected",
     ],
 )
 def test_run_fold_end_to_end_on_synthetic_data(model_name: str) -> None:
