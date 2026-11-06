@@ -4,7 +4,7 @@ Perintah:
   label-scan      Distribusi label untuk beberapa horizon dan multiple ATR,
                   hanya pada data pengembangan (< development_end). Tanpa model.
   walk-forward    Validasi walk-forward 2021-2025 untuk model yang dipilih
-                  (termasuk random_forest, xgboost_balanced, dan ensemble).
+                  (termasuk random_forest, xgboost_balanced, ensemble, xgboost_selected).
   ablation        Walk-forward XGBoost dengan menghapus satu kelompok fitur per run.
   compare-scratch Bandingkan XGBoost resmi vs from scratch pada satu fold validasi.
   final-test      Latih model final (data <= 2025) lalu uji di 2026. Wajib --confirm.
@@ -49,6 +49,7 @@ from technical.decision import (
     select_thresholds,
 )
 from technical.evaluation import evaluate_predictions
+from technical.feature_selection import summarize_selection
 from technical.features import build_features
 from technical.labels import label_distribution, make_labels
 from technical.models import create_model, is_rule_baseline
@@ -254,6 +255,9 @@ def run_fold(model_name, fold, features, labels, baseline_inputs, config) -> dic
     if hasattr(model, "report"):
         # Ensemble: bobot, temperatur, log loss, dan keragaman anggota pada blok CALIBRATION.
         result["ensemble"] = model.report()
+    if hasattr(model, "selection_report"):
+        # Feature selection: status setiap fitur, mutual information, gain, permutation importance.
+        result["feature_selection"] = model.selection_report()
 
     evaluation_raw = model.predict_proba(evaluation_x)
 
@@ -414,6 +418,11 @@ def command_walk_forward(config, input_csv, model_names, groups=None, save_direc
             "folds": [public_result(r) for r in fold_results],
             "summary": summarize_folds(fold_results),
         }
+        if "feature_selection" in fold_results[0]:
+            reports = [r["feature_selection"] for r in fold_results]
+            results[model_name]["feature_selection_stability"] = summarize_selection(
+                reports, feature_group
+            )
     return {
         "data_report": report,
         "feature_groups": groups,
@@ -439,6 +448,13 @@ def command_walk_forward_and_save(config, input_csv, model_names) -> Path:
             "peak_memory_mb": peak_memory_mb(),
         },
     )
+    for model_name, result in output["results"].items():
+        if "feature_selection_stability" in result:
+            # Tabel stabilitas seleksi untuk laporan: berapa fold setiap fitur terpilih.
+            table = pd.DataFrame(result["feature_selection_stability"])
+            table.to_csv(directory / f"feature_selection_{model_name}.csv", index=False)
+            counts = [len(fold["feature_selection"]["selected"]) for fold in result["folds"]]
+            print(f"{model_name}: fitur terpilih per fold {counts} dari {len(output['features'])}")
     print_summary(output["results"])
     return directory
 

@@ -69,6 +69,16 @@ max_samples = 0.5        # proporsi baris per pohon (bootstrap), juga mempercepa
 members = ["xgboost", "random_forest", "logistic"]
 weight_step = 0.05
 
+[feature_selection]
+# Dipakai model xgboost_selected. Semua langkah diulang di setiap fold, hanya memakai
+# blok TRAIN (filter) dan CALIBRATION (permutation importance).
+max_missing = 0.4            # buang fitur dengan nilai hilang > 40% di TRAIN
+sample_rows = 30000          # sampel TRAIN untuk mutual information dan korelasi
+redundancy_threshold = 0.95  # |Spearman| antarfitur di atas ini dianggap redundan
+leakage_threshold = 0.95     # |Spearman| fitur-label di atas ini dicurigai bocor
+permutation_repeats = 3      # berapa kali setiap fitur diacak
+min_features = 5             # jumlah fitur minimum yang dipertahankan
+
 [decision]
 # Threshold confidence dipilih per kelas pada blok "threshold" (bukan data uji).
 threshold_grid_start = 0.34

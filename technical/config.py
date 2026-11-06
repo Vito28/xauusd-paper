@@ -98,6 +98,16 @@ class EnsembleConfig:
 
 
 @dataclass
+class FeatureSelectionConfig:
+    max_missing: float = 0.4
+    sample_rows: int = 30000
+    redundancy_threshold: float = 0.95
+    leakage_threshold: float = 0.95
+    permutation_repeats: int = 3
+    min_features: int = 5
+
+
+@dataclass
 class DecisionConfig:
     threshold_grid_start: float = 0.34
     threshold_grid_stop: float = 0.90
@@ -123,6 +133,7 @@ class TechnicalConfig:
     scratch: ScratchConfig = field(default_factory=ScratchConfig)
     random_forest: RandomForestConfig = field(default_factory=RandomForestConfig)
     ensemble: EnsembleConfig = field(default_factory=EnsembleConfig)
+    feature_selection: FeatureSelectionConfig = field(default_factory=FeatureSelectionConfig)
     decision: DecisionConfig = field(default_factory=DecisionConfig)
     run: RunConfig = field(default_factory=RunConfig)
 
@@ -144,6 +155,7 @@ def load_config(path: Path | str = DEFAULT_CONFIG_PATH) -> TechnicalConfig:
         scratch=ScratchConfig(**raw.get("scratch", {})),
         random_forest=RandomForestConfig(**raw.get("random_forest", {})),
         ensemble=EnsembleConfig(**raw.get("ensemble", {})),
+        feature_selection=FeatureSelectionConfig(**raw.get("feature_selection", {})),
         decision=DecisionConfig(**raw.get("decision", {})),
         run=RunConfig(**raw.get("run", {})),
     )
@@ -197,6 +209,16 @@ def validate_config(config: TechnicalConfig) -> None:
     units = 1 / config.ensemble.weight_step
     if not 0 < config.ensemble.weight_step <= 0.5 or abs(units - round(units)) > 1e-9:
         raise ValueError("ensemble.weight_step harus membagi 1 habis, misalnya 0.05 atau 0.1")
+
+    selection = config.feature_selection
+    for name in ["max_missing", "redundancy_threshold", "leakage_threshold"]:
+        value = getattr(selection, name)
+        if not 0 < value <= 1:
+            raise ValueError(f"feature_selection.{name} harus di (0, 1]")
+    if selection.sample_rows < 1000:
+        raise ValueError("feature_selection.sample_rows minimal 1000")
+    if selection.permutation_repeats < 1 or selection.min_features < 1:
+        raise ValueError("feature_selection.permutation_repeats dan min_features minimal 1")
 
     if config.decision.min_precision_lift < 1.0:
         raise ValueError("min_precision_lift minimal 1.0 (tidak lebih buruk dari acak)")
