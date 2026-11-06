@@ -86,6 +86,8 @@ uv run python -m technical.run label-scan
 uv run python -m technical.run walk-forward --models always_no_trade,persistence,logistic,xgboost
 #    Ensemble dan pembandingnya (lebih lama karena melatih beberapa model per fold):
 uv run python -m technical.run walk-forward --models xgboost,xgboost_balanced,random_forest,ensemble
+#    Feature selection di dalam fold (41 fitur vs fitur terpilih):
+uv run python -m technical.run walk-forward --models xgboost,xgboost_selected
 
 # 3. (opsional) XGBoost resmi vs from scratch, ablation kelompok fitur
 uv run python -m technical.run compare-scratch --year 2025

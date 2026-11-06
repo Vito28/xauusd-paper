@@ -95,6 +95,22 @@ Periode indikator (RSI/ATR/ADX 14, MACD 12/26/9, Bollinger 20/2) adalah
 Definisi, rumus, dan risiko leakage setiap fitur ada di SoT bagian D.
 Kontribusi setiap kelompok akan diukur lewat ablation (belum dijalankan).
 
+**Feature selection** (`technical/feature_selection.py`, model `xgboost_selected`) diulang di
+setiap fold dan hanya memakai blok TRAIN dan CALIBRATION fold tersebut:
+
+| Tahap | Kategori | Aturan | Data |
+|---|---|---|---|
+| Nilai hilang dan konstan | filter | buang jika nilai hilang > 40% atau simpangan baku 0 | TRAIN |
+| Audit kebocoran | filter | catat fitur dengan \|Spearman(fitur, arah label)\| > 0,95 | TRAIN |
+| Redundansi | filter | dari pasangan \|Spearman\| > 0,95, pertahankan mutual information lebih tinggi | sampel TRAIN |
+| Gain XGBoost | embedded | dicatat sebagai pembanding (bukan dasar keputusan) | TRAIN |
+| Permutation importance | model-based | pertahankan fitur yang menaikkan log loss saat diacak | CALIBRATION |
+| Ablation kelompok | wrapper | walk-forward tanpa satu kelompok (`technical.run ablation`) | per fold |
+
+Model akhir dilatih ulang pada fitur terpilih lalu dibandingkan dengan `xgboost` (41 fitur)
+pada blok EVALUATION yang sama. Stabilitas seleksi antarfold ditulis ke
+`runs/<id>/feature_selection_xgboost_selected.csv`.
+
 ## 7. Preprocessing dan feature engineering
 
 Preprocessing (`technical/data.py`):
@@ -147,6 +163,7 @@ pada 2026 (SoT EXP-L01). Itu bertentangan dengan filosofi selektif, sehingga lab
 | `xgboost_scratch` | gradient boosting multikelas dari nol, hanya NumPy | `technical/xgboost_scratch.py` |
 | `random_forest` | bagging pohon dalam (anggota ensemble, menurunkan variance) | `technical/models.py` |
 | `ensemble` | soft voting berbobot `xgboost` + `random_forest` + `logistic` | `technical/ensemble.py` |
+| `xgboost_selected` | XGBoost dengan feature selection di dalam fold (bagian 7) | `technical/feature_selection.py` |
 
 **Ensemble.** Anggota dipilih agar kesalahannya berbeda: boosting (menurunkan bias),
 bagging (menurunkan variance), dan model linear. Setiap anggota dilatih pada TRAIN,
