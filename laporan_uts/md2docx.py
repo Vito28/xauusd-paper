@@ -1,3 +1,4 @@
+# ruff: noqa: E501  (potongan XML Word sengaja ditulis utuh per baris)
 """Markdown sederhana -> XML Word dengan gaya BUSINESS UNDERSTANDING.docx.
 
 Sintaks yang didukung (satu blok per baris kosong):
@@ -17,7 +18,6 @@ Inline: **tebal**, *miring*, `kode`.
 """
 
 import re
-import shutil
 import sys
 import zipfile
 from pathlib import Path
@@ -173,13 +173,19 @@ def table(rows: list[list[str]], widths: list[float] | None) -> str:
     )
     xml += "".join(f'<w:gridCol w:w="{width}"/>' for width in grid) + "</w:tblGrid>"
     for row_index, row in enumerate(rows):
-        trpr = "<w:trPr><w:tblHeader/><w:cantSplit/></w:trPr>" if row_index == 0 else "<w:trPr><w:cantSplit/></w:trPr>"
+        trpr = (
+            "<w:trPr><w:tblHeader/><w:cantSplit/></w:trPr>"
+            if row_index == 0
+            else "<w:trPr><w:cantSplit/></w:trPr>"
+        )
         xml += f"<w:tr>{trpr}"
         for column, cell in enumerate(row):
             xml += f'<w:tc><w:tcPr><w:tcW w:w="{grid[column]}" w:type="dxa"/></w:tcPr>'
             parts = cell.split("<br>")
             for part in parts:
-                xml += paragraph(inline_runs(part.strip(), size=19), '<w:spacing w:before="20" w:after="20"/>')
+                xml += paragraph(
+                    inline_runs(part.strip(), size=19), '<w:spacing w:before="20" w:after="20"/>'
+                )
             xml += "</w:tc>"
         xml += "</w:tr>"
     return xml + "</w:tbl>" + paragraph("", '<w:spacing w:before="0" w:after="60"/>')
@@ -191,7 +197,9 @@ def toc() -> str:
         '<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r>'
         '<w:r><w:instrText xml:space="preserve"> TOC \\o "1-2" \\h \\z \\u </w:instrText></w:r>'
         '<w:r><w:fldChar w:fldCharType="separate"/></w:r>'
-        + text_run("Klik kanan di sini lalu pilih Update Field untuk menampilkan daftar isi.", italic=True)
+        + text_run(
+            "Klik kanan di sini lalu pilih Update Field untuk menampilkan daftar isi.", italic=True
+        )
         + '<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>'
     )
     return title + field
@@ -214,8 +222,9 @@ def image_paragraphs(template_xml: str) -> dict[str, str]:
         start = template_xml.rfind("<w:drawing>", 0, match.start())
         end = template_xml.find("</w:drawing>", match.start()) + len("</w:drawing>")
         drawing = template_xml[start:end]
-        width, height = (int(value) for value in re.search(
-            r'<wp:extent cx="(\d+)" cy="(\d+)"', drawing).groups())
+        width, height = (
+            int(value) for value in re.search(r'<wp:extent cx="(\d+)" cy="(\d+)"', drawing).groups()
+        )
         scale = min(MAX_IMAGE_WIDTH / width, MAX_IMAGE_HEIGHT / height)
         new_width = int(width * scale)
         new_height = int(height * scale)
@@ -316,7 +325,9 @@ def convert(markdown: str, images: dict[str, str] | None = None) -> str:
             index += 1
             while index < len(lines):
                 following = lines[index].strip()
-                if not following or following.startswith(("#", "|", "```", "> ", "- ", "%", "$$", "<!--")):
+                if not following or following.startswith(
+                    ("#", "|", "```", "> ", "- ", "%", "$$", "<!--")
+                ):
                     break
                 if re.match(r"^\d+\) ", following) or CAPTION_RE.match(following):
                     break
@@ -374,6 +385,7 @@ def build_document(template: Path, markdown_path: Path, output: Path, repo: Path
 
         # Buang relasi gambar yang tidak dipakai beserta file media-nya.
         kept_media = set()
+
         def keep_relationship(match):
             relationship = match.group(0)
             rid = re.search(r'Id="(rId\d+)"', relationship).group(1)
@@ -382,6 +394,7 @@ def build_document(template: Path, markdown_path: Path, output: Path, repo: Path
             if "/image" in relationship:
                 kept_media.add("word/" + re.search(r'Target="([^"]+)"', relationship).group(1))
             return relationship
+
         rels = re.sub(r"<Relationship [^>]*/>", keep_relationship, rels)
 
         with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as target_zip:
@@ -397,13 +410,17 @@ def build_document(template: Path, markdown_path: Path, output: Path, repo: Path
                 elif name == "docProps/core.xml":
                     core = source_zip.read(name).decode("utf-8")
                     title = output.stem
-                    core = re.sub(r"<dc:title>.*?</dc:title>", f"<dc:title>{escape(title)}</dc:title>", core)
+                    core = re.sub(
+                        r"<dc:title>.*?</dc:title>", f"<dc:title>{escape(title)}</dc:title>", core
+                    )
                     target_zip.writestr(name, core)
                 else:
                     target_zip.writestr(name, source_zip.read(name))
 
 
-def insert_section(document_xml_path: Path, markdown_path: Path, after_text: str, before_text: str) -> None:
+def insert_section(
+    document_xml_path: Path, markdown_path: Path, after_text: str, before_text: str
+) -> None:
     """Sisipkan hasil konversi markdown di antara paragraf yang memuat after_text dan before_text."""
     xml = document_xml_path.read_text(encoding="utf-8")
     anchor = xml.find(before_text)

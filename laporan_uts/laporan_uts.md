@@ -1,16 +1,17 @@
 <!--
-Sumber LAPORAN UTS MILESTONE 1.docx. Jalankan dari root repo branch main (butuh technical/ terbaru), dengan D = ../xauusd-paper-documents:
-  1. uv run python $D/laporan_uts/ringkas_runs.py runs/<id_walk_forward> > $D/laporan_uts/hasil_walk_forward.md
-  2. (setelah final-test) uv run python $D/laporan_uts/ringkas_runs.py runs/<id_final_test> > $D/laporan_uts/hasil_final_test.md
-  3. tulis $D/laporan_uts/analisis_walk_forward.md berdasarkan tabel pada langkah 1
-  4. uv run python $D/laporan_uts/md2docx.py build "$D/BUSINESS UNDERSTANDING.docx" $D/laporan_uts/laporan_uts.md "$D/LAPORAN UTS MILESTONE 1.docx" .
+Sumber LAPORAN UTS MILESTONE 1.docx. Jalankan dari root repo yang memuat technical/simulation.py terbaru
+(branch feat/dashboard-buka-tutup-spread atau main setelah di-merge), dengan D = ../xauusd-paper-documents:
+  1. uv run python $D/laporan_uts/ringkas_runs.py --out $D/laporan_uts runs/<id_label_scan> runs/<id_walk_forward_1> runs/<id_walk_forward_2> runs/<id_final_test>
+     (menulis hasil_label_scan.md, hasil_walk_forward.md, hasil_final_test.md)
+  2. sesuaikan $D/laporan_uts/analisis_walk_forward.md bila angka berubah
+  3. uv run python $D/laporan_uts/md2docx.py build "$D/BUSINESS UNDERSTANDING.docx" $D/laporan_uts/laporan_uts.md "$D/LAPORAN UTS MILESTONE 1.docx" .
 -->
 %title LAPORAN UTS MILESTONE 1
 %subtitle Technical Agent XAU/USD M5: Klasifikasi Selektif BUY / SELL / NO_TRADE dengan XGBoost
 
-Proyek Kelompok Deep Learning · versi draf 7 November 2026
+Proyek Kelompok Deep Learning · versi 8 November 2026
 
-> **Status dokumen.** Dokumen ini mengikuti 12 kriteria Tahap UTS Milestone 1 (Problem formulation sampai Rencana pengembangan), ditambah poin 13 tentang alasan pemilihan nilai konstanta di dalam kode. Semua angka berasal dari artefak proyek yang disebut sumbernya. Hasil walk-forward pada data XAU/USD riil (bab 10 dan 11) dibuat otomatis dari folder runs/ dengan skrip ringkas_runs.py; selama folder tersebut belum tersedia, bagian itu ditandai **DATA BELUM ADA** dan tidak diisi dengan angka perkiraan.
+> **Status dokumen.** Dokumen ini mengikuti 12 kriteria Tahap UTS Milestone 1, ditambah poin 13 tentang alasan nilai konstanta di dalam kode. Semua angka berasal dari artefak proyek yang disebut sumbernya. Tabel hasil eksperimen (bab 3.2, 10, dan 11) dibuat otomatis dari folder runs/ dengan skrip `laporan_uts/ringkas_runs.py`, tanpa angka yang diketik manual. Eksperimen yang sudah dijalankan: label-scan, walk-forward 2021–2025 untuk tujuh model, dan final-test 2026 untuk XGBoost. Yang belum dijalankan: xgboost_selected (feature selection), compare-scratch, dan ablation.
 
 %toc
 
@@ -117,7 +118,7 @@ Tabel 2.2 Atribut Data dan Kegunaannya
 
 ## 2.3 Pembagian Periode
 
-Data 1 Januari 2016 – 31 Desember 2025 adalah data pengembangan: seluruh training, kalibrasi, pemilihan threshold, dan pemilihan model hanya memakai periode ini. Data 2026 hanya dibaca oleh perintah `final-test` yang wajib diberi `--confirm`. Batas ini diatur pada konfigurasi berikut.
+Data 1 Januari 2016 – 31 Desember 2025 adalah data pengembangan: seluruh training, kalibrasi, pemilihan threshold, dan pemilihan model hanya memakai periode ini. Data 2026 hanya dibaca oleh perintah `final-test` yang wajib diberi `--confirm`. Pada run walk-forward, data pengembangan berisi 703.425 candle valid (4 Januari 2016 – 31 Desember 2025, 2.642 transisi gap), sedangkan final-test membaca 754.660 candle sampai 30 September 2026. Batas periode diatur pada konfigurasi berikut.
 
 Kode 2.1 Konfigurasi data (configs/technical.toml, baris 14–29)
 %code configs/technical.toml 14 29
@@ -145,7 +146,11 @@ Target tidak tersedia langsung di data, melainkan dibentuk oleh `make_labels` di
 Kode 3.1 Pembentukan barrier dan langkah sentuhan pertama (technical/labels.py, baris 83–100)
 %code technical/labels.py 83 100
 
-Spread ditambahkan ke barrier agar gerakan yang mencapai TP masih menghasilkan +k·ATR setelah biaya spread. Desain ini menggantikan label pipeline sebelumnya (return 15 menit dengan ambang spread + 1 bps) yang hanya menghasilkan 7,81% NO_TRADE pada 2026, sehingga model dipaksa menebak arah di hampir setiap candle (SoT EXP-L01). Distribusi label pipeline baru per fold dilaporkan pada Tabel 10.7.
+Spread ditambahkan ke barrier agar gerakan yang mencapai TP masih menghasilkan +k·ATR setelah biaya spread. Desain ini menggantikan label pipeline sebelumnya (return 15 menit dengan ambang spread + 1 bps) yang hanya menghasilkan 7,81% NO_TRADE pada 2026, sehingga model dipaksa menebak arah di hampir setiap candle (SoT EXP-L01). Perintah label-scan menghitung distribusi label 2016–2025 untuk tiga horizon dan empat pengali barrier sebelum model dilatih (Tabel 3.2).
+
+%include hasil_label_scan.md
+
+Pada konfigurasi yang dipakai (triple-barrier, 6 candle, k = 1,0), NO_TRADE mencakup 24,7% label, sedangkan BUY dan SELL masing-masing 37,5% dan 37,8%. Barrier yang lebih sempit (k = 0,5) mengulangi masalah pipeline sebelumnya karena NO_TRADE hanya 8,1%, sedangkan k = 1,5 membuat NO_TRADE menjadi 48,6% sehingga BUY dan SELL jauh lebih jarang. Konfigurasi 6 candle dan k = 1,0 dipertahankan sebagai titik tengah. Kombinasi lain belum diuji dengan walk-forward dan masuk rencana tuning (bab 12.5). Distribusi label per fold ditampilkan pada Tabel 10.9.
 
 ## 3.3 Keterbatasan Data
 
@@ -311,7 +316,7 @@ Tabel 7.2 Hasil Pipeline Generasi Sebelumnya pada TEST Januari–September 2026
 
 Sumber: `git show a0e31c0:technical/artifacts/direction_v3/final_2026/metrics.json` dan `hyperparameters.json` (dikutip pada BUSINESS UNDERSTANDING.docx Tabel 4.2 dan 5.2).
 
-Hasil baseline pipeline baru pada lima fold walk-forward ditampilkan bersama kandidat model pada Tabel 10.3.
+Hasil baseline pipeline baru ditampilkan bersama kandidat model pada Tabel 10.3: always_no_trade memperoleh macro F1 0,1025 tanpa sinyal, persistence 0,3043 dengan lift hanya 0,98–1,08 (Tabel 10.8), dan regresi logistik 0,1244 dengan coverage 3,05%.
 
 # 8. Beberapa Kandidat Model Awal
 
@@ -379,7 +384,7 @@ Tabel 8.2 Bukti Kesesuaian XGBoost from Scratch dengan Library
 
 Sumber: SOURCE_OF_TRUTH.md bagian F.1, `tests/test_xgboost_scratch.py`, dan BUSINESS UNDERSTANDING.docx Tabel 6.7.
 
-Perbedaan yang tersisa pada data riil berasal dari kandidat split: kode manual memakai kuantil biasa, sedangkan XGBoost hist memakai weighted quantile sketch berbobot Hessian. Subsampling, paralelisasi, dan optimasi sistem juga tidak diimplementasikan. Perbandingan pada data XAU/USD dijalankan dengan perintah `compare-scratch`, yang menyamakan hyperparameter dan mematikan subsampling.
+Perbedaan yang tersisa pada data riil berasal dari kandidat split: kode manual memakai kuantil biasa, sedangkan XGBoost hist memakai weighted quantile sketch berbobot Hessian. Subsampling, paralelisasi, dan optimasi sistem juga tidak diimplementasikan. Perbandingan pada data XAU/USD dilakukan dengan perintah `compare-scratch`, yang menyamakan hyperparameter dan mematikan subsampling; perintah ini belum dijalankan pada tahap UTS.
 
 ## 8.4 Random Forest dan XGBoost Balanced
 
@@ -441,7 +446,9 @@ Untuk setiap fold, `metrics.json` mencatat di bawah kunci `ensemble`: bobot, tem
 }
 ```
 
-Hasil ensemble pada data riil, yaitu bobot terpilih per fold, keragaman antaranggota, dan perbandingannya dengan setiap anggota, ditampilkan pada Tabel 10.3, 10.5, 10.9, dan 10.10. Ensemble hanya dipakai sebagai model final bila lebih baik daripada XGBoost tunggal secara konsisten pada fold validasi, karena ensemble melatih tiga model dan lebih lambat.
+### Hasil
+
+Hasil ensemble pada data riil ditampilkan pada Tabel 10.3 (ringkasan), 10.7 (per tahun), 10.11 (bobot), dan 10.12 (keragaman). Bobot terpilih didominasi XGBoost (0,35–0,80) dan random forest (0,10–0,65), sedangkan regresi logistik hampir tidak dipakai (0–0,10). Log loss campuran pada blok CALIBRATION hanya 0,0003–0,0008 lebih kecil daripada anggota terbaik. Pada blok EVALUATION, ensemble memperoleh precision BUY 47,84% dan SELL 47,73%, hampir sama dengan XGBoost (47,82% dan 47,24%), tetapi directional F1-nya lebih rendah (0,1253 dibanding 0,1371) karena coverage-nya lebih kecil. Ensemble hanya dipakai sebagai model final bila lebih baik daripada XGBoost tunggal secara konsisten pada fold validasi, karena ensemble melatih tiga model dan lebih lambat. Syarat ini belum terpenuhi, sehingga model utama tetap XGBoost (bab 11.2, Temuan 4).
 
 ## 8.6 Feature Selection di Dalam Fold
 
@@ -474,7 +481,7 @@ Keputusan memakai permutation importance pada data di luar TRAIN, bukan gain XGB
 
 ### Output yang Dihasilkan
 
-Untuk setiap fold, metrics.json mencatat status setiap fitur (terpilih, atau alasan dibuang), mutual information, gain, permutation importance, dan dugaan kebocoran. Stabilitas seleksi, yaitu berapa fold sebuah fitur terpilih, ditulis ke `feature_selection_xgboost_selected.csv`, dan terminal mencetak jumlah fitur terpilih per fold. Hasil seleksi pada data riil ditampilkan pada Tabel 10.11 dan 10.12; subset fitur hanya dipakai bila kinerja `xgboost_selected` tidak lebih buruk daripada `xgboost` dengan 41 fitur.
+Untuk setiap fold, metrics.json mencatat status setiap fitur (terpilih, atau alasan dibuang), mutual information, gain, permutation importance, dan dugaan kebocoran. Stabilitas seleksi, yaitu berapa fold sebuah fitur terpilih, ditulis ke `feature_selection_xgboost_selected.csv`, dan terminal mencetak jumlah fitur terpilih per fold. Model `xgboost_selected` belum dijalankan pada data riil (tidak ada pada folder runs/ yang tersedia), sehingga hasil seleksi belum dapat dilaporkan. Perintahnya adalah `walk-forward --models xgboost,xgboost_selected`. Subset fitur hanya dipakai bila kinerja `xgboost_selected` tidak lebih buruk daripada `xgboost` dengan 41 fitur.
 
 # 9. Strategi Evaluasi
 
@@ -555,6 +562,7 @@ Tabel 10.1 Bukti Bahwa Pipeline Berjalan
 | Simulasi transaksi | TP = +k·ATR, SL = −(k·ATR + 2 × spread), waktu buka/tutup per transaksi | `tests/test_backtest_simulation.py` |
 | Dashboard backtest | Ringkasan, riwayat transaksi, dan laporan spread terbaca dari folder runs | `tests/test_dashboard_app.py` |
 | Kualitas data dan EDA | 754.660 bar valid; Gambar 4.1–4.7 | `reports/analytics/` |
+| Reproduksibilitas | Ringkasan metrik XGBoost identik pada tiga run walk-forward (3 dan 7 November 2026) | `runs/*_walk-forward_*/metrics.json` |
 
 ## 10.2 Uji Kewajaran pada Data Sintetis
 
@@ -562,9 +570,13 @@ Sebelum data riil dibaca, pipeline walk-forward lengkap dijalankan pada 130.000 
 
 ## 10.3 Hasil Walk-Forward pada Data XAU/USD
 
+Walk-forward dijalankan pada 703.425 candle 2016–2025 dalam dua run dengan konfigurasi yang sama (Tabel 10.2). Run pertama memuat baseline, regresi logistik, dan XGBoost; run kedua memuat XGBoost, xgboost_balanced, random_forest, dan ensemble. Prediksi per candle setiap fold disimpan di folder backtest/ dan dipakai untuk simulasi transaksi (Tabel 10.13–10.15) serta dashboard backtest.
+
 %include hasil_walk_forward.md
 
 ## 10.4 Hasil Final Test 2026
+
+Final-test dijalankan satu kali pada 3 November 2026 untuk XGBoost, setelah walk-forward baseline dan XGBoost selesai. Model dilatih dengan data sampai Juni 2025, dikalibrasi pada Juli–September 2025, memilih threshold pada Oktober–Desember 2025, lalu diuji pada 2026. Statusnya out-of-sample retrospektif (bab 1.6).
 
 %include hasil_final_test.md
 
@@ -588,7 +600,6 @@ Tabel 11.1 Tanggapan Pipeline Baru terhadap Masalah Sebelumnya
 
 %include analisis_walk_forward.md
 
-Analisis hasil walk-forward menjawab pertanyaan berikut secara berurutan: (1) apakah XGBoost memiliki lift ≥ 1,2 pada BUY dan SELL di sebagian besar fold; (2) apakah XGBoost lebih baik daripada persistence dan regresi logistik; (3) apakah ensemble dan xgboost_selected lebih baik daripada XGBoost tunggal secara konsisten, bukan hanya pada satu fold; (4) apakah ada arah yang dinonaktifkan dan pada fold mana; (5) apakah temperatur kalibrasi jauh dari 1, yang menandakan probabilitas mentah tidak terkalibrasi; dan (6) apakah simulasi setelah spread tetap positif atau sinyal hanya benar secara klasifikasi tetapi kalah biaya.
 
 ## 11.3 Risiko dan Keterbatasan
 
@@ -598,6 +609,19 @@ Analisis hasil walk-forward menjawab pertanyaan berikut secara berurutan: (1) ap
 - Simulasi berada pada tingkat candle dan mengizinkan posisi tumpang tindih, sehingga P&L mengukur kualitas sinyal, bukan saldo akun nyata.
 
 # 12. Rencana Pengembangan Setelah UTS
+
+Prioritas pengembangan ditentukan oleh temuan pada bab 11.2 (Tabel 12.1); subbab berikutnya merinci setiap area pengembangan.
+
+Tabel 12.1 Prioritas Pengembangan Berdasarkan Hasil Eksperimen Awal
+<!-- widths: 40,60 -->
+| Temuan (bab 11.2) | Tindakan setelah UTS |
+|---|---|
+| Precision belum mencapai titik impas sekitar 53% setelah spread (Temuan 8) | Uji k = 1,5 dan horizon 12 candle agar spread menjadi porsi barrier yang lebih kecil, threshold berbasis nilai ekonomi, dan model dua tahap (meta-labeling) |
+| Batas 300 pohon tersentuh di semua fold (Temuan 9) | Naikkan n_estimators dengan early stopping, atau ubah learning rate, lalu bandingkan rata-rata walk-forward |
+| Threshold tidak selalu cocok untuk tahun berikutnya; SELL 2023 dan BUY 2026 nonaktif (Temuan 6 dan 10) | Analisis stabilitas threshold antarfold dan uji blok THRESHOLD yang lebih panjang |
+| NO_TRADE pada TRAIN 26–33%, pada EVALUATION 16–20% (Temuan 7) | Bandingkan expanding window dengan rolling window atau bobot sampel yang lebih besar untuk data terbaru |
+| Ensemble belum lebih baik (Temuan 4) | Ganti anggota yang lemah (regresi logistik) dengan model yang lebih beragam, misalnya LSTM/CNN-LSTM, sebelum mengulang ensemble |
+| xgboost_selected, compare-scratch, dan ablation belum dijalankan | Jalankan ketiganya pada konfigurasi yang sama dan lengkapi bab 10 |
 
 ## 12.1 Pengembangan Kandidat Model
 
@@ -630,7 +654,7 @@ Analisis hasil walk-forward menjawab pertanyaan berikut secara berurutan: (1) ap
 
 Pencarian dilakukan antarfold walk-forward, bukan pada satu blok, karena pipeline sebelumnya turun dari macro F1 0,3525 pada TUNE menjadi 0,2478 pada TEST. Ruang pencarian mengikuti Skripsi Bab III Tabel 3.3.
 
-Tabel 12.1 Ruang Pencarian Hyperparameter Setelah UTS
+Tabel 12.2 Ruang Pencarian Hyperparameter Setelah UTS
 <!-- widths: 24,30,46 -->
 | Hyperparameter | Nilai awal | Nilai yang diuji |
 |---|---|---|
@@ -638,7 +662,7 @@ Tabel 12.1 Ruang Pencarian Hyperparameter Setelah UTS
 | learning_rate | 0,05 | 0,03–0,1 |
 | min_child_weight | 20 | 10–50 |
 | reg_lambda | 5 | 1–20 |
-| n_estimators / early stopping | 300 / 30 | maks. 300 dengan early stopping 30 ronde |
+| n_estimators / early stopping | 300 / 30 | batas dinaikkan (misalnya sampai 1.000) dengan early stopping 30 ronde, karena batas 300 tersentuh di semua fold |
 | Label: horizon dan k | 6 candle, k = 1,0 | 3/6/12 candle; k = 0,5–2,0 (label-scan, EXP-R01) |
 | Bobot kelas | tanpa | seimbang atau tanpa |
 
@@ -656,16 +680,16 @@ Kriteria pemilihan adalah rata-rata directional F1 dan lift pada lima fold, deng
 - Integrasi dengan Agen Manajemen Risiko (skenario E4) dan Agen Fundamental berbasis LLM (E5).
 - Mengunci konfigurasi lalu menjalankan uji forward pada periode baru, misalnya mulai November 2026, karena 2026 bukan blind test (SoT D-12).
 
-Tabel 12.2 Urutan Pekerjaan Setelah UTS
+Tabel 12.3 Urutan Pekerjaan Setelah UTS
 <!-- widths: 8,52,40 -->
 | No. | Pekerjaan | Keluaran |
 |---|---|---|
-| 1 | label-scan dan pemilihan horizon/k | label_scan.csv, keputusan D-02/D-03 |
-| 2 | Walk-forward seluruh baseline dan kandidat | metrics.json, Tabel 10.2–10.13 |
-| 3 | compare-scratch dan ablation | comparison.json, ablation.json |
-| 4 | Analisis error dan analisis threshold | Tabel per sesi/rezim, kurva precision–coverage |
-| 5 | Tuning hyperparameter antarfold | Konfigurasi terkunci di configs/technical.toml |
-| 6 | final-test 2026 satu kali | Hasil uji out-of-sample retrospektif |
+| 1 | Walk-forward xgboost_selected, compare-scratch, dan ablation | Tabel feature selection, comparison.json, ablation.json |
+| 2 | Tuning n_estimators, learning rate, dan hyperparameter lain antarfold | Konfigurasi XGBoost baru di configs/technical.toml |
+| 3 | Walk-forward kombinasi horizon/k dari label-scan (mis. 6/1,5 dan 12/1,5) | Keputusan D-02/D-03 berdasarkan kinerja setelah spread |
+| 4 | Analisis error dan analisis threshold | Tabel per sesi/rezim, kurva precision–coverage, stabilitas threshold |
+| 5 | Aturan simulasi satu posisi pada satu waktu | Simulasi yang lebih dekat dengan akun nyata |
+| 6 | Kunci konfigurasi, lalu uji forward mulai November 2026 | Uji yang benar-benar buta (SoT D-12) |
 | 7 | LSTM/CNN-LSTM, agen risiko, agen fundamental | Skenario E2–E5 |
 
 # 13. Justifikasi Nilai Konstanta dalam Kode
@@ -683,7 +707,7 @@ Tabel 13.1 Alasan Nilai Hyperparameter XGBoost (default library sebagai pembandi
 <!-- widths: 23,16,9,52 -->
 | Parameter | Nilai | Default | Alasan |
 |---|---|---|---|
-| n_estimators | 300 | 100 | Batas atas, bukan jumlah final; jumlah pohon dipilih early stopping |
+| n_estimators | 300 | 100 | Batas atas; jumlah pohon dipilih early stopping. Pada data riil 295–300 pohon terpakai di semua fold (Tabel 10.6), jadi batas ini perlu dinaikkan |
 | learning_rate | 0,05 | 0,3 | Langkah kecil (shrinkage) agar model tidak cepat menghafal noise M5; 0,01 membutuhkan ribuan pohon |
 | early_stopping_rounds | 30 | – | Sekitar 10% dari 300; cukup sabar terhadap fluktuasi log loss, tidak membuang waktu |
 | max_depth | 4 | 6 | Maksimal 16 daun, interaksi sampai 4 fitur; pohon dangkal sebagai weak learner |
@@ -733,7 +757,7 @@ Tabel 13.3 Konstanta Pipeline Lainnya
 
 ## 13.5 Ringkasan
 
-Nilai yang konsekuensinya pasti (misalnya batas 255 bin dan HESSIAN_FLOOR) dan nilai yang dibuktikan eksperimen (base score, konvensi gamma, waktu per ronde) dapat dipertanggungjawabkan langsung. Hyperparameter XGBoost, grid threshold, dan pengali barrier masih berupa design decision yang akan diuji pada tahap setelah UTS (bab 12.5). Karena itu, hasil pada bab 10 dilaporkan sebagai hasil konfigurasi awal, bukan konfigurasi optimal.
+Nilai yang konsekuensinya pasti (misalnya batas 255 bin dan HESSIAN_FLOOR) dan nilai yang dibuktikan eksperimen (base score, konvensi gamma, waktu per ronde) dapat dipertanggungjawabkan langsung. Hyperparameter XGBoost, grid threshold, dan pengali barrier masih berupa design decision yang akan diuji pada tahap setelah UTS (bab 12.5). Karena itu, hasil pada bab 10 dilaporkan sebagai hasil konfigurasi awal, bukan konfigurasi optimal. Walk-forward sudah memberi bukti pertama untuk dua nilai: batas 300 pohon terlalu kecil, dan syarat lift 1,2 cukup ketat sehingga beberapa arah dinonaktifkan (SELL 2023 dan BUY 2026).
 
 # Daftar Pustaka
 
