@@ -17,7 +17,7 @@ __pycache__/
 htmlcov/
 
 # Output eksperimen dan model (dapat direproduksi dengan technical.run)
-runs/
+# runs/
 *.joblib
 *.npz
 
