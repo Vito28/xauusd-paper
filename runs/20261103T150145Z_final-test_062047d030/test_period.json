@@ -1,0 +1,12 @@
+{
+  "first_decision": "2026-01-01T00:00:00+00:00",
+  "last_decision": "2026-09-30T06:45:00+00:00",
+  "evaluated_rows": 50071,
+  "last_evaluated_decision": "2026-09-30T06:15:00+00:00",
+  "unlabeled_rows": 1165,
+  "status_counts": {
+    "AVAILABLE": 50071,
+    "GAP": 1159,
+    "PENDING": 6
+  }
+}

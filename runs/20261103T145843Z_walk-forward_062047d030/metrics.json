@@ -1,0 +1,4337 @@
+{
+  "always_no_trade": {
+    "folds": [
+      {
+        "fold": {
+          "name": "validation_2021",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2020-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2020-07-01T00:00:00+00:00",
+            "end": "2020-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2020-10-01T00:00:00+00:00",
+            "end": "2021-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2021-01-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "always_no_trade",
+        "block_sizes": {
+          "train": 307478,
+          "calibration": 17593,
+          "threshold": 17255,
+          "evaluation": 68628
+        },
+        "label_distribution": {
+          "train": {
+            "total": 307478,
+            "SELL": {
+              "count": 104079,
+              "share": 0.33849251003323816
+            },
+            "NO_TRADE": {
+              "count": 100640,
+              "share": 0.3273079700011058
+            },
+            "BUY": {
+              "count": 102759,
+              "share": 0.33419951996565606
+            }
+          },
+          "evaluation": {
+            "total": 68628,
+            "SELL": {
+              "count": 28282,
+              "share": 0.41210584601037475
+            },
+            "NO_TRADE": {
+              "count": 12845,
+              "share": 0.1871685026519788
+            },
+            "BUY": {
+              "count": 27501,
+              "share": 0.4007256513376464
+            }
+          }
+        },
+        "training_seconds": 0.0003274000046076253,
+        "evaluation": {
+          "samples": 68628,
+          "accuracy": 0.1871685026519788,
+          "macro_f1": 0.10510639516567861,
+          "directional_macro_f1": 0.0,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28282,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.1871685026519788,
+              "precision_wilson95": [
+                0.1842677952442352,
+                0.1901042309320229
+              ],
+              "recall": 1.0,
+              "f1": 0.31531918549703586,
+              "support": 12845,
+              "predicted": 68628,
+              "false_positive": 55783
+            },
+            "BUY": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 27501,
+              "predicted": 0,
+              "false_positive": 0
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                28282,
+                0
+              ],
+              [
+                0,
+                12845,
+                0
+              ],
+              [
+                0,
+                27501,
+                0
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 68628,
+            "BUY": 0
+          },
+          "signal_coverage": 0.0,
+          "buy_coverage": 0.0,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 0,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 1.0
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2022",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2021-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2021-07-01T00:00:00+00:00",
+            "end": "2021-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2021-10-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2022-01-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "always_no_trade",
+        "block_sizes": {
+          "train": 376108,
+          "calibration": 17545,
+          "threshold": 17301,
+          "evaluation": 69143
+        },
+        "label_distribution": {
+          "train": {
+            "total": 376108,
+            "SELL": {
+              "count": 132449,
+              "share": 0.3521568272942878
+            },
+            "NO_TRADE": {
+              "count": 113050,
+              "share": 0.3005785572229253
+            },
+            "BUY": {
+              "count": 130609,
+              "share": 0.34726461548278686
+            }
+          },
+          "evaluation": {
+            "total": 69143,
+            "SELL": {
+              "count": 29210,
+              "share": 0.4224578048392462
+            },
+            "NO_TRADE": {
+              "count": 11227,
+              "share": 0.16237363145943914
+            },
+            "BUY": {
+              "count": 28706,
+              "share": 0.41516856370131466
+            }
+          }
+        },
+        "training_seconds": 5.999972927384079e-07,
+        "evaluation": {
+          "samples": 69143,
+          "accuracy": 0.16237363145943914,
+          "macro_f1": 0.0931276180996226,
+          "directional_macro_f1": 0.0,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 29210,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.16237363145943914,
+              "precision_wilson95": [
+                0.1596434637609095,
+                0.16514131426140294
+              ],
+              "recall": 1.0,
+              "f1": 0.2793828542988678,
+              "support": 11227,
+              "predicted": 69143,
+              "false_positive": 57916
+            },
+            "BUY": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28706,
+              "predicted": 0,
+              "false_positive": 0
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                29210,
+                0
+              ],
+              [
+                0,
+                11227,
+                0
+              ],
+              [
+                0,
+                28706,
+                0
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 69143,
+            "BUY": 0
+          },
+          "signal_coverage": 0.0,
+          "buy_coverage": 0.0,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 0,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 1.0
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2023",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2022-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2022-07-01T00:00:00+00:00",
+            "end": "2022-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2022-10-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2023-01-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "always_no_trade",
+        "block_sizes": {
+          "train": 445132,
+          "calibration": 17753,
+          "threshold": 17211,
+          "evaluation": 69111
+        },
+        "label_distribution": {
+          "train": {
+            "total": 445132,
+            "SELL": {
+              "count": 161067,
+              "share": 0.3618409820008447
+            },
+            "NO_TRADE": {
+              "count": 125349,
+              "share": 0.28159961539498396
+            },
+            "BUY": {
+              "count": 158716,
+              "share": 0.35655940260417135
+            }
+          },
+          "evaluation": {
+            "total": 69111,
+            "SELL": {
+              "count": 28083,
+              "share": 0.40634631245387853
+            },
+            "NO_TRADE": {
+              "count": 13426,
+              "share": 0.19426719335561632
+            },
+            "BUY": {
+              "count": 27602,
+              "share": 0.39938649419050515
+            }
+          }
+        },
+        "training_seconds": 3.00002284348011e-07,
+        "evaluation": {
+          "samples": 69111,
+          "accuracy": 0.19426719335561632,
+          "macro_f1": 0.10844429367031351,
+          "directional_macro_f1": 0.0,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28083,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.19426719335561632,
+              "precision_wilson95": [
+                0.19133452062285744,
+                0.19723385309095853
+              ],
+              "recall": 1.0,
+              "f1": 0.32533288101094054,
+              "support": 13426,
+              "predicted": 69111,
+              "false_positive": 55685
+            },
+            "BUY": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 27602,
+              "predicted": 0,
+              "false_positive": 0
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                28083,
+                0
+              ],
+              [
+                0,
+                13426,
+                0
+              ],
+              [
+                0,
+                27602,
+                0
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 69111,
+            "BUY": 0
+          },
+          "signal_coverage": 0.0,
+          "buy_coverage": 0.0,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 0,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 1.0
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2024",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2023-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2023-07-01T00:00:00+00:00",
+            "end": "2023-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2023-10-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2024-01-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "always_no_trade",
+        "block_sizes": {
+          "train": 514533,
+          "calibration": 17490,
+          "threshold": 17189,
+          "evaluation": 69656
+        },
+        "label_distribution": {
+          "train": {
+            "total": 514533,
+            "SELL": {
+              "count": 189938,
+              "share": 0.36914639099921676
+            },
+            "NO_TRADE": {
+              "count": 137526,
+              "share": 0.2672831480196605
+            },
+            "BUY": {
+              "count": 187069,
+              "share": 0.36357046098112267
+            }
+          },
+          "evaluation": {
+            "total": 69656,
+            "SELL": {
+              "count": 27559,
+              "share": 0.39564430917652466
+            },
+            "NO_TRADE": {
+              "count": 14025,
+              "share": 0.20134661766394854
+            },
+            "BUY": {
+              "count": 28072,
+              "share": 0.40300907315952683
+            }
+          }
+        },
+        "training_seconds": 4.00003045797348e-07,
+        "evaluation": {
+          "samples": 69656,
+          "accuracy": 0.20134661766394854,
+          "macro_f1": 0.11173384639284904,
+          "directional_macro_f1": 0.0,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 27559,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.20134661766394854,
+              "precision_wilson95": [
+                0.19838510071755325,
+                0.20434107487570277
+              ],
+              "recall": 1.0,
+              "f1": 0.3352015391785471,
+              "support": 14025,
+              "predicted": 69656,
+              "false_positive": 55631
+            },
+            "BUY": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28072,
+              "predicted": 0,
+              "false_positive": 0
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                27559,
+                0
+              ],
+              [
+                0,
+                14025,
+                0
+              ],
+              [
+                0,
+                28072,
+                0
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 69656,
+            "BUY": 0
+          },
+          "signal_coverage": 0.0,
+          "buy_coverage": 0.0,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 0,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 1.0
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2025",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2024-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2024-07-01T00:00:00+00:00",
+            "end": "2024-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2024-10-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2025-01-01T00:00:00+00:00",
+            "end": "2026-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "always_no_trade",
+        "block_sizes": {
+          "train": 583659,
+          "calibration": 17755,
+          "threshold": 17448,
+          "evaluation": 68819
+        },
+        "label_distribution": {
+          "train": {
+            "total": 583659,
+            "SELL": {
+              "count": 217556,
+              "share": 0.37274504462365865
+            },
+            "NO_TRADE": {
+              "count": 151528,
+              "share": 0.2596173450593583
+            },
+            "BUY": {
+              "count": 214575,
+              "share": 0.36763761031698305
+            }
+          },
+          "evaluation": {
+            "total": 68819,
+            "SELL": {
+              "count": 28586,
+              "share": 0.41537947369185835
+            },
+            "NO_TRADE": {
+              "count": 11293,
+              "share": 0.16409712434066173
+            },
+            "BUY": {
+              "count": 28940,
+              "share": 0.4205234019674799
+            }
+          }
+        },
+        "training_seconds": 4.00003045797348e-07,
+        "evaluation": {
+          "samples": 68819,
+          "accuracy": 0.16409712434066173,
+          "macro_f1": 0.09397676586112776,
+          "directional_macro_f1": 0.0,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28586,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.16409712434066173,
+              "precision_wilson95": [
+                0.16134875308471613,
+                0.16688299490518377
+              ],
+              "recall": 1.0,
+              "f1": 0.2819302975833833,
+              "support": 11293,
+              "predicted": 68819,
+              "false_positive": 57526
+            },
+            "BUY": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28940,
+              "predicted": 0,
+              "false_positive": 0
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                28586,
+                0
+              ],
+              [
+                0,
+                11293,
+                0
+              ],
+              [
+                0,
+                28940,
+                0
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 68819,
+            "BUY": 0
+          },
+          "signal_coverage": 0.0,
+          "buy_coverage": 0.0,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 0,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 1.0
+        }
+      }
+    ],
+    "summary": {
+      "macro_f1": {
+        "mean": 0.10247778383791831,
+        "std": 0.0075878381254294615,
+        "folds_with_value": 5
+      },
+      "directional_macro_f1": {
+        "mean": 0.0,
+        "std": 0.0,
+        "folds_with_value": 5
+      },
+      "signal_coverage": {
+        "mean": 0.0,
+        "std": 0.0,
+        "folds_with_value": 5
+      },
+      "buy_f1": {
+        "mean": 0.0,
+        "std": 0.0,
+        "folds_with_value": 5
+      },
+      "sell_f1": {
+        "mean": 0.0,
+        "std": 0.0,
+        "folds_with_value": 5
+      },
+      "buy_precision": {
+        "mean": null,
+        "std": null,
+        "folds_with_value": 0
+      },
+      "sell_precision": {
+        "mean": null,
+        "std": null,
+        "folds_with_value": 0
+      }
+    }
+  },
+  "persistence": {
+    "folds": [
+      {
+        "fold": {
+          "name": "validation_2021",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2020-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2020-07-01T00:00:00+00:00",
+            "end": "2020-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2020-10-01T00:00:00+00:00",
+            "end": "2021-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2021-01-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "persistence",
+        "block_sizes": {
+          "train": 307478,
+          "calibration": 17593,
+          "threshold": 17255,
+          "evaluation": 68628
+        },
+        "label_distribution": {
+          "train": {
+            "total": 307478,
+            "SELL": {
+              "count": 104079,
+              "share": 0.33849251003323816
+            },
+            "NO_TRADE": {
+              "count": 100640,
+              "share": 0.3273079700011058
+            },
+            "BUY": {
+              "count": 102759,
+              "share": 0.33419951996565606
+            }
+          },
+          "evaluation": {
+            "total": 68628,
+            "SELL": {
+              "count": 28282,
+              "share": 0.41210584601037475
+            },
+            "NO_TRADE": {
+              "count": 12845,
+              "share": 0.1871685026519788
+            },
+            "BUY": {
+              "count": 27501,
+              "share": 0.4007256513376464
+            }
+          }
+        },
+        "training_seconds": 0.0001477999976486899,
+        "evaluation": {
+          "samples": 68628,
+          "accuracy": 0.3050212741155214,
+          "macro_f1": 0.30457031803344453,
+          "directional_macro_f1": 0.2990054578322355,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4195715553302066,
+              "precision_wilson95": [
+                0.41189174882782614,
+                0.42729051745470964
+              ],
+              "recall": 0.23407114065483348,
+              "f1": 0.30049931911030414,
+              "support": 28282,
+              "predicted": 15778,
+              "false_positive": 9158
+            },
+            "NO_TRADE": {
+              "precision": 0.21326664480157428,
+              "precision_wilson95": [
+                0.20909963748131788,
+                0.21749385761076845
+              ],
+              "recall": 0.6074737251848968,
+              "f1": 0.31570003843586264,
+              "support": 12845,
+              "predicted": 36588,
+              "false_positive": 28785
+            },
+            "BUY": {
+              "precision": 0.40031976386668305,
+              "precision_wilson95": [
+                0.39281350823480154,
+                0.40787310364023344
+              ],
+              "recall": 0.23671866477582634,
+              "f1": 0.2975115965541668,
+              "support": 27501,
+              "predicted": 16262,
+              "false_positive": 9752
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                6620,
+                14659,
+                7003
+              ],
+              [
+                2293,
+                7803,
+                2749
+              ],
+              [
+                6865,
+                14126,
+                6510
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 15778,
+            "NO_TRADE": 36588,
+            "BUY": 16262
+          },
+          "signal_coverage": 0.46686483650987937,
+          "buy_coverage": 0.23695867575916535,
+          "sell_coverage": 0.229906160750714,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 7003,
+            "SELL_when_BUY": 6865
+          },
+          "no_trade_rate": 0.5331351634901207
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2022",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2021-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2021-07-01T00:00:00+00:00",
+            "end": "2021-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2021-10-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2022-01-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "persistence",
+        "block_sizes": {
+          "train": 376108,
+          "calibration": 17545,
+          "threshold": 17301,
+          "evaluation": 69143
+        },
+        "label_distribution": {
+          "train": {
+            "total": 376108,
+            "SELL": {
+              "count": 132449,
+              "share": 0.3521568272942878
+            },
+            "NO_TRADE": {
+              "count": 113050,
+              "share": 0.3005785572229253
+            },
+            "BUY": {
+              "count": 130609,
+              "share": 0.34726461548278686
+            }
+          },
+          "evaluation": {
+            "total": 69143,
+            "SELL": {
+              "count": 29210,
+              "share": 0.4224578048392462
+            },
+            "NO_TRADE": {
+              "count": 11227,
+              "share": 0.16237363145943914
+            },
+            "BUY": {
+              "count": 28706,
+              "share": 0.41516856370131466
+            }
+          }
+        },
+        "training_seconds": 5.00003807246685e-07,
+        "evaluation": {
+          "samples": 69143,
+          "accuracy": 0.2956770750473656,
+          "macro_f1": 0.29591111126214625,
+          "directional_macro_f1": 0.3056545945611029,
+          "per_class": {
+            "SELL": {
+              "precision": 0.41454697087031633,
+              "precision_wilson95": [
+                0.4071148411187672,
+                0.42201820245660676
+              ],
+              "recall": 0.23824032865457034,
+              "f1": 0.3025849511924691,
+              "support": 29210,
+              "predicted": 16787,
+              "false_positive": 9828
+            },
+            "NO_TRADE": {
+              "precision": 0.18144835464905681,
+              "precision_wilson95": [
+                0.17749525310226652,
+                0.18546964516870237
+              ],
+              "recall": 0.5800302841364567,
+              "f1": 0.27642414466423293,
+              "support": 11227,
+              "predicted": 35889,
+              "false_positive": 29377
+            },
+            "BUY": {
+              "precision": 0.4234529665391389,
+              "precision_wilson95": [
+                0.4159247757611116,
+                0.4310168644280577
+              ],
+              "recall": 0.2429108897094684,
+              "f1": 0.30872423792973674,
+              "support": 28706,
+              "predicted": 16467,
+              "false_positive": 9494
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                6959,
+                15021,
+                7230
+              ],
+              [
+                2451,
+                6512,
+                2264
+              ],
+              [
+                7377,
+                14356,
+                6973
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 16787,
+            "NO_TRADE": 35889,
+            "BUY": 16467
+          },
+          "signal_coverage": 0.4809452873031254,
+          "buy_coverage": 0.23815859884587015,
+          "sell_coverage": 0.24278668845725526,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 7230,
+            "SELL_when_BUY": 7377
+          },
+          "no_trade_rate": 0.5190547126968746
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2023",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2022-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2022-07-01T00:00:00+00:00",
+            "end": "2022-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2022-10-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2023-01-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "persistence",
+        "block_sizes": {
+          "train": 445132,
+          "calibration": 17753,
+          "threshold": 17211,
+          "evaluation": 69111
+        },
+        "label_distribution": {
+          "train": {
+            "total": 445132,
+            "SELL": {
+              "count": 161067,
+              "share": 0.3618409820008447
+            },
+            "NO_TRADE": {
+              "count": 125349,
+              "share": 0.28159961539498396
+            },
+            "BUY": {
+              "count": 158716,
+              "share": 0.35655940260417135
+            }
+          },
+          "evaluation": {
+            "total": 69111,
+            "SELL": {
+              "count": 28083,
+              "share": 0.40634631245387853
+            },
+            "NO_TRADE": {
+              "count": 13426,
+              "share": 0.19426719335561632
+            },
+            "BUY": {
+              "count": 27602,
+              "share": 0.39938649419050515
+            }
+          }
+        },
+        "training_seconds": 5.00003807246685e-07,
+        "evaluation": {
+          "samples": 69111,
+          "accuracy": 0.3113686677952858,
+          "macro_f1": 0.31028938969116654,
+          "directional_macro_f1": 0.30059977806718396,
+          "per_class": {
+            "SELL": {
+              "precision": 0.42186187738225983,
+              "precision_wilson95": [
+                0.41410209917529694,
+                0.4296604308243641
+              ],
+              "recall": 0.2325250151337108,
+              "f1": 0.2998025802304761,
+              "support": 28083,
+              "predicted": 15479,
+              "false_positive": 8949
+            },
+            "NO_TRADE": {
+              "precision": 0.22340735251303495,
+              "precision_wilson95": [
+                0.2192355536701994,
+                0.22763539094984522
+              ],
+              "recall": 0.6287054967972591,
+              "f1": 0.3296686129391318,
+              "support": 13426,
+              "predicted": 37783,
+              "false_positive": 29342
+            },
+            "BUY": {
+              "precision": 0.4131490945800997,
+              "precision_wilson95": [
+                0.4055049772451,
+                0.4208353048655847
+              ],
+              "recall": 0.2372291862908485,
+              "f1": 0.30139697590389175,
+              "support": 27602,
+              "predicted": 15849,
+              "false_positive": 9301
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                6530,
+                14796,
+                6757
+              ],
+              [
+                2441,
+                8441,
+                2544
+              ],
+              [
+                6508,
+                14546,
+                6548
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 15479,
+            "NO_TRADE": 37783,
+            "BUY": 15849
+          },
+          "signal_coverage": 0.45329976414753076,
+          "buy_coverage": 0.22932673525198594,
+          "sell_coverage": 0.22397302889554485,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 6757,
+            "SELL_when_BUY": 6508
+          },
+          "no_trade_rate": 0.5467002358524692
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2024",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2023-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2023-07-01T00:00:00+00:00",
+            "end": "2023-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2023-10-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2024-01-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "persistence",
+        "block_sizes": {
+          "train": 514533,
+          "calibration": 17490,
+          "threshold": 17189,
+          "evaluation": 69656
+        },
+        "label_distribution": {
+          "train": {
+            "total": 514533,
+            "SELL": {
+              "count": 189938,
+              "share": 0.36914639099921676
+            },
+            "NO_TRADE": {
+              "count": 137526,
+              "share": 0.2672831480196605
+            },
+            "BUY": {
+              "count": 187069,
+              "share": 0.36357046098112267
+            }
+          },
+          "evaluation": {
+            "total": 69656,
+            "SELL": {
+              "count": 27559,
+              "share": 0.39564430917652466
+            },
+            "NO_TRADE": {
+              "count": 14025,
+              "share": 0.20134661766394854
+            },
+            "BUY": {
+              "count": 28072,
+              "share": 0.40300907315952683
+            }
+          }
+        },
+        "training_seconds": 4.00003045797348e-07,
+        "evaluation": {
+          "samples": 69656,
+          "accuracy": 0.31038245090157346,
+          "macro_f1": 0.30841841100167394,
+          "directional_macro_f1": 0.2953946842478979,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4257549461992364,
+              "precision_wilson95": [
+                0.4177010648134651,
+                0.43384841713795
+              ],
+              "recall": 0.2225407307957473,
+              "f1": 0.2922981603279001,
+              "support": 27559,
+              "predicted": 14405,
+              "false_positive": 8272
+            },
+            "NO_TRADE": {
+              "precision": 0.22699245821443131,
+              "precision_wilson95": [
+                0.22287505440486657,
+                0.23116330082991046
+              ],
+              "recall": 0.635222816399287,
+              "f1": 0.33446586450922605,
+              "support": 14025,
+              "predicted": 39248,
+              "false_positive": 30339
+            },
+            "BUY": {
+              "precision": 0.4110479285134037,
+              "precision_wilson95": [
+                0.40344688688057173,
+                0.4186916666739283
+              ],
+              "recall": 0.23432601880877743,
+              "f1": 0.29849120816789565,
+              "support": 28072,
+              "predicted": 16003,
+              "false_positive": 9425
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                6133,
+                14827,
+                6599
+              ],
+              [
+                2290,
+                8909,
+                2826
+              ],
+              [
+                5982,
+                15512,
+                6578
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 14405,
+            "NO_TRADE": 39248,
+            "BUY": 16003
+          },
+          "signal_coverage": 0.43654530837257377,
+          "buy_coverage": 0.22974330998047549,
+          "sell_coverage": 0.2068019983920983,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 6599,
+            "SELL_when_BUY": 5982
+          },
+          "no_trade_rate": 0.5634546916274262
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2025",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2024-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2024-07-01T00:00:00+00:00",
+            "end": "2024-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2024-10-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2025-01-01T00:00:00+00:00",
+            "end": "2026-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "persistence",
+        "block_sizes": {
+          "train": 583659,
+          "calibration": 17755,
+          "threshold": 17448,
+          "evaluation": 68819
+        },
+        "label_distribution": {
+          "train": {
+            "total": 583659,
+            "SELL": {
+              "count": 217556,
+              "share": 0.37274504462365865
+            },
+            "NO_TRADE": {
+              "count": 151528,
+              "share": 0.2596173450593583
+            },
+            "BUY": {
+              "count": 214575,
+              "share": 0.36763761031698305
+            }
+          },
+          "evaluation": {
+            "total": 68819,
+            "SELL": {
+              "count": 28586,
+              "share": 0.41537947369185835
+            },
+            "NO_TRADE": {
+              "count": 11293,
+              "share": 0.16409712434066173
+            },
+            "BUY": {
+              "count": 28940,
+              "share": 0.4205234019674799
+            }
+          }
+        },
+        "training_seconds": 7.00005330145359e-07,
+        "evaluation": {
+          "samples": 68819,
+          "accuracy": 0.3020532120489981,
+          "macro_f1": 0.30229372725218995,
+          "directional_macro_f1": 0.31663733305186603,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4440729084710202,
+              "precision_wilson95": [
+                0.4362024810383297,
+                0.45197150210003745
+              ],
+              "recall": 0.23693416357657596,
+              "f1": 0.309001323053059,
+              "support": 28586,
+              "predicted": 15252,
+              "false_positive": 8479
+            },
+            "NO_TRADE": {
+              "precision": 0.17989122855947567,
+              "precision_wilson95": [
+                0.1759498110463773,
+                0.1839012333331489
+              ],
+              "recall": 0.5711502700788099,
+              "f1": 0.2736065156528379,
+              "support": 11293,
+              "predicted": 35855,
+              "false_positive": 29405
+            },
+            "BUY": {
+              "precision": 0.4270551038843722,
+              "precision_wilson95": [
+                0.41978684366793434,
+                0.4343549996413894
+              ],
+              "recall": 0.26136834830684175,
+              "f1": 0.32427334305067307,
+              "support": 28940,
+              "predicted": 17712,
+              "false_positive": 10148
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                6773,
+                14622,
+                7191
+              ],
+              [
+                1886,
+                6450,
+                2957
+              ],
+              [
+                6593,
+                14783,
+                7564
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 15252,
+            "NO_TRADE": 35855,
+            "BUY": 17712
+          },
+          "signal_coverage": 0.4789956262078786,
+          "buy_coverage": 0.257370784231099,
+          "sell_coverage": 0.22162484197677967,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 7191,
+            "SELL_when_BUY": 6593
+          },
+          "no_trade_rate": 0.5210043737921214
+        }
+      }
+    ],
+    "summary": {
+      "macro_f1": {
+        "mean": 0.30429659144812427,
+        "std": 0.005045903217346357,
+        "folds_with_value": 5
+      },
+      "directional_macro_f1": {
+        "mean": 0.30345836955205724,
+        "std": 0.007369280452881156,
+        "folds_with_value": 5
+      },
+      "signal_coverage": {
+        "mean": 0.4633301645081976,
+        "std": 0.01665070927681678,
+        "folds_with_value": 5
+      },
+      "buy_f1": {
+        "mean": 0.3060794723212728,
+        "std": 0.009908862073544253,
+        "folds_with_value": 5
+      },
+      "sell_f1": {
+        "mean": 0.30083726678284173,
+        "std": 0.0053629719283019486,
+        "folds_with_value": 5
+      },
+      "buy_precision": {
+        "mean": 0.4150049714767395,
+        "std": 0.009500864194750182,
+        "folds_with_value": 5
+      },
+      "sell_precision": {
+        "mean": 0.42516165165060793,
+        "std": 0.010127159207891723,
+        "folds_with_value": 5
+      }
+    }
+  },
+  "logistic": {
+    "folds": [
+      {
+        "fold": {
+          "name": "validation_2021",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2020-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2020-07-01T00:00:00+00:00",
+            "end": "2020-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2020-10-01T00:00:00+00:00",
+            "end": "2021-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2021-01-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "logistic",
+        "block_sizes": {
+          "train": 307478,
+          "calibration": 17593,
+          "threshold": 17255,
+          "evaluation": 68628
+        },
+        "label_distribution": {
+          "train": {
+            "total": 307478,
+            "SELL": {
+              "count": 104079,
+              "share": 0.33849251003323816
+            },
+            "NO_TRADE": {
+              "count": 100640,
+              "share": 0.3273079700011058
+            },
+            "BUY": {
+              "count": 102759,
+              "share": 0.33419951996565606
+            }
+          },
+          "evaluation": {
+            "total": 68628,
+            "SELL": {
+              "count": 28282,
+              "share": 0.41210584601037475
+            },
+            "NO_TRADE": {
+              "count": 12845,
+              "share": 0.1871685026519788
+            },
+            "BUY": {
+              "count": 27501,
+              "share": 0.4007256513376464
+            }
+          }
+        },
+        "training_seconds": 2.3064617999989423,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.7755723809168672,
+          "log_loss_before": 1.0122221315835078,
+          "log_loss_after": 1.0085472737486367
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.48,
+            "prevalence": 0.40869313242538396,
+            "required_precision": 0.49043175891046076,
+            "chosen_on_threshold_block": {
+              "threshold": 0.48,
+              "signals": 682,
+              "precision": 0.49853372434017595,
+              "recall": 0.04821327283040272,
+              "f1": 0.08792345487457975
+            }
+          },
+          "SELL": {
+            "enabled": false,
+            "threshold": null,
+            "prevalence": 0.4140249203129528,
+            "required_precision": 0.4968299043755433,
+            "chosen_on_threshold_block": null
+          }
+        },
+        "evaluation": {
+          "samples": 68628,
+          "accuracy": 0.20106953430086846,
+          "macro_f1": 0.1317856297882765,
+          "directional_macro_f1": 0.037255033108153306,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28282,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.19153819439201533,
+              "precision_wilson95": [
+                0.18855905594317857,
+                0.1945531163774582
+              ],
+              "recall": 0.9875437913585052,
+              "f1": 0.3208468231485228,
+              "support": 12845,
+              "predicted": 66227,
+              "false_positive": 53542
+            },
+            "BUY": {
+              "precision": 0.46397334443981675,
+              "precision_wilson95": [
+                0.4440987355677959,
+                0.4839630544478126
+              ],
+              "recall": 0.040507617904803464,
+              "f1": 0.07451006621630661,
+              "support": 27501,
+              "predicted": 2401,
+              "false_positive": 1287
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                27155,
+                1127
+              ],
+              [
+                0,
+                12685,
+                160
+              ],
+              [
+                0,
+                26387,
+                1114
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 66227,
+            "BUY": 2401
+          },
+          "signal_coverage": 0.03498572011423909,
+          "buy_coverage": 0.03498572011423909,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 1127,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 0.9650142798857609,
+          "probability": {
+            "log_loss": 1.0081964473491534,
+            "brier_multiclass": 0.6176271961482486,
+            "ece_top_label": 0.009980110015748887
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 68628,
+          "accuracy": 0.4211109168269511,
+          "macro_f1": 0.3954586524974504,
+          "directional_macro_f1": 0.42182971952849146,
+          "per_class": {
+            "SELL": {
+              "precision": 0.42925907258064516,
+              "precision_wilson95": [
+                0.42439592138891896,
+                0.43413591994370043
+              ],
+              "recall": 0.6022558517785164,
+              "f1": 0.5012506989199847,
+              "support": 28282,
+              "predicted": 39680,
+              "false_positive": 22647
+            },
+            "NO_TRADE": {
+              "precision": 0.38470485606280896,
+              "precision_wilson95": [
+                0.375361164026472,
+                0.3941343778874742
+              ],
+              "recall": 0.30899182561307903,
+              "f1": 0.34271651843536827,
+              "support": 12845,
+              "predicted": 10317,
+              "false_positive": 6348
+            },
+            "BUY": {
+              "precision": 0.42391712736836457,
+              "precision_wilson95": [
+                0.4168374060896851,
+                0.4310282178392031
+              ],
+              "recall": 0.28718955674339114,
+              "f1": 0.3424087401369982,
+              "support": 27501,
+              "predicted": 18631,
+              "false_positive": 10733
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                17033,
+                3160,
+                8089
+              ],
+              [
+                6232,
+                3969,
+                2644
+              ],
+              [
+                16415,
+                3188,
+                7898
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 39680,
+            "NO_TRADE": 10317,
+            "BUY": 18631
+          },
+          "signal_coverage": 0.8496677740863787,
+          "buy_coverage": 0.2714781138893746,
+          "sell_coverage": 0.5781896601970041,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 8089,
+            "SELL_when_BUY": 16415
+          },
+          "no_trade_rate": 0.15033222591362128
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2022",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2021-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2021-07-01T00:00:00+00:00",
+            "end": "2021-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2021-10-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2022-01-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "logistic",
+        "block_sizes": {
+          "train": 376108,
+          "calibration": 17545,
+          "threshold": 17301,
+          "evaluation": 69143
+        },
+        "label_distribution": {
+          "train": {
+            "total": 376108,
+            "SELL": {
+              "count": 132449,
+              "share": 0.3521568272942878
+            },
+            "NO_TRADE": {
+              "count": 113050,
+              "share": 0.3005785572229253
+            },
+            "BUY": {
+              "count": 130609,
+              "share": 0.34726461548278686
+            }
+          },
+          "evaluation": {
+            "total": 69143,
+            "SELL": {
+              "count": 29210,
+              "share": 0.4224578048392462
+            },
+            "NO_TRADE": {
+              "count": 11227,
+              "share": 0.16237363145943914
+            },
+            "BUY": {
+              "count": 28706,
+              "share": 0.41516856370131466
+            }
+          }
+        },
+        "training_seconds": 2.4774499999984982,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.7937005259840998,
+          "log_loss_before": 1.014083966890094,
+          "log_loss_after": 1.0112832575664312
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.4093405005491012,
+            "required_precision": 0.4912086006589214,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 211,
+              "precision": 0.5071090047393365,
+              "recall": 0.015108726348489128,
+              "f1": 0.02934320581379405
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.48,
+            "prevalence": 0.40760649673429283,
+            "required_precision": 0.48912779608115137,
+            "chosen_on_threshold_block": {
+              "threshold": 0.48,
+              "signals": 1130,
+              "precision": 0.5008849557522124,
+              "recall": 0.08026091888825865,
+              "f1": 0.13835248105597656
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 69143,
+          "accuracy": 0.19855950710845638,
+          "macro_f1": 0.15502368919993237,
+          "directional_macro_f1": 0.08665718462098755,
+          "per_class": {
+            "SELL": {
+              "precision": 0.46091295509148034,
+              "precision_wilson95": [
+                0.4476635912173085,
+                0.47421778016020333
+              ],
+              "recall": 0.08538171858952413,
+              "f1": 0.14407440570751853,
+              "support": 29210,
+              "predicted": 5411,
+              "false_positive": 2917
+            },
+            "NO_TRADE": {
+              "precision": 0.17194887060059535,
+              "precision_wilson95": [
+                0.16901820580917548,
+                0.17491965459284747
+              ],
+              "recall": 0.962144829429055,
+              "f1": 0.291756698357822,
+              "support": 11227,
+              "predicted": 62821,
+              "false_positive": 52019
+            },
+            "BUY": {
+              "precision": 0.47530186608122943,
+              "precision_wilson95": [
+                0.4430443596831921,
+                0.5077667971334634
+              ],
+              "recall": 0.015083954573956664,
+              "f1": 0.029239963534456563,
+              "support": 28706,
+              "predicted": 911,
+              "false_positive": 478
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                2494,
+                26298,
+                418
+              ],
+              [
+                365,
+                10802,
+                60
+              ],
+              [
+                2552,
+                25721,
+                433
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 5411,
+            "NO_TRADE": 62821,
+            "BUY": 911
+          },
+          "signal_coverage": 0.09143369538492689,
+          "buy_coverage": 0.013175592612411958,
+          "sell_coverage": 0.07825810277251494,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 418,
+            "SELL_when_BUY": 2552
+          },
+          "no_trade_rate": 0.9085663046150732,
+          "probability": {
+            "log_loss": 0.9926817887535866,
+            "brier_multiclass": 0.6093341414879825,
+            "ece_top_label": 0.009616034208627899
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69143,
+          "accuracy": 0.4261458137483187,
+          "macro_f1": 0.38194823908660785,
+          "directional_macro_f1": 0.43555449689267817,
+          "per_class": {
+            "SELL": {
+              "precision": 0.430866171802277,
+              "precision_wilson95": [
+                0.4261309258076763,
+                0.435614094607379
+              ],
+              "recall": 0.6180075316672372,
+              "f1": 0.5077418538259243,
+              "support": 29210,
+              "predicted": 41897,
+              "false_positive": 23845
+            },
+            "NO_TRADE": {
+              "precision": 0.3692122669873722,
+              "precision_wilson95": [
+                0.3576934831282953,
+                0.3808820262407978
+              ],
+              "recall": 0.218758350405273,
+              "f1": 0.27473572347446723,
+              "support": 11227,
+              "predicted": 6652,
+              "false_positive": 4196
+            },
+            "BUY": {
+              "precision": 0.4349325046129941,
+              "precision_wilson95": [
+                0.4281743541384254,
+                0.4417149259111891
+              ],
+              "recall": 0.312025360551801,
+              "f1": 0.36336713995943204,
+              "support": 28706,
+              "predicted": 20594,
+              "false_positive": 11637
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                18052,
+                2144,
+                9014
+              ],
+              [
+                6148,
+                2456,
+                2623
+              ],
+              [
+                17697,
+                2052,
+                8957
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 41897,
+            "NO_TRADE": 6652,
+            "BUY": 20594
+          },
+          "signal_coverage": 0.9037935872033322,
+          "buy_coverage": 0.29784649205270236,
+          "sell_coverage": 0.6059470951506298,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 9014,
+            "SELL_when_BUY": 17697
+          },
+          "no_trade_rate": 0.09620641279666778
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2023",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2022-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2022-07-01T00:00:00+00:00",
+            "end": "2022-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2022-10-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2023-01-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "logistic",
+        "block_sizes": {
+          "train": 445132,
+          "calibration": 17753,
+          "threshold": 17211,
+          "evaluation": 69111
+        },
+        "label_distribution": {
+          "train": {
+            "total": 445132,
+            "SELL": {
+              "count": 161067,
+              "share": 0.3618409820008447
+            },
+            "NO_TRADE": {
+              "count": 125349,
+              "share": 0.28159961539498396
+            },
+            "BUY": {
+              "count": 158716,
+              "share": 0.35655940260417135
+            }
+          },
+          "evaluation": {
+            "total": 69111,
+            "SELL": {
+              "count": 28083,
+              "share": 0.40634631245387853
+            },
+            "NO_TRADE": {
+              "count": 13426,
+              "share": 0.19426719335561632
+            },
+            "BUY": {
+              "count": 27602,
+              "share": 0.39938649419050515
+            }
+          }
+        },
+        "training_seconds": 2.912140800006455,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.7405487761432822,
+          "log_loss_before": 0.9936276943718333,
+          "log_loss_after": 0.9880229639163471
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": false,
+            "threshold": null,
+            "prevalence": 0.421474638312707,
+            "required_precision": 0.5057695659752484,
+            "chosen_on_threshold_block": null
+          },
+          "SELL": {
+            "enabled": false,
+            "threshold": null,
+            "prevalence": 0.41920864563360644,
+            "required_precision": 0.5030503747603277,
+            "chosen_on_threshold_block": null
+          }
+        },
+        "evaluation": {
+          "samples": 69111,
+          "accuracy": 0.19426719335561632,
+          "macro_f1": 0.10844429367031351,
+          "directional_macro_f1": 0.0,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28083,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.19426719335561632,
+              "precision_wilson95": [
+                0.19133452062285744,
+                0.19723385309095853
+              ],
+              "recall": 1.0,
+              "f1": 0.32533288101094054,
+              "support": 13426,
+              "predicted": 69111,
+              "false_positive": 55685
+            },
+            "BUY": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 27602,
+              "predicted": 0,
+              "false_positive": 0
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                28083,
+                0
+              ],
+              [
+                0,
+                13426,
+                0
+              ],
+              [
+                0,
+                27602,
+                0
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 69111,
+            "BUY": 0
+          },
+          "signal_coverage": 0.0,
+          "buy_coverage": 0.0,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 0,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 1.0,
+          "probability": {
+            "log_loss": 1.0091953763356891,
+            "brier_multiclass": 0.6173154322074852,
+            "ece_top_label": 0.01811686135037276
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69111,
+          "accuracy": 0.4218720608875577,
+          "macro_f1": 0.39207090410465134,
+          "directional_macro_f1": 0.4328315023558074,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4137922483695787,
+              "precision_wilson95": [
+                0.4089936713105875,
+                0.4186072483786263
+              ],
+              "recall": 0.5942028985507246,
+              "f1": 0.48785265312088877,
+              "support": 28083,
+              "predicted": 40327,
+              "false_positive": 23640
+            },
+            "NO_TRADE": {
+              "precision": 0.4175367970813939,
+              "precision_wilson95": [
+                0.40673787414650253,
+                0.4284153872990669
+              ],
+              "recall": 0.24720691196186503,
+              "f1": 0.3105497076023392,
+              "support": 13426,
+              "predicted": 7949,
+              "false_positive": 4630
+            },
+            "BUY": {
+              "precision": 0.43916486681065514,
+              "precision_wilson95": [
+                0.43243776700058173,
+                0.44591439629816904
+              ],
+              "recall": 0.33149771755669877,
+              "f1": 0.37781035159072607,
+              "support": 27602,
+              "predicted": 20835,
+              "false_positive": 11685
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                16687,
+                2467,
+                8929
+              ],
+              [
+                7351,
+                3319,
+                2756
+              ],
+              [
+                16289,
+                2163,
+                9150
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 40327,
+            "NO_TRADE": 7949,
+            "BUY": 20835
+          },
+          "signal_coverage": 0.8849821301963507,
+          "buy_coverage": 0.30147154577418933,
+          "sell_coverage": 0.5835105844221614,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 8929,
+            "SELL_when_BUY": 16289
+          },
+          "no_trade_rate": 0.1150178698036492
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2024",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2023-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2023-07-01T00:00:00+00:00",
+            "end": "2023-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2023-10-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2024-01-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "logistic",
+        "block_sizes": {
+          "train": 514533,
+          "calibration": 17490,
+          "threshold": 17189,
+          "evaluation": 69656
+        },
+        "label_distribution": {
+          "train": {
+            "total": 514533,
+            "SELL": {
+              "count": 189938,
+              "share": 0.36914639099921676
+            },
+            "NO_TRADE": {
+              "count": 137526,
+              "share": 0.2672831480196605
+            },
+            "BUY": {
+              "count": 187069,
+              "share": 0.36357046098112267
+            }
+          },
+          "evaluation": {
+            "total": 69656,
+            "SELL": {
+              "count": 27559,
+              "share": 0.39564430917652466
+            },
+            "NO_TRADE": {
+              "count": 14025,
+              "share": 0.20134661766394854
+            },
+            "BUY": {
+              "count": 28072,
+              "share": 0.40300907315952683
+            }
+          }
+        },
+        "training_seconds": 3.4597417999975733,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8506671609508557,
+          "log_loss_before": 1.0118843101575226,
+          "log_loss_after": 1.0106014258724385
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.40479376345337137,
+            "required_precision": 0.48575251614404563,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 188,
+              "precision": 0.4946808510638298,
+              "recall": 0.013365909744179363,
+              "f1": 0.02602854743912679
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.39845249869102334,
+            "required_precision": 0.47814299842922797,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 61,
+              "precision": 0.5409836065573771,
+              "recall": 0.004818221638195357,
+              "f1": 0.009551374819102749
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 69656,
+          "accuracy": 0.2069455610428391,
+          "macro_f1": 0.12295599308325521,
+          "directional_macro_f1": 0.015642833943133257,
+          "per_class": {
+            "SELL": {
+              "precision": 0.49812734082397003,
+              "precision_wilson95": [
+                0.43860614823830607,
+                0.557701656766538
+              ],
+              "recall": 0.004826009652019304,
+              "f1": 0.009559404873140229,
+              "support": 27559,
+              "predicted": 267,
+              "false_positive": 134
+            },
+            "NO_TRADE": {
+              "precision": 0.20322956066336922,
+              "precision_wilson95": [
+                0.20023795119023277,
+                0.2062543388769549
+              ],
+              "recall": 0.996078431372549,
+              "f1": 0.3375823113634991,
+              "support": 14025,
+              "predicted": 68740,
+              "false_positive": 54770
+            },
+            "BUY": {
+              "precision": 0.48073959938366717,
+              "precision_wilson95": [
+                0.4425262196652589,
+                0.5191796520193884
+              ],
+              "recall": 0.011114277571957822,
+              "f1": 0.021726263013126284,
+              "support": 28072,
+              "predicted": 649,
+              "false_positive": 337
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                133,
+                27132,
+                294
+              ],
+              [
+                12,
+                13970,
+                43
+              ],
+              [
+                122,
+                27638,
+                312
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 267,
+            "NO_TRADE": 68740,
+            "BUY": 649
+          },
+          "signal_coverage": 0.013150338807855749,
+          "buy_coverage": 0.009317216033076834,
+          "sell_coverage": 0.0038331227747789133,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 294,
+            "SELL_when_BUY": 122
+          },
+          "no_trade_rate": 0.9868496611921442,
+          "probability": {
+            "log_loss": 1.0175584774992505,
+            "brier_multiclass": 0.6225138575380054,
+            "ece_top_label": 0.01546264670442603
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69656,
+          "accuracy": 0.41485299184564145,
+          "macro_f1": 0.3949122653883507,
+          "directional_macro_f1": 0.43075815411884866,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4076599771759401,
+              "precision_wilson95": [
+                0.40258874948758405,
+                0.41275095020929153
+              ],
+              "recall": 0.5314416343118401,
+              "f1": 0.46139306303752015,
+              "support": 27559,
+              "predicted": 35927,
+              "false_positive": 21281
+            },
+            "NO_TRADE": {
+              "precision": 0.3912074554294976,
+              "precision_wilson95": [
+                0.38162453752551256,
+                0.4008750116774637
+              ],
+              "recall": 0.2753654188948307,
+              "f1": 0.32322048792735497,
+              "support": 14025,
+              "predicted": 9872,
+              "false_positive": 6010
+            },
+            "BUY": {
+              "precision": 0.4354696734710986,
+              "precision_wilson95": [
+                0.4291888210108907,
+                0.4417713047208018
+              ],
+              "recall": 0.3700840695354802,
+              "f1": 0.4001232452001771,
+              "support": 28072,
+              "predicted": 23857,
+              "false_positive": 13468
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                14646,
+                2901,
+                10012
+              ],
+              [
+                6707,
+                3862,
+                3456
+              ],
+              [
+                14574,
+                3109,
+                10389
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 35927,
+            "NO_TRADE": 9872,
+            "BUY": 23857
+          },
+          "signal_coverage": 0.8582749511886988,
+          "buy_coverage": 0.34249741587228666,
+          "sell_coverage": 0.5157775353164121,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 10012,
+            "SELL_when_BUY": 14574
+          },
+          "no_trade_rate": 0.14172504881130124
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2025",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2024-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2024-07-01T00:00:00+00:00",
+            "end": "2024-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2024-10-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2025-01-01T00:00:00+00:00",
+            "end": "2026-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "logistic",
+        "block_sizes": {
+          "train": 583659,
+          "calibration": 17755,
+          "threshold": 17448,
+          "evaluation": 68819
+        },
+        "label_distribution": {
+          "train": {
+            "total": 583659,
+            "SELL": {
+              "count": 217556,
+              "share": 0.37274504462365865
+            },
+            "NO_TRADE": {
+              "count": 151528,
+              "share": 0.2596173450593583
+            },
+            "BUY": {
+              "count": 214575,
+              "share": 0.36763761031698305
+            }
+          },
+          "evaluation": {
+            "total": 68819,
+            "SELL": {
+              "count": 28586,
+              "share": 0.41537947369185835
+            },
+            "NO_TRADE": {
+              "count": 11293,
+              "share": 0.16409712434066173
+            },
+            "BUY": {
+              "count": 28940,
+              "share": 0.4205234019674799
+            }
+          }
+        },
+        "training_seconds": 4.5671088000017335,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8908987181403393,
+          "log_loss_before": 1.0292021627825325,
+          "log_loss_after": 1.0286420135046486
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.4097890875745071,
+            "required_precision": 0.4917469050894085,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 101,
+              "precision": 0.504950495049505,
+              "recall": 0.007132867132867133,
+              "f1": 0.014067025237898224
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.4140302613480055,
+            "required_precision": 0.4968363136176066,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 48,
+              "precision": 0.5625,
+              "recall": 0.003737541528239203,
+              "f1": 0.0074257425742574245
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 68819,
+          "accuracy": 0.16931370697045875,
+          "macro_f1": 0.10396418868726254,
+          "directional_macro_f1": 0.014071961538303743,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4225352112676056,
+              "precision_wilson95": [
+                0.3664942264447883,
+                0.48064392175894605
+              ],
+              "recall": 0.00419785909186315,
+              "f1": 0.008313127814340146,
+              "support": 28586,
+              "predicted": 284,
+              "false_positive": 164
+            },
+            "NO_TRADE": {
+              "precision": 0.1654619065145381,
+              "precision_wilson95": [
+                0.1626862813431713,
+                0.16827537015067662
+              ],
+              "recall": 0.9952182768086425,
+              "f1": 0.28374864298518016,
+              "support": 11293,
+              "predicted": 67925,
+              "false_positive": 56686
+            },
+            "BUY": {
+              "precision": 0.48032786885245904,
+              "precision_wilson95": [
+                0.4409267338602218,
+                0.519975231728295
+              ],
+              "recall": 0.010124395300621977,
+              "f1": 0.01983079526226734,
+              "support": 28940,
+              "predicted": 610,
+              "false_positive": 317
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                120,
+                28184,
+                282
+              ],
+              [
+                19,
+                11239,
+                35
+              ],
+              [
+                145,
+                28502,
+                293
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 284,
+            "NO_TRADE": 67925,
+            "BUY": 610
+          },
+          "signal_coverage": 0.012990598526569697,
+          "buy_coverage": 0.00886383120940438,
+          "sell_coverage": 0.004126767317165317,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 282,
+            "SELL_when_BUY": 145
+          },
+          "no_trade_rate": 0.9870094014734303,
+          "probability": {
+            "log_loss": 1.0025511737767598,
+            "brier_multiclass": 0.6144029572333576,
+            "ece_top_label": 0.010120531284305933
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 68819,
+          "accuracy": 0.42222351385518536,
+          "macro_f1": 0.36965758421548994,
+          "directional_macro_f1": 0.4476482485806703,
+          "per_class": {
+            "SELL": {
+              "precision": 0.41796596755045506,
+              "precision_wilson95": [
+                0.41300914556209006,
+                0.4229394158415905
+              ],
+              "recall": 0.5542223466032323,
+              "f1": 0.47654569791400336,
+              "support": 28586,
+              "predicted": 37905,
+              "false_positive": 22062
+            },
+            "NO_TRADE": {
+              "precision": 0.34271749755620723,
+              "precision_wilson95": [
+                0.3298328726037064,
+                0.35583819797601224
+              ],
+              "recall": 0.15522890286017887,
+              "f1": 0.2136762554851292,
+              "support": 11293,
+              "predicted": 5115,
+              "false_positive": 3362
+            },
+            "BUY": {
+              "precision": 0.44424202488468545,
+              "precision_wilson95": [
+                0.43818749641305615,
+                0.45031315616623185
+              ],
+              "recall": 0.3960262612301313,
+              "f1": 0.4187507992473373,
+              "support": 28940,
+              "predicted": 25799,
+              "false_positive": 14338
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                15843,
+                1678,
+                11065
+              ],
+              [
+                6267,
+                1753,
+                3273
+              ],
+              [
+                15795,
+                1684,
+                11461
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 37905,
+            "NO_TRADE": 5115,
+            "BUY": 25799
+          },
+          "signal_coverage": 0.9256745956785191,
+          "buy_coverage": 0.3748819366744649,
+          "sell_coverage": 0.5507926590040542,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 11065,
+            "SELL_when_BUY": 15795
+          },
+          "no_trade_rate": 0.07432540432148099
+        }
+      }
+    ],
+    "summary": {
+      "macro_f1": {
+        "mean": 0.12443475888580802,
+        "std": 0.018257294055513434,
+        "folds_with_value": 5
+      },
+      "directional_macro_f1": {
+        "mean": 0.030725402642115575,
+        "std": 0.03039694608355533,
+        "folds_with_value": 5
+      },
+      "signal_coverage": {
+        "mean": 0.03051207056671828,
+        "std": 0.03246806453471905,
+        "folds_with_value": 5
+      },
+      "buy_f1": {
+        "mean": 0.029061417605231354,
+        "std": 0.024694883738037694,
+        "folds_with_value": 5
+      },
+      "sell_f1": {
+        "mean": 0.03238938767899978,
+        "std": 0.05598671721838692,
+        "folds_with_value": 5
+      },
+      "buy_precision": {
+        "mean": 0.4750856696892931,
+        "std": 0.00676346964185651,
+        "folds_with_value": 4
+      },
+      "sell_precision": {
+        "mean": 0.46052516906101865,
+        "std": 0.030861575853268968,
+        "folds_with_value": 3
+      }
+    }
+  },
+  "xgboost": {
+    "folds": [
+      {
+        "fold": {
+          "name": "validation_2021",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2020-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2020-07-01T00:00:00+00:00",
+            "end": "2020-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2020-10-01T00:00:00+00:00",
+            "end": "2021-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2021-01-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost",
+        "block_sizes": {
+          "train": 307478,
+          "calibration": 17593,
+          "threshold": 17255,
+          "evaluation": 68628
+        },
+        "label_distribution": {
+          "train": {
+            "total": 307478,
+            "SELL": {
+              "count": 104079,
+              "share": 0.33849251003323816
+            },
+            "NO_TRADE": {
+              "count": 100640,
+              "share": 0.3273079700011058
+            },
+            "BUY": {
+              "count": 102759,
+              "share": 0.33419951996565606
+            }
+          },
+          "evaluation": {
+            "total": 68628,
+            "SELL": {
+              "count": 28282,
+              "share": 0.41210584601037475
+            },
+            "NO_TRADE": {
+              "count": 12845,
+              "share": 0.1871685026519788
+            },
+            "BUY": {
+              "count": 27501,
+              "share": 0.4007256513376464
+            }
+          }
+        },
+        "training_seconds": 12.98813489999884,
+        "best_iteration": 299,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8312378961427876,
+          "log_loss_before": 0.991951048374176,
+          "log_loss_after": 0.990024136406046
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.48,
+            "prevalence": 0.40869313242538396,
+            "required_precision": 0.49043175891046076,
+            "chosen_on_threshold_block": {
+              "threshold": 0.48,
+              "signals": 2325,
+              "precision": 0.5027956989247312,
+              "recall": 0.16576857629041405,
+              "f1": 0.24933347552522125
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.54,
+            "prevalence": 0.4140249203129528,
+            "required_precision": 0.4968299043755433,
+            "chosen_on_threshold_block": {
+              "threshold": 0.54,
+              "signals": 284,
+              "precision": 0.5211267605633803,
+              "recall": 0.020716685330347144,
+              "f1": 0.03984921917070544
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 68628,
+          "accuracy": 0.25001457131200094,
+          "macro_f1": 0.21050961926415812,
+          "directional_macro_f1": 0.1451765246945092,
+          "per_class": {
+            "SELL": {
+              "precision": 0.49339430894308944,
+              "precision_wilson95": [
+                0.471339724197549,
+                0.5154746324931709
+              ],
+              "recall": 0.034332791174598684,
+              "f1": 0.06419834710743802,
+              "support": 28282,
+              "predicted": 1968,
+              "false_positive": 997
+            },
+            "NO_TRADE": {
+              "precision": 0.20822383675993197,
+              "precision_wilson95": [
+                0.20494489720738351,
+                0.21154127834281322
+              ],
+              "recall": 0.943791358505255,
+              "f1": 0.34117580840345596,
+              "support": 12845,
+              "predicted": 58221,
+              "false_positive": 46098
+            },
+            "BUY": {
+              "precision": 0.4815736461666074,
+              "precision_wilson95": [
+                0.47092375895069716,
+                0.4922403018318716
+              ],
+              "recall": 0.14777644449292754,
+              "f1": 0.2261547022815804,
+              "support": 27501,
+              "predicted": 8439,
+              "false_positive": 4375
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                971,
+                23462,
+                3849
+              ],
+              [
+                196,
+                12123,
+                526
+              ],
+              [
+                801,
+                22636,
+                4064
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 1968,
+            "NO_TRADE": 58221,
+            "BUY": 8439
+          },
+          "signal_coverage": 0.1516436439937052,
+          "buy_coverage": 0.12296730197586991,
+          "sell_coverage": 0.028676342017835286,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 3849,
+            "SELL_when_BUY": 801
+          },
+          "no_trade_rate": 0.8483563560062948,
+          "probability": {
+            "log_loss": 0.9965233224231265,
+            "brier_multiclass": 0.6134565389305119,
+            "ece_top_label": 0.026292388179717435
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 68628,
+          "accuracy": 0.4246517456431777,
+          "macro_f1": 0.37563413911123056,
+          "directional_macro_f1": 0.44813279214361007,
+          "per_class": {
+            "SELL": {
+              "precision": 0.422072560251845,
+              "precision_wilson95": [
+                0.41716320700281573,
+                0.42699736152585077
+              ],
+              "recall": 0.57835372321618,
+              "f1": 0.4880064442985859,
+              "support": 28282,
+              "predicted": 38754,
+              "false_positive": 22397
+            },
+            "NO_TRADE": {
+              "precision": 0.43838604143947657,
+              "precision_wilson95": [
+                0.4240809215591096,
+                0.4527943229470419
+              ],
+              "recall": 0.15648112105877773,
+              "f1": 0.23063683304647156,
+              "support": 12845,
+              "predicted": 4585,
+              "false_positive": 2575
+            },
+            "BUY": {
+              "precision": 0.42611412076396854,
+              "precision_wilson95": [
+                0.4200309040011245,
+                0.4322197818213811
+              ],
+              "recall": 0.391840296716483,
+              "f1": 0.4082591399886342,
+              "support": 27501,
+              "predicted": 25289,
+              "false_positive": 14513
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                16357,
+                1325,
+                10600
+              ],
+              [
+                6922,
+                2010,
+                3913
+              ],
+              [
+                15475,
+                1250,
+                10776
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 38754,
+            "NO_TRADE": 4585,
+            "BUY": 25289
+          },
+          "signal_coverage": 0.9331905344757242,
+          "buy_coverage": 0.3684939091915836,
+          "sell_coverage": 0.5646966252841406,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 10600,
+            "SELL_when_BUY": 15475
+          },
+          "no_trade_rate": 0.0668094655242758
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2022",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2021-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2021-07-01T00:00:00+00:00",
+            "end": "2021-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2021-10-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2022-01-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost",
+        "block_sizes": {
+          "train": 376108,
+          "calibration": 17545,
+          "threshold": 17301,
+          "evaluation": 69143
+        },
+        "label_distribution": {
+          "train": {
+            "total": 376108,
+            "SELL": {
+              "count": 132449,
+              "share": 0.3521568272942878
+            },
+            "NO_TRADE": {
+              "count": 113050,
+              "share": 0.3005785572229253
+            },
+            "BUY": {
+              "count": 130609,
+              "share": 0.34726461548278686
+            }
+          },
+          "evaluation": {
+            "total": 69143,
+            "SELL": {
+              "count": 29210,
+              "share": 0.4224578048392462
+            },
+            "NO_TRADE": {
+              "count": 11227,
+              "share": 0.16237363145943914
+            },
+            "BUY": {
+              "count": 28706,
+              "share": 0.41516856370131466
+            }
+          }
+        },
+        "training_seconds": 11.006024000002071,
+        "best_iteration": 299,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.9330329915368074,
+          "log_loss_before": 0.994412899017334,
+          "log_loss_after": 0.9941790482688029
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.46,
+            "prevalence": 0.4093405005491012,
+            "required_precision": 0.4912086006589214,
+            "chosen_on_threshold_block": {
+              "threshold": 0.46,
+              "signals": 3156,
+              "precision": 0.49366286438529783,
+              "recall": 0.21999435187800057,
+              "f1": 0.30435631959367065
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.40760649673429283,
+            "required_precision": 0.48912779608115137,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 881,
+              "precision": 0.5028376844494892,
+              "recall": 0.06281905842314237,
+              "f1": 0.11168536493129962
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 69143,
+          "accuracy": 0.25638170169069896,
+          "macro_f1": 0.23203737452052975,
+          "directional_macro_f1": 0.1902265275885251,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4611032531824611,
+              "precision_wilson95": [
+                0.44279591024235876,
+                0.47951612867959215
+              ],
+              "recall": 0.044642245806230746,
+              "f1": 0.08140333354141957,
+              "support": 29210,
+              "predicted": 2828,
+              "false_positive": 1524
+            },
+            "NO_TRADE": {
+              "precision": 0.19104388085999738,
+              "precision_wilson95": [
+                0.1877302039774158,
+                0.19440204968683888
+              ],
+              "recall": 0.9078115257860515,
+              "f1": 0.3156590683845391,
+              "support": 11227,
+              "predicted": 53349,
+              "false_positive": 43157
+            },
+            "BUY": {
+              "precision": 0.480564553447478,
+              "precision_wilson95": [
+                0.47197165578495304,
+                0.4891689644674947
+              ],
+              "recall": 0.21706263498920086,
+              "f1": 0.2990497216356306,
+              "support": 28706,
+              "predicted": 12966,
+              "false_positive": 6735
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                1304,
+                22056,
+                5850
+              ],
+              [
+                150,
+                10192,
+                885
+              ],
+              [
+                1374,
+                21101,
+                6231
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 2828,
+            "NO_TRADE": 53349,
+            "BUY": 12966
+          },
+          "signal_coverage": 0.22842514788192586,
+          "buy_coverage": 0.18752440594131004,
+          "sell_coverage": 0.040900741940615826,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 5850,
+            "SELL_when_BUY": 1374
+          },
+          "no_trade_rate": 0.7715748521180741,
+          "probability": {
+            "log_loss": 0.9791474950027012,
+            "brier_multiclass": 0.6037641505569628,
+            "ece_top_label": 0.009602120099685536
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69143,
+          "accuracy": 0.4359371158324053,
+          "macro_f1": 0.4009093511180633,
+          "directional_macro_f1": 0.45215442813279844,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4391428725643655,
+              "precision_wilson95": [
+                0.43409622678409143,
+                0.4442021358490955
+              ],
+              "recall": 0.5570694967476891,
+              "f1": 0.4911264034770011,
+              "support": 29210,
+              "predicted": 37054,
+              "false_positive": 20782
+            },
+            "NO_TRADE": {
+              "precision": 0.4126434974052524,
+              "precision_wilson95": [
+                0.4005993687178008,
+                0.42479311001371434
+              ],
+              "recall": 0.23372227665449363,
+              "f1": 0.2984191970885932,
+              "support": 11227,
+              "predicted": 6359,
+              "false_positive": 3735
+            },
+            "BUY": {
+              "precision": 0.43707734162456274,
+              "precision_wilson95": [
+                0.4310262440961072,
+                0.44314722559681247
+              ],
+              "recall": 0.39176478784923013,
+              "f1": 0.4131824527885958,
+              "support": 28706,
+              "predicted": 25730,
+              "false_positive": 14484
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                16272,
+                1932,
+                11006
+              ],
+              [
+                5125,
+                2624,
+                3478
+              ],
+              [
+                15657,
+                1803,
+                11246
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 37054,
+            "NO_TRADE": 6359,
+            "BUY": 25730
+          },
+          "signal_coverage": 0.9080311817537567,
+          "buy_coverage": 0.3721273303154332,
+          "sell_coverage": 0.5359038514383234,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 11006,
+            "SELL_when_BUY": 15657
+          },
+          "no_trade_rate": 0.0919688182462433
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2023",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2022-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2022-07-01T00:00:00+00:00",
+            "end": "2022-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2022-10-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2023-01-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost",
+        "block_sizes": {
+          "train": 445132,
+          "calibration": 17753,
+          "threshold": 17211,
+          "evaluation": 69111
+        },
+        "label_distribution": {
+          "train": {
+            "total": 445132,
+            "SELL": {
+              "count": 161067,
+              "share": 0.3618409820008447
+            },
+            "NO_TRADE": {
+              "count": 125349,
+              "share": 0.28159961539498396
+            },
+            "BUY": {
+              "count": 158716,
+              "share": 0.35655940260417135
+            }
+          },
+          "evaluation": {
+            "total": 69111,
+            "SELL": {
+              "count": 28083,
+              "share": 0.40634631245387853
+            },
+            "NO_TRADE": {
+              "count": 13426,
+              "share": 0.19426719335561632
+            },
+            "BUY": {
+              "count": 27602,
+              "share": 0.39938649419050515
+            }
+          }
+        },
+        "training_seconds": 13.196535800001584,
+        "best_iteration": 298,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8312378961427876,
+          "log_loss_before": 0.9759063720703125,
+          "log_loss_after": 0.9734377644420761
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.54,
+            "prevalence": 0.421474638312707,
+            "required_precision": 0.5057695659752484,
+            "chosen_on_threshold_block": {
+              "threshold": 0.54,
+              "signals": 225,
+              "precision": 0.5644444444444444,
+              "recall": 0.017507582023711055,
+              "f1": 0.03396175959352855
+            }
+          },
+          "SELL": {
+            "enabled": false,
+            "threshold": null,
+            "prevalence": 0.41920864563360644,
+            "required_precision": 0.5030503747603277,
+            "chosen_on_threshold_block": null
+          }
+        },
+        "evaluation": {
+          "samples": 69111,
+          "accuracy": 0.1973491918797297,
+          "macro_f1": 0.1149255505605163,
+          "directional_macro_f1": 0.009161606477042717,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 28083,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.19519488855175632,
+              "precision_wilson95": [
+                0.19224494765013958,
+                0.19817898961504013
+              ],
+              "recall": 0.9966482943542381,
+              "f1": 0.32645343872746346,
+              "support": 13426,
+              "predicted": 68552,
+              "false_positive": 55171
+            },
+            "BUY": {
+              "precision": 0.46153846153846156,
+              "precision_wilson95": [
+                0.42061464592652525,
+                0.5029873053151742
+              ],
+              "recall": 0.009347148757336424,
+              "f1": 0.018323212954085434,
+              "support": 27602,
+              "predicted": 559,
+              "false_positive": 301
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                27827,
+                256
+              ],
+              [
+                0,
+                13381,
+                45
+              ],
+              [
+                0,
+                27344,
+                258
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 68552,
+            "BUY": 559
+          },
+          "signal_coverage": 0.008088437441217752,
+          "buy_coverage": 0.008088437441217752,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 256,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 0.9919115625587822,
+          "probability": {
+            "log_loss": 0.9973845046985534,
+            "brier_multiclass": 0.6129118725906839,
+            "ece_top_label": 0.026745144591796048
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69111,
+          "accuracy": 0.4239846044768561,
+          "macro_f1": 0.4003971153760659,
+          "directional_macro_f1": 0.44063331126687477,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4212621939080231,
+              "precision_wilson95": [
+                0.41610996615879536,
+                0.42643162515609345
+              ],
+              "recall": 0.5274365274365275,
+              "f1": 0.4684080703307824,
+              "support": 28083,
+              "predicted": 35161,
+              "false_positive": 20349
+            },
+            "NO_TRADE": {
+              "precision": 0.43428279473751435,
+              "precision_wilson95": [
+                0.42333801010767547,
+                0.4452920410860063
+              ],
+              "recall": 0.25323998212423654,
+              "f1": 0.31992472359444835,
+              "support": 13426,
+              "predicted": 7829,
+              "false_positive": 4429
+            },
+            "BUY": {
+              "precision": 0.4245626124574097,
+              "precision_wilson95": [
+                0.41857993784477415,
+                0.4305674728710099
+              ],
+              "recall": 0.4017824795304688,
+              "f1": 0.4128585522029671,
+              "support": 27602,
+              "predicted": 26121,
+              "false_positive": 15031
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                14812,
+                2281,
+                10990
+              ],
+              [
+                5985,
+                3400,
+                4041
+              ],
+              [
+                14364,
+                2148,
+                11090
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 35161,
+            "NO_TRADE": 7829,
+            "BUY": 26121
+          },
+          "signal_coverage": 0.8867184673930344,
+          "buy_coverage": 0.37795719928810173,
+          "sell_coverage": 0.5087612681049326,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 10990,
+            "SELL_when_BUY": 14364
+          },
+          "no_trade_rate": 0.11328153260696561
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2024",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2023-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2023-07-01T00:00:00+00:00",
+            "end": "2023-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2023-10-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2024-01-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost",
+        "block_sizes": {
+          "train": 514533,
+          "calibration": 17490,
+          "threshold": 17189,
+          "evaluation": 69656
+        },
+        "label_distribution": {
+          "train": {
+            "total": 514533,
+            "SELL": {
+              "count": 189938,
+              "share": 0.36914639099921676
+            },
+            "NO_TRADE": {
+              "count": 137526,
+              "share": 0.2672831480196605
+            },
+            "BUY": {
+              "count": 187069,
+              "share": 0.36357046098112267
+            }
+          },
+          "evaluation": {
+            "total": 69656,
+            "SELL": {
+              "count": 27559,
+              "share": 0.39564430917652466
+            },
+            "NO_TRADE": {
+              "count": 14025,
+              "share": 0.20134661766394854
+            },
+            "BUY": {
+              "count": 28072,
+              "share": 0.40300907315952683
+            }
+          }
+        },
+        "training_seconds": 14.856593099997554,
+        "best_iteration": 294,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 1.0233738919967748,
+          "log_loss_before": 0.9956926107406616,
+          "log_loss_after": 0.99563756666822
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.44,
+            "prevalence": 0.40479376345337137,
+            "required_precision": 0.48575251614404563,
+            "chosen_on_threshold_block": {
+              "threshold": 0.44,
+              "signals": 3702,
+              "precision": 0.4924365207995678,
+              "recall": 0.26200057487783845,
+              "f1": 0.3420262664165103
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.48,
+            "prevalence": 0.39845249869102334,
+            "required_precision": 0.47814299842922797,
+            "chosen_on_threshold_block": {
+              "threshold": 0.48,
+              "signals": 1320,
+              "precision": 0.4810606060606061,
+              "recall": 0.09271426485618338,
+              "f1": 0.15546578528583668
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 69656,
+          "accuracy": 0.3050562765590904,
+          "macro_f1": 0.27169643132954335,
+          "directional_macro_f1": 0.2131717157696001,
+          "per_class": {
+            "SELL": {
+              "precision": 0.47514141113426617,
+              "precision_wilson95": [
+                0.45829122217438395,
+                0.49204839536811346
+              ],
+              "recall": 0.05791211582423165,
+              "f1": 0.10324083058412575,
+              "support": 27559,
+              "predicted": 3359,
+              "false_positive": 1763
+            },
+            "NO_TRADE": {
+              "precision": 0.24758447034022368,
+              "precision_wilson95": [
+                0.24386599707106518,
+                0.2513407959562796
+              ],
+              "recall": 0.904385026737968,
+              "f1": 0.38874586244942994,
+              "support": 14025,
+              "predicted": 51231,
+              "false_positive": 38547
+            },
+            "BUY": {
+              "precision": 0.4625647152528873,
+              "precision_wilson95": [
+                0.45461355603323933,
+                0.4705349604581351
+              ],
+              "recall": 0.2482544884582502,
+              "f1": 0.3231026009550744,
+              "support": 28072,
+              "predicted": 15066,
+              "false_positive": 8097
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                1596,
+                19024,
+                6939
+              ],
+              [
+                183,
+                12684,
+                1158
+              ],
+              [
+                1580,
+                19523,
+                6969
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 3359,
+            "NO_TRADE": 51231,
+            "BUY": 15066
+          },
+          "signal_coverage": 0.2645141839898932,
+          "buy_coverage": 0.2162914896060641,
+          "sell_coverage": 0.048222694383829104,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 6939,
+            "SELL_when_BUY": 1580
+          },
+          "no_trade_rate": 0.7354858160101068,
+          "probability": {
+            "log_loss": 1.0044978475697406,
+            "brier_multiclass": 0.6164436532396839,
+            "ece_top_label": 0.007569447735653285
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69656,
+          "accuracy": 0.4203945101642357,
+          "macro_f1": 0.4109475523068393,
+          "directional_macro_f1": 0.43148608115178655,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4115277249080066,
+              "precision_wilson95": [
+                0.4061063474888026,
+                0.41697066264182436
+              ],
+              "recall": 0.47073551289959725,
+              "f1": 0.4391449317062438,
+              "support": 27559,
+              "predicted": 31524,
+              "false_positive": 18551
+            },
+            "NO_TRADE": {
+              "precision": 0.4083196968392042,
+              "precision_wilson95": [
+                0.3994108819544567,
+                0.4172891581046347
+              ],
+              "recall": 0.3380392156862745,
+              "f1": 0.3698704946169449,
+              "support": 14025,
+              "predicted": 11611,
+              "false_positive": 6870
+            },
+            "BUY": {
+              "precision": 0.43622035368198786,
+              "precision_wilson95": [
+                0.4302614667229875,
+                0.44219771508792294
+              ],
+              "recall": 0.4121188372755771,
+              "f1": 0.42382723059732935,
+              "support": 28072,
+              "predicted": 26521,
+              "false_positive": 14952
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                12973,
+                3289,
+                11297
+              ],
+              [
+                5629,
+                4741,
+                3655
+              ],
+              [
+                12922,
+                3581,
+                11569
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 31524,
+            "NO_TRADE": 11611,
+            "BUY": 26521
+          },
+          "signal_coverage": 0.8333094062248765,
+          "buy_coverage": 0.38074250602963133,
+          "sell_coverage": 0.4525669001952452,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 11297,
+            "SELL_when_BUY": 12922
+          },
+          "no_trade_rate": 0.16669059377512346
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2025",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2024-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2024-07-01T00:00:00+00:00",
+            "end": "2024-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2024-10-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2025-01-01T00:00:00+00:00",
+            "end": "2026-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost",
+        "block_sizes": {
+          "train": 583659,
+          "calibration": 17755,
+          "threshold": 17448,
+          "evaluation": 68819
+        },
+        "label_distribution": {
+          "train": {
+            "total": 583659,
+            "SELL": {
+              "count": 217556,
+              "share": 0.37274504462365865
+            },
+            "NO_TRADE": {
+              "count": 151528,
+              "share": 0.2596173450593583
+            },
+            "BUY": {
+              "count": 214575,
+              "share": 0.36763761031698305
+            }
+          },
+          "evaluation": {
+            "total": 68819,
+            "SELL": {
+              "count": 28586,
+              "share": 0.41537947369185835
+            },
+            "NO_TRADE": {
+              "count": 11293,
+              "share": 0.16409712434066173
+            },
+            "BUY": {
+              "count": 28940,
+              "share": 0.4205234019674799
+            }
+          }
+        },
+        "training_seconds": 17.11671010000282,
+        "best_iteration": 294,
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8506671609508557,
+          "log_loss_before": 1.0124659538269043,
+          "log_loss_after": 1.0109962805629793
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.52,
+            "prevalence": 0.4097890875745071,
+            "required_precision": 0.4917469050894085,
+            "chosen_on_threshold_block": {
+              "threshold": 0.52,
+              "signals": 232,
+              "precision": 0.521551724137931,
+              "recall": 0.016923076923076923,
+              "f1": 0.03278244378217285
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.48,
+            "prevalence": 0.4140302613480055,
+            "required_precision": 0.4968363136176066,
+            "chosen_on_threshold_block": {
+              "threshold": 0.48,
+              "signals": 1790,
+              "precision": 0.5027932960893855,
+              "recall": 0.12458471760797342,
+              "f1": 0.19968937208786333
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 68819,
+          "accuracy": 0.22229326203519376,
+          "macro_f1": 0.18632941688031857,
+          "directional_macro_f1": 0.12773809946173054,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4598597038191738,
+              "precision_wilson95": [
+                0.449571405298657,
+                0.47018232747722166
+              ],
+              "recall": 0.14447631707829006,
+              "f1": 0.219873825431895,
+              "support": 28586,
+              "predicted": 8981,
+              "false_positive": 4851
+            },
+            "NO_TRADE": {
+              "precision": 0.18091187478734264,
+              "precision_wilson95": [
+                0.17782075553117271,
+                0.18404469968603104
+              ],
+              "recall": 0.9416452669795449,
+              "f1": 0.30351205171749457,
+              "support": 11293,
+              "predicted": 58780,
+              "false_positive": 48146
+            },
+            "BUY": {
+              "precision": 0.504725897920605,
+              "precision_wilson95": [
+                0.4746357916942724,
+                0.5347818088216615
+              ],
+              "recall": 0.018451969592259847,
+              "f1": 0.0356023734915661,
+              "support": 28940,
+              "predicted": 1058,
+              "false_positive": 524
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                4130,
+                23986,
+                470
+              ],
+              [
+                605,
+                10634,
+                54
+              ],
+              [
+                4246,
+                24160,
+                534
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 8981,
+            "NO_TRADE": 58780,
+            "BUY": 1058
+          },
+          "signal_coverage": 0.14587541231345993,
+          "buy_coverage": 0.015373661343524317,
+          "sell_coverage": 0.13050175096993563,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 470,
+            "SELL_when_BUY": 4246
+          },
+          "no_trade_rate": 0.8541245876865401,
+          "probability": {
+            "log_loss": 0.9936488615241331,
+            "brier_multiclass": 0.6117285729765753,
+            "ece_top_label": 0.021822746406743868
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 68819,
+          "accuracy": 0.4205815254508203,
+          "macro_f1": 0.3787405686031711,
+          "directional_macro_f1": 0.443785914015552,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4182468694096601,
+              "precision_wilson95": [
+                0.41318377325772176,
+                0.42332725080310024
+              ],
+              "recall": 0.5316238718253691,
+              "f1": 0.4681690054065711,
+              "support": 28586,
+              "predicted": 36335,
+              "false_positive": 21138
+            },
+            "NO_TRADE": {
+              "precision": 0.3472530962210226,
+              "precision_wilson95": [
+                0.3355909726082627,
+                0.3591014487309217
+              ],
+              "recall": 0.19365978924997787,
+              "f1": 0.24864987777840944,
+              "support": 11293,
+              "predicted": 6298,
+              "false_positive": 4111
+            },
+            "BUY": {
+              "precision": 0.4414572672420377,
+              "precision_wilson95": [
+                0.43545186563784316,
+                0.4474798432732943
+              ],
+              "recall": 0.39944713199723564,
+              "f1": 0.4194028226245329,
+              "support": 28940,
+              "predicted": 26186,
+              "false_positive": 14626
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                15197,
+                2011,
+                11378
+              ],
+              [
+                5858,
+                2187,
+                3248
+              ],
+              [
+                15280,
+                2100,
+                11560
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 36335,
+            "NO_TRADE": 6298,
+            "BUY": 26186
+          },
+          "signal_coverage": 0.9084845754806086,
+          "buy_coverage": 0.3805053836876444,
+          "sell_coverage": 0.5279791917929642,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 11378,
+            "SELL_when_BUY": 15280
+          },
+          "no_trade_rate": 0.09151542451939144
+        }
+      }
+    ],
+    "summary": {
+      "macro_f1": {
+        "mean": 0.20309967851101324,
+        "std": 0.05225654118776592,
+        "folds_with_value": 5
+      },
+      "directional_macro_f1": {
+        "mean": 0.13709489479828152,
+        "std": 0.07089491055568695,
+        "folds_with_value": 5
+      },
+      "signal_coverage": {
+        "mean": 0.15970936512404038,
+        "std": 0.08826239139820602,
+        "folds_with_value": 5
+      },
+      "buy_f1": {
+        "mean": 0.1804465222635874,
+        "std": 0.12943763615303663,
+        "folds_with_value": 5
+      },
+      "sell_f1": {
+        "mean": 0.09374326733297567,
+        "std": 0.07184997959836811,
+        "folds_with_value": 5
+      },
+      "buy_precision": {
+        "mean": 0.4781934548652078,
+        "std": 0.015764927153605706,
+        "folds_with_value": 5
+      },
+      "sell_precision": {
+        "mean": 0.47237466926974764,
+        "std": 0.013538364869730422,
+        "folds_with_value": 4
+      }
+    }
+  }
+}

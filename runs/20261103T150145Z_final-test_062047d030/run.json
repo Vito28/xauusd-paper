@@ -1,0 +1,146 @@
+{
+  "command": "final-test",
+  "created_utc": "2026-11-03T15:01:46.076813+00:00",
+  "config_hash": "062047d030",
+  "git_commit": "a841e1ca72d87d74e9a036f82280d86caa614db4",
+  "packages": {
+    "python": "3.12.13",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "xgboost": "3.4.1"
+  },
+  "config": {
+    "data": {
+      "source_key": "metaquotes-demo-xauusd",
+      "symbol": "XAUUSD",
+      "timeframe": "M5",
+      "history_start": "2016-01-01T00:00:00Z",
+      "development_end": "2026-01-01T00:00:00Z",
+      "test_end": "2027-01-01T00:00:00Z"
+    },
+    "labels": {
+      "method": "triple_barrier",
+      "horizon_bars": 6,
+      "atr_period": 14,
+      "barrier_atr_multiple": 1.0
+    },
+    "splits": {
+      "validation_years": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "embargo_bars": 6
+    },
+    "features": {
+      "groups": [
+        "price_action",
+        "trend",
+        "momentum",
+        "volatility",
+        "volume",
+        "spread",
+        "time"
+      ]
+    },
+    "xgboost": {
+      "n_estimators": 300,
+      "max_depth": 4,
+      "learning_rate": 0.05,
+      "min_child_weight": 20.0,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.0,
+      "gamma": 0.0,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "max_bin": 64,
+      "early_stopping_rounds": 30
+    },
+    "scratch": {
+      "n_estimators": 150,
+      "max_depth": 4,
+      "learning_rate": 0.05,
+      "min_child_weight": 20.0,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.0,
+      "gamma": 0.0,
+      "max_bin": 64
+    },
+    "decision": {
+      "threshold_grid_start": 0.34,
+      "threshold_grid_stop": 0.9,
+      "threshold_grid_step": 0.02,
+      "min_precision_lift": 1.2,
+      "min_signals": 30
+    },
+    "run": {
+      "random_state": 42,
+      "n_jobs": 4,
+      "output_dir": "runs"
+    }
+  },
+  "data_report": {
+    "input_rows": 754660,
+    "valid_rows": 754660,
+    "invalid_ohlc_rows": 0,
+    "invalid_time_rows": 0,
+    "duplicate_rows_removed": 0,
+    "gap_count": 2836,
+    "spread_missing_rows": 0,
+    "tick_volume_missing_rows": 0,
+    "first_open_time": "2016-01-04T01:05:00+00:00",
+    "last_close_time": "2026-09-30T06:45:00+00:00",
+    "source": "postgres:market.processed_m5:metaquotes-demo-xauusd",
+    "rows_used": 754660
+  },
+  "model": "xgboost",
+  "model_version": "technical-xgboost-062047d030",
+  "features": [
+    "log_return_1",
+    "log_return_3",
+    "log_return_6",
+    "log_return_12",
+    "return_6_atr",
+    "return_24_atr",
+    "candle_body_atr",
+    "candle_range_atr",
+    "upper_wick_ratio",
+    "lower_wick_ratio",
+    "close_position_in_range",
+    "close_vs_ema_12_atr",
+    "close_vs_ema_48_atr",
+    "close_vs_ema_288_atr",
+    "ema_12_vs_48_atr",
+    "ema_48_slope_atr",
+    "adx_14",
+    "di_difference_14",
+    "rsi_14",
+    "rsi_14_change_3",
+    "macd_histogram_atr",
+    "stochastic_k_14",
+    "donchian_position_48",
+    "atr_14_pct",
+    "atr_14_vs_daily_mean",
+    "realized_vol_12",
+    "realized_vol_48",
+    "bollinger_width_20",
+    "bollinger_position_20",
+    "tick_volume_z_48",
+    "tick_volume_ratio_12_288",
+    "spread_atr",
+    "spread_z_288",
+    "hour_sin",
+    "hour_cos",
+    "day_of_week",
+    "session_asia",
+    "session_london",
+    "session_newyork",
+    "session_london_newyork_overlap",
+    "bars_since_gap"
+  ],
+  "peak_memory_mb": null,
+  "warning": "Hasil 2026 bersifat retrospective out-of-sample; lihat SOURCE_OF_TRUTH.md bagian A."
+}

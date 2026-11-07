@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-09-30T06:45:00+00:00",
+  "symbol": "XAUUSD",
+  "timeframe": "M5",
+  "model_version": "technical-xgboost-062047d030",
+  "signal": "NO_TRADE",
+  "confidence": 0.2934122681617737,
+  "probabilities": {
+    "SELL": 0.3761957287788391,
+    "NO_TRADE": 0.2934122681617737,
+    "BUY": 0.33039194345474243
+  },
+  "horizon_minutes": 30,
+  "reason_code": "BELOW_THRESHOLD",
+  "market_regime": {
+    "trend_strength": "ranging",
+    "volatility": "normal"
+  },
+  "feature_snapshot": {
+    "rsi_14": 45.58467102050781,
+    "adx_14": 16.65291976928711,
+    "macd_histogram_atr": -0.10138287395238876,
+    "atr_14_pct": 0.0008661714964546263,
+    "close_vs_ema_48_atr": -0.3855079114437103,
+    "spread_atr": 0.027650780975818634
+  }
+}
