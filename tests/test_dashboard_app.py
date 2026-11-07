@@ -66,19 +66,39 @@ def test_backtest_runs_summary_candles_predictions(client) -> None:
     base = f"/api/backtest/{RUN_ID}/xgboost/final_test"
     summary = client.get(base + "/summary").json()
     assert summary["horizon_minutes"] == 30
+    assert summary["barrier_atr_multiple"] == 1.0
     assert summary["signal_counts"]["NO_TRADE"] > 0
     assert summary["classification"]["confusion_matrix"]["values"]
-    assert summary["simulation"]["trades"] > 0
+    simulation = summary["simulation"]
+    assert simulation["trades"] > 0
+    assert sum(simulation["exit_reason_share"].values()) == pytest.approx(1.0)
+    assert simulation["spread"]["total_cost_usd"] > 0
+    assert 0 < simulation["spread"]["average_to_barrier"] < 1
+    assert simulation["spread"]["average_exit_candle_spread"] is not None
 
     candles = client.get(base + "/candles").json()
     assert len(candles["bars"]) > 0
     assert set(candles["bars"][0]) >= {"time", "open", "high", "low", "close", "volume"}
 
-    data = client.get(base + "/predictions", params={"signal": "SELL"}).json()
-    signal_column = data["columns"].index("signal")
+    data = client.get(base + "/predictions", params={"signal": "SELL", "lot": 0.02}).json()
+    columns = data["columns"]
+    signal_column = columns.index("signal")
     assert data["count"] > 0
     assert all(row[signal_column] == "SELL" for row in data["rows"])
     assert data["model_version"] == "model-test"
+
+    # Setiap transaksi yang sudah dinilai punya waktu tutup setelah waktu buka dan P&L sesuai lot.
+    closed = 0
+    for values in data["rows"]:
+        row = dict(zip(columns, values, strict=True))
+        if row["exit_reason"] is None:
+            continue
+        closed += 1
+        assert row["exit_time"] > row["prediction_time"]
+        assert row["exit_time"] <= row["label_end_time"]
+        assert row["pnl"] == pytest.approx(row["net_move"] * 0.02 * 100, abs=1e-5)
+        assert row["spread_to_barrier"] == pytest.approx(row["spread"] / row["barrier"], abs=1e-6)
+    assert closed > 0
 
 
 def test_backtest_rejects_unknown_run(client) -> None:

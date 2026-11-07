@@ -21,12 +21,22 @@ Aturan keluar mengikuti label triple-barrier (technical/labels.py):
 
 Dengan aturan ini, TP menghasilkan +k*ATR bersih dan SL menghasilkan
 -(k*ATR + 2*spread) bersih, sesuai rancangan barrier.
+
+Waktu buka dan tutup (dipakai dashboard, lihat trade_details):
+  buka  = prediction_time = close candle keputusan t.
+  tutup = close candle t+exit_step. Untuk TP/SL, barrier tersentuh di DALAM candle
+          tersebut; waktu persisnya di dalam candle tidak diketahui dari data M5.
+          Untuk TIME, posisi ditutup tepat di close candle t+H.
 """
 
 from dataclasses import asdict, dataclass
 
 import numpy as np
 import pandas as pd
+
+M5_MINUTES = 5
+SECONDS_PER_MINUTE = 60
+UNIX_EPOCH = pd.Timestamp("1970-01-01", tz="UTC")
 
 
 @dataclass
@@ -157,13 +167,20 @@ def simulate_predictions(
 
     Kolom wajib: signal, close, spread, barrier, future_close, up_touch_step,
     down_touch_step, label_status, prediction_time.
+
+    Indeks hasil sama dengan indeks baris predictions yang disimulasikan, sehingga
+    hasilnya bisa digabung kembali per baris (lihat trade_details). Selain kolom
+    SimulatedTrade, hasil juga memuat barrier, gross_pnl (USD sebelum spread), dan
+    spread_cost_usd untuk laporan spread.
     """
     selected = predictions[
         predictions["signal"].isin(["BUY", "SELL"]) & (predictions["label_status"] == "AVAILABLE")
     ]
     columns = list(asdict(SimulatedTrade("BUY", 0, 0, "", 0, 0, 0, 0, 0, 0, 0)).keys())
     if selected.empty:
-        return pd.DataFrame(columns=[*columns, "prediction_time"])
+        return pd.DataFrame(
+            columns=[*columns, "barrier", "gross_pnl", "spread_cost_usd", "prediction_time"]
+        )
 
     is_buy = (selected["signal"] == "BUY").to_numpy()
     close = selected["close"].to_numpy(dtype=float)
@@ -221,10 +238,151 @@ def simulate_predictions(
             "pnl": net_move * units,
             "margin": notional / spec.leverage,
             "notional": notional,
-        }
+            # Tambahan untuk laporan spread (tidak ada di SimulatedTrade).
+            "barrier": barrier,
+            "gross_pnl": gross_move * units,
+            "spread_cost_usd": spread * units,
+        },
+        index=selected.index,
     )
     trades["prediction_time"] = selected["prediction_time"].to_numpy()
     return trades
+
+
+# ---------------------------------------------------------------------------
+# Waktu buka/tutup dan laporan spread (untuk dashboard backtest)
+# ---------------------------------------------------------------------------
+
+
+def epoch_seconds(times) -> np.ndarray:
+    """Waktu UTC -> detik sejak epoch, tidak bergantung pada resolusi datetime pandas."""
+    values = pd.to_datetime(pd.Series(times), utc=True)
+    return ((values - UNIX_EPOCH) // pd.Timedelta(seconds=1)).to_numpy(dtype=np.int64)
+
+
+def open_close_seconds(trades: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """(detik buka, detik tutup) setiap transaksi.
+
+    Buka = close candle keputusan. Tutup = close candle ke-exit_step setelahnya.
+    """
+    opened = epoch_seconds(trades["prediction_time"])
+    steps = trades["exit_step"].to_numpy(dtype=np.int64)
+    closed = opened + steps * M5_MINUTES * SECONDS_PER_MINUTE
+    return opened, closed
+
+
+def candle_spread_at(open_seconds: np.ndarray, candles: pd.DataFrame | None) -> np.ndarray:
+    """Spread tercatat pada candle yang dibuka di open_seconds (NaN jika tidak ada)."""
+    if candles is None or len(candles) == 0 or "spread" not in candles.columns:
+        return np.full(len(open_seconds), np.nan)
+    keys = epoch_seconds(candles["open_time_utc"])
+    lookup = pd.Series(candles["spread"].to_numpy(dtype=float), index=keys)
+    lookup = lookup[~lookup.index.duplicated(keep="last")]
+    return lookup.reindex(open_seconds).to_numpy(dtype=float)
+
+
+def trade_details(
+    predictions: pd.DataFrame,
+    horizon_bars: int,
+    spec: InstrumentSpec,
+    candles: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """Rincian buka/tutup posisi untuk setiap baris predictions (indeks sama).
+
+    Baris yang tidak disimulasikan (NO_TRADE, PENDING, UNAVAILABLE) bernilai kosong.
+    Kolom rasio (net_return, spread_to_price, spread_to_barrier) berupa pecahan, bukan persen.
+    exit_candle_spread hanya informasi: simulasi tetap memakai spread saat buka untuk
+    keluar, karena spread pada titik sentuh barrier di dalam candle tidak diketahui.
+    """
+    trades = simulate_predictions(predictions, horizon_bars, spec)
+    columns = [
+        "exit_reason",
+        "exit_step",
+        "holding_minutes",
+        "exit_candle_open_time",
+        "exit_time",
+        "entry_price",
+        "exit_price",
+        "gross_move",
+        "net_move",
+        "pnl",
+        "net_return",
+        "spread_to_price",
+        "spread_to_barrier",
+        "exit_candle_spread",
+    ]
+    if trades.empty:
+        return pd.DataFrame(index=predictions.index, columns=columns, dtype=object)
+
+    _, closed = open_close_seconds(trades)
+    exit_candle_open = closed - M5_MINUTES * SECONDS_PER_MINUTE
+
+    detail = pd.DataFrame(index=trades.index)
+    detail["exit_reason"] = trades["exit_reason"]
+    detail["exit_step"] = trades["exit_step"]
+    detail["holding_minutes"] = trades["exit_step"] * M5_MINUTES
+    detail["exit_candle_open_time"] = pd.to_datetime(exit_candle_open, unit="s", utc=True)
+    detail["exit_time"] = pd.to_datetime(closed, unit="s", utc=True)
+    detail["entry_price"] = trades["entry_price"]
+    detail["exit_price"] = trades["exit_price"]
+    detail["gross_move"] = trades["gross_move"]
+    detail["net_move"] = trades["net_move"]
+    detail["pnl"] = trades["pnl"]
+    detail["net_return"] = trades["net_move"] / trades["entry_price"]
+    detail["spread_to_price"] = trades["spread_cost"] / trades["entry_price"]
+    detail["spread_to_barrier"] = trades["spread_cost"] / trades["barrier"]
+    detail["exit_candle_spread"] = candle_spread_at(exit_candle_open, candles)
+    return detail.reindex(predictions.index)
+
+
+def count_overlapping(trades: pd.DataFrame) -> int:
+    """Jumlah transaksi yang dibuka saat transaksi sebelumnya masih terbuka."""
+    if len(trades) < 2:
+        return 0
+    opened, closed = open_close_seconds(trades)
+    order = np.argsort(opened, kind="stable")
+    opened = opened[order]
+    closed = closed[order]
+    latest_close = np.maximum.accumulate(closed)
+    # Posisi ke-i tumpang tindih jika dibuka sebelum semua posisi sebelumnya tutup.
+    return int((opened[1:] < latest_close[:-1]).sum())
+
+
+def spread_report(trades: pd.DataFrame, candles: pd.DataFrame | None = None) -> dict:
+    """Laporan biaya spread: nilai absolut, persentase, dan pengaruhnya pada P&L.
+
+    Persentase berupa pecahan (0.01 = 1%):
+      to_price   : spread / harga buka, biaya relatif terhadap harga.
+      to_barrier : spread / barrier, porsi jarak TP yang hanya menutup biaya spread.
+    """
+    if trades.empty:
+        return {}
+    spread = trades["spread_cost"].to_numpy(dtype=float)
+    entry = trades["entry_price"].to_numpy(dtype=float)
+    barrier = trades["barrier"].to_numpy(dtype=float)
+
+    _, closed = open_close_seconds(trades)
+    exit_spread = candle_spread_at(closed - M5_MINUTES * SECONDS_PER_MINUTE, candles)
+    known_exit_spread = exit_spread[np.isfinite(exit_spread)]
+    if len(known_exit_spread) > 0:
+        average_exit_spread = float(known_exit_spread.mean())
+    else:
+        average_exit_spread = None
+
+    return {
+        "average": float(spread.mean()),
+        "median": float(np.median(spread)),
+        "minimum": float(spread.min()),
+        "maximum": float(spread.max()),
+        "average_to_price": float((spread / entry).mean()),
+        "average_to_barrier": float((spread / barrier).mean()),
+        "total_cost_usd": float(trades["spread_cost_usd"].sum()),
+        "gross_pnl_before_spread": float(trades["gross_pnl"].sum()),
+        "net_pnl_after_spread": float(trades["pnl"].sum()),
+        "exit_spread_assumption": "spread saat tutup = spread saat buka",
+        "average_exit_candle_spread": average_exit_spread,
+        "exit_candle_spread_rows": int(len(known_exit_spread)),
+    }
 
 
 def summarize_trades(trades: pd.DataFrame) -> dict:
@@ -247,8 +405,13 @@ def summarize_trades(trades: pd.DataFrame) -> dict:
         profit_factor = None
 
     exit_counts = {}
+    exit_shares = {}
     for reason, count in trades["exit_reason"].value_counts().items():
         exit_counts[str(reason)] = int(count)
+        exit_shares[str(reason)] = float(count / len(trades))
+
+    holding_minutes = trades["exit_step"].to_numpy(dtype=float) * M5_MINUTES
+    overlapping = count_overlapping(trades)
 
     return {
         "trades": int(len(trades)),
@@ -264,4 +427,8 @@ def summarize_trades(trades: pd.DataFrame) -> dict:
         "max_drawdown": float(drawdown.min()),
         "total_spread_cost": float(trades["spread_cost"].sum()),
         "exit_reasons": exit_counts,
+        "exit_reason_share": exit_shares,
+        "average_holding_minutes": float(holding_minutes.mean()),
+        "overlapping_trades": overlapping,
+        "overlapping_share": float(overlapping / len(trades)),
     }

@@ -13,7 +13,14 @@ from technical.backtest import (
 from technical.config import TechnicalConfig
 from technical.data import prepare_candles
 from technical.run import build_dataset, predict_period, run_fold
-from technical.simulation import InstrumentSpec, simulate_predictions, simulate_trade
+from technical.simulation import (
+    InstrumentSpec,
+    simulate_predictions,
+    simulate_trade,
+    spread_report,
+    summarize_trades,
+    trade_details,
+)
 from technical.splits import Fold
 from tests.test_technical_pipeline import make_candles
 
@@ -119,6 +126,85 @@ def trade_from_row(row):
         horizon_bars=6,
         spec=SPEC,
     )
+
+
+# ---------------------------------------------------------------------------
+# Waktu buka/tutup dan laporan spread (dashboard)
+# ---------------------------------------------------------------------------
+
+
+def open_close_predictions() -> pd.DataFrame:
+    """Lima sinyal berurutan: TP langkah 2, SL langkah 3, waktu habis, NO_TRADE, PENDING."""
+    return pd.DataFrame(
+        {
+            "prediction_time": pd.date_range("2026-01-05 10:05", periods=5, freq="5min", tz="UTC"),
+            "signal": ["BUY", "SELL", "BUY", "NO_TRADE", "BUY"],
+            "label_status": ["AVAILABLE", "AVAILABLE", "AVAILABLE", "AVAILABLE", "PENDING"],
+            "close": [4000.0] * 5,
+            "spread": [0.3] * 5,
+            "barrier": [3.3] * 5,  # k * ATR 3.0 + spread 0.3
+            "future_close": [4001.5, 4002.0, 4001.5, 4000.0, np.nan],
+            "up_touch_step": [2, 3, np.nan, np.nan, np.nan],
+            "down_touch_step": [np.nan] * 5,
+        }
+    )
+
+
+def test_trade_details_reports_open_close_times_and_spread_share() -> None:
+    predictions = open_close_predictions()
+    candles = pd.DataFrame(
+        {
+            "open_time_utc": pd.date_range("2026-01-05 10:00", periods=13, freq="5min", tz="UTC"),
+            "spread": [0.3] * 13,
+        }
+    )
+    exit_candle = candles["open_time_utc"] == pd.Timestamp("2026-01-05 10:10", tz="UTC")
+    candles.loc[exit_candle, "spread"] = 0.5
+    detail = trade_details(predictions, 6, SPEC, candles)
+    assert list(detail.index) == list(predictions.index)
+
+    # BUY 10:05, TP tersentuh di candle t+2 (10:10-10:15) -> tutup 10:15, +k*ATR bersih.
+    assert detail.loc[0, "exit_reason"] == "TP"
+    assert detail.loc[0, "exit_candle_open_time"] == pd.Timestamp("2026-01-05 10:10", tz="UTC")
+    assert detail.loc[0, "exit_time"] == pd.Timestamp("2026-01-05 10:15", tz="UTC")
+    assert detail.loc[0, "holding_minutes"] == 10
+    assert detail.loc[0, "net_move"] == pytest.approx(3.0)
+    assert detail.loc[0, "pnl"] == pytest.approx(3.0)  # 0.01 lot x 100 oz = 1 oz
+    assert detail.loc[0, "spread_to_barrier"] == pytest.approx(0.3 / 3.3)
+    assert detail.loc[0, "spread_to_price"] == pytest.approx(0.3 / 4000.3)
+    # Spread tercatat di candle tutup hanya informasi (simulasi memakai spread buka).
+    assert detail.loc[0, "exit_candle_spread"] == pytest.approx(0.5)
+
+    # SELL 10:10, SL di candle t+3 -> tutup 10:25, rugi -(k*ATR + 2*spread).
+    assert detail.loc[1, "exit_reason"] == "SL"
+    assert detail.loc[1, "exit_time"] == pd.Timestamp("2026-01-05 10:25", tz="UTC")
+    assert detail.loc[1, "net_move"] == pytest.approx(-3.6)
+
+    # BUY 10:15 tanpa sentuhan -> tutup di close candle t+6 = 10:45.
+    assert detail.loc[2, "exit_reason"] == "TIME"
+    assert detail.loc[2, "exit_time"] == pd.Timestamp("2026-01-05 10:45", tz="UTC")
+    assert detail.loc[2, "holding_minutes"] == 30
+    assert detail.loc[2, "net_move"] == pytest.approx(4001.5 - 4000.3)
+
+    # NO_TRADE dan PENDING tidak membuka posisi yang bisa dinilai.
+    assert pd.isna(detail.loc[3, "exit_reason"])
+    assert pd.isna(detail.loc[4, "exit_reason"])
+
+
+def test_spread_report_and_overlapping_positions() -> None:
+    trades = simulate_predictions(open_close_predictions(), 6, SPEC)
+    report = spread_report(trades)
+    assert report["total_cost_usd"] == pytest.approx(3 * 0.3)
+    gross_minus_net = report["gross_pnl_before_spread"] - report["net_pnl_after_spread"]
+    assert gross_minus_net == pytest.approx(report["total_cost_usd"])
+    assert report["average_to_barrier"] == pytest.approx(0.3 / 3.3)
+    assert report["average_exit_candle_spread"] is None  # tanpa data candle
+
+    summary = summarize_trades(trades)
+    # 10:10 dibuka sebelum 10:15 tutup; 10:15 dibuka sebelum 10:25 tutup.
+    assert summary["overlapping_trades"] == 2
+    assert summary["average_holding_minutes"] == pytest.approx((10 + 15 + 30) / 3)
+    assert sum(summary["exit_reason_share"].values()) == pytest.approx(1.0)
 
 
 # ---------------------------------------------------------------------------

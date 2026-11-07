@@ -87,7 +87,7 @@ a { color: inherit; }
   display: flex; align-items: center; gap: 8px;
 }
 .panel h2 .hint { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--muted-2); }
-.grid-main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; }
+.grid-main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
 .stack { display: grid; gap: 16px; align-content: start; min-width: 0; }
 .grid-main > * { min-width: 0; }
 @media (max-width: 1100px) { .grid-main { grid-template-columns: 1fr; } }
@@ -163,6 +163,10 @@ button.ghost { background: transparent; }
 .result.INCORRECT, .result.MISS { background: var(--sell-soft); color: var(--sell); }
 .result.NEUTRAL, .result.FLAT, .result.UNAVAILABLE { background: var(--neutral-soft); color: var(--neutral); }
 .result.PENDING { background: var(--pending-soft); color: var(--pending); }
+/* Alasan posisi ditutup (simulasi backtest). */
+.result.TP { background: var(--buy-soft); color: var(--buy); }
+.result.SL, .result.BOTH_SAME_CANDLE { background: var(--sell-soft); color: var(--sell); }
+.result.TIME { background: var(--neutral-soft); color: var(--neutral); }
 
 .prob-row { display: grid; grid-template-columns: 82px 1fr 52px; gap: 8px; align-items: center; margin: 6px 0; font-size: 12.5px; }
 .prob-bar { height: 8px; border-radius: 6px; background: var(--panel-raised); overflow: hidden; }
@@ -170,6 +174,12 @@ button.ghost { background: transparent; }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; margin-top: 10px; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; text-align: right; overflow-wrap: anywhere; min-width: 0; }
+.kv-title {
+  margin: 14px 0 0; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .6px; color: var(--gold);
+}
+.kv-title + .kv { margin-top: 6px; }
+.cell-sub { display: block; color: var(--muted-2); font-size: 11px; }
 
 /* ---------- tables ---------- */
 .table-wrap { overflow: auto; max-height: 520px; border: 1px solid var(--line); border-radius: 10px; }
@@ -193,6 +203,12 @@ td.num, th.num { text-align: right; }
 .metric-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 1200px) { .metric-groups { grid-template-columns: 1fr; } }
 .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.metric-grid.wide { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-top: 8px; }
+.trade-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 22px; }
+@media (max-width: 1100px) { .trade-layout { grid-template-columns: 1fr; } }
+.rules { margin: 8px 0 0; padding-left: 20px; color: var(--muted); font-size: 13px; }
+.rules li { margin: 7px 0; }
+.rules b { color: var(--text); }
 .metric { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
 .metric .label { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
 .metric .value { font-size: 19px; font-weight: 700; margin-top: 2px; }

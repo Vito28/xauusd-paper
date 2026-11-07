@@ -12,6 +12,18 @@ if (typeof LightweightCharts === "undefined") {
 const PAGE_SIZE = 100;
 const DEFAULT_WINDOW_DAYS = 3;
 const DAY_SECONDS = 86400;
+const CANDLE_SECONDS = 300;
+
+// Alasan posisi ditutup, sesuai technical/simulation.py.
+const EXIT_TEXT = {
+  TP: "TP tersentuh lebih dulu",
+  SL: "SL tersentuh lebih dulu",
+  TIME: "Waktu habis (close t+H)",
+  BOTH_SAME_CANDLE: "TP & SL 1 candle → SL",
+};
+const EXIT_SHORT = { TP: "TP", SL: "SL", TIME: "WAKTU", BOTH_SAME_CANDLE: "2 SISI→SL" };
+const EXIT_COLORS = { TP: COLORS.buy, SL: COLORS.sell, BOTH_SAME_CANDLE: "#c2505c", TIME: COLORS.neutral };
+const EXIT_ORDER = ["TP", "SL", "BOTH_SAME_CANDLE", "TIME"];
 
 const state = {
   runs: [],
@@ -99,6 +111,72 @@ function levels(row) {
   return { entry: row.bid_reference, takeProfit: row.close - row.barrier, stopLoss: row.close + row.barrier };
 }
 
+function hasExit(row) {
+  return Boolean(row.exit_reason);
+}
+
+function entrySide(row) {
+  return row.signal === "BUY" ? "Ask" : "Bid";
+}
+
+function exitSide(row) {
+  // BUY ditutup dengan menjual di Bid; SELL ditutup dengan membeli kembali di Ask.
+  return row.signal === "BUY" ? "Bid" : "Ask";
+}
+
+function spreadShares(row) {
+  // Pecahan (bukan persen): spread / harga buka dan spread / barrier (jarak TP).
+  const entry = entryReference(row);
+  return {
+    toPrice: Number.isFinite(entry) && entry > 0 ? row.spread / entry : null,
+    toBarrier: Number.isFinite(row.barrier) && row.barrier > 0 ? row.spread / row.barrier : null,
+  };
+}
+
+function formatClock(value) {
+  if (!value) {
+    return "–";
+  }
+  const date = new Date(value);
+  const pad = function (number) { return String(number).padStart(2, "0"); };
+  return pad(date.getUTCHours()) + ":" + pad(date.getUTCMinutes());
+}
+
+function signedPrice(value) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return "–";
+  }
+  return (value > 0 ? "+" : "") + formatPrice(value);
+}
+
+function signedPercent(value, digits) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return "–";
+  }
+  return (value > 0 ? "+" : "") + formatPercent(value, digits);
+}
+
+function closeCandleText(row) {
+  return formatClock(row.exit_candle_open_time) + "–" + formatClock(row.exit_time) + " UTC (t+" + row.exit_step + ")";
+}
+
+function closeTimeText(row) {
+  // TP/SL tersentuh di DALAM candle; menit persisnya tidak diketahui dari data M5.
+  if (row.exit_reason === "TIME") {
+    return formatClock(row.exit_time) + " UTC (close candle)";
+  }
+  return "≤ " + formatClock(row.exit_time) + " UTC (di dalam candle)";
+}
+
+function lotValue() {
+  return Number(element("lotInput").value) || 0.01;
+}
+
+function instrumentQuery() {
+  const leverage = Number(element("leverageInput").value) || 100;
+  return "lot=" + lotValue() + "&leverage=" + leverage;
+}
+
 // ------------------------------------------------------------------ pilihan run
 
 function fillSelect(select, values, selected) {
@@ -162,6 +240,7 @@ async function loadRuns() {
       "<code>uv run python -m technical.run walk-forward --models xgboost</code> (fold 2021–2025) dan/atau " +
       "<code>uv run python -m technical.run final-test --model xgboost --confirm</code> (uji 2026), lalu muat ulang halaman.";
     element("metrics").style.display = "none";
+    element("tradePanel").style.display = "none";
     showOverlay("Belum ada data backtest.");
     return;
   }
@@ -184,12 +263,41 @@ function describePeriod(period, horizonMinutes) {
 }
 
 async function loadSummary() {
-  const lot = Number(element("lotInput").value) || 0.01;
-  const leverage = Number(element("leverageInput").value) || 100;
-  const summary = await fetchJson(baseUrl() + "/summary?lot=" + lot + "&leverage=" + leverage);
+  const summary = await fetchJson(baseUrl() + "/summary?" + instrumentQuery());
   state.summary = summary;
   renderMetrics(summary);
   return summary;
+}
+
+async function loadPredictions() {
+  // Baris BUY/SELL beserta waktu buka/tutup, P&L (sesuai lot), dan spread per transaksi.
+  const predictionData = await fetchJson(baseUrl() + "/predictions?" + instrumentQuery());
+  state.predictions = [];
+  state.byCandleTime = new Map();
+  for (const values of predictionData.rows) {
+    const row = {};
+    for (let index = 0; index < predictionData.columns.length; index += 1) {
+      row[predictionData.columns[index]] = values[index];
+    }
+    row.model_version = predictionData.model_version;
+    row.candleTime = toEpochSeconds(row.candle_open_time);
+    state.predictions.push(row);
+    state.byCandleTime.set(row.candleTime, row);
+  }
+}
+
+async function refreshInstrument() {
+  // Lot/leverage hanya mengubah skala P&L; daftar sinyal dan pilihan tetap sama.
+  await loadSummary();
+  await loadPredictions();
+  renderTable();
+  if (state.selected) {
+    const row = state.byCandleTime.get(state.selected.candleTime);
+    if (row) {
+      state.selected = row;
+      renderDetail(row);
+    }
+  }
 }
 
 async function loadPeriod() {
@@ -198,19 +306,7 @@ async function loadPeriod() {
   renderDetail(null);
   try {
     const summary = await loadSummary();
-    const predictionData = await fetchJson(baseUrl() + "/predictions");
-    state.predictions = [];
-    state.byCandleTime = new Map();
-    for (const values of predictionData.rows) {
-      const row = {};
-      for (let index = 0; index < predictionData.columns.length; index += 1) {
-        row[predictionData.columns[index]] = values[index];
-      }
-      row.model_version = predictionData.model_version;
-      row.candleTime = toEpochSeconds(row.candle_open_time);
-      state.predictions.push(row);
-      state.byCandleTime.set(row.candleTime, row);
-    }
+    await loadPredictions();
 
     const pill = element("periodPill");
     pill.className = "pill ok";
@@ -276,20 +372,29 @@ function applyMarkers() {
       markers.push({
         time: row.candleTime, position: "belowBar", shape: "arrowUp",
         color: isSelected ? COLORS.gold : COLORS.buy, size: isSelected ? 2 : 1,
-        text: isSelected ? "BUY" : "",
+        text: isSelected ? "BUKA BUY" : "",
       });
     } else {
       markers.push({
         time: row.candleTime, position: "aboveBar", shape: "arrowDown",
         color: isSelected ? COLORS.gold : COLORS.sell, size: isSelected ? 2 : 1,
-        text: isSelected ? "SELL" : "",
+        text: isSelected ? "BUKA SELL" : "",
       });
     }
   }
   if (state.selected) {
-    const endTime = toEpochSeconds(state.selected.label_end_time) - 300;
-    if (endTime >= state.windowStart && endTime < state.windowEnd) {
-      markers.push({ time: endTime, position: "inBar", shape: "circle", color: COLORS.gold, text: "t+H" });
+    // Marker tutup diletakkan pada candle tempat posisi ditutup (TP/SL/waktu habis).
+    const selected = state.selected;
+    let closeTime = toEpochSeconds(selected.label_end_time) - CANDLE_SECONDS;
+    let closeLabel = "t+H";
+    let closeColor = COLORS.gold;
+    if (hasExit(selected)) {
+      closeTime = toEpochSeconds(selected.exit_candle_open_time);
+      closeLabel = "TUTUP " + EXIT_SHORT[selected.exit_reason];
+      closeColor = EXIT_COLORS[selected.exit_reason];
+    }
+    if (closeTime >= state.windowStart && closeTime < state.windowEnd) {
+      markers.push({ time: closeTime, position: "inBar", shape: "circle", color: closeColor, text: closeLabel });
     }
   }
   markers.sort(function (a, b) { return a.time - b.time; });
@@ -326,10 +431,15 @@ async function selectPrediction(row) {
   applyMarkers();
   clearPriceLines();
   const level = levels(row);
-  addPriceLine(level.entry, COLORS.gold, "Entry " + (row.signal === "BUY" ? "ask" : "bid"));
+  addPriceLine(level.entry, COLORS.gold, "Buka " + entrySide(row).toLowerCase());
   if (Number.isFinite(row.barrier)) {
     addPriceLine(level.takeProfit, COLORS.buy, "TP");
     addPriceLine(level.stopLoss, COLORS.sell, "SL");
+  }
+  // TP/SL: posisi tutup di garis TP/SL (bid; SELL membeli kembali di bid + spread).
+  // Garis tutup terpisah hanya perlu untuk waktu habis.
+  if (row.exit_reason === "TIME" && Number.isFinite(row.exit_price)) {
+    addPriceLine(row.exit_price, COLORS.neutral, "Tutup " + exitSide(row).toLowerCase());
   }
   chartParts.chart.timeScale().setVisibleRange({
     from: row.candleTime - 4 * 3600,
@@ -347,6 +457,7 @@ function renderDetail(row) {
     return;
   }
   const level = levels(row);
+  const shares = spreadShares(row);
   let move = null;
   if (Number.isFinite(row.future_close)) {
     move = row.future_close - row.close;
@@ -355,25 +466,77 @@ function renderDetail(row) {
   if (move !== null) {
     moveClass = move >= 0 ? "pos" : "neg";
   }
-  panel.innerHTML =
-    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+
+  let badges = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
     '<span class="signal-badge big-signal ' + row.signal + '">' + row.signal + "</span>" +
-    '<span class="result ' + row.prediction_result + '">' + row.prediction_result + "</span>" +
-    '<span class="result ' + row.direction_result + '">arah ' + row.direction_result + "</span></div>" +
-    '<dl class="kv">' +
-    "<dt>Waktu sinyal</dt><dd class='num'>" + formatTime(row.prediction_time) + "</dd>" +
-    "<dt>Akhir horizon</dt><dd class='num'>" + formatTime(row.label_end_time) + "</dd>" +
-    "<dt>Entry (" + (row.signal === "BUY" ? "Ask" : "Bid") + ")</dt><dd class='num'>" + formatPrice(level.entry) + "</dd>" +
-    "<dt>Spread</dt><dd class='num'>" + formatPrice(row.spread) + "</dd>" +
-    "<dt>TP / SL (bid)</dt><dd class='num'>" + formatPrice(level.takeProfit) + " / " + formatPrice(level.stopLoss) + "</dd>" +
-    "<dt>Close t+H (bid)</dt><dd class='num'>" + formatPrice(row.future_close) + "</dd>" +
-    "<dt>Perubahan</dt><dd class='num " + moveClass + "'>" + formatPrice(move) + " (" + formatPercent(row.actual_return, 3) + ")</dd>" +
-    "<dt>Label aktual</dt><dd>" + escapeHtml(row.actual_label || "–") + " <span class='muted'>(" + escapeHtml(row.label_status) + ")</span></dd>" +
-    "<dt>P(BUY/NT/SELL)</dt><dd class='num'>" + formatPercent(row.probability_buy) + " / " +
-    formatPercent(row.probability_no_trade) + " / " + formatPercent(row.probability_sell) + "</dd>" +
-    "<dt>Alasan</dt><dd class='muted'>" + escapeHtml(row.reason_code) + "</dd>" +
-    "<dt>Model</dt><dd class='muted'>" + escapeHtml(row.model_version) + "</dd>" +
-    "</dl>";
+    '<span class="result ' + row.prediction_result + '">' + row.prediction_result + "</span>";
+  if (hasExit(row)) {
+    badges += '<span class="result ' + row.exit_reason + '">tutup ' + EXIT_SHORT[row.exit_reason] + "</span>";
+  }
+  badges += "</div>";
+
+  let html = badges;
+  html += kvSection("Buka posisi", [
+    ["Waktu buka", formatTime(row.prediction_time) + " UTC"],
+    ["Candle keputusan", formatClock(row.candle_open_time) + "–" + formatClock(row.prediction_time) + " UTC"],
+    ["Harga buka (" + entrySide(row) + ")", formatPrice(level.entry)],
+    ["Confidence", formatPercent(row.confidence)],
+  ]);
+  html += kvSection("Target (harga bid)", [
+    ["TP / SL", formatPrice(level.takeProfit) + " / " + formatPrice(level.stopLoss)],
+    ["Barrier", formatPrice(row.barrier)],
+    ["= k·ATR + spread", formatPrice(row.barrier - row.spread) + " + " + formatPrice(row.spread)],
+  ]);
+
+  if (hasExit(row)) {
+    const pnlClass = row.pnl >= 0 ? "pos" : "neg";
+    html += kvSection("Tutup posisi", [
+      ["Candle tutup", closeCandleText(row)],
+      ["Waktu tutup", closeTimeText(row)],
+      ["Alasan", EXIT_TEXT[row.exit_reason]],
+      ["Lama posisi", row.holding_minutes + " menit"],
+      ["Harga tutup (" + exitSide(row) + ")", formatPrice(row.exit_price)],
+    ]);
+    html += kvSection("Hasil transaksi", [
+      ["Gerak kotor", signedPrice(row.gross_move)],
+      ["Biaya spread", "−" + formatPrice(row.spread)],
+      ["Gerak bersih", "<span class='" + pnlClass + "'>" + signedPrice(row.net_move) + " (" + signedPercent(row.net_return, 3) + ")</span>"],
+      ["P&amp;L (lot " + lotValue() + ")", "<span class='" + pnlClass + "'>" + signedPrice(row.pnl) + " USD</span>"],
+    ]);
+  } else {
+    let status = "Horizon melewati gap pasar/data; tidak bisa dinilai";
+    if (row.label_status === "PENDING") {
+      status = "Belum selesai; menunggu " + formatClock(row.label_end_time) + " UTC";
+    }
+    html += kvSection("Tutup posisi", [["Status", escapeHtml(status)]]);
+  }
+
+  html += kvSection("Spread", [
+    ["Spread buka", formatPrice(row.spread)],
+    ["Spread / harga buka", formatPercent(shares.toPrice, 4)],
+    ["Spread / barrier (jarak TP)", formatPercent(shares.toBarrier, 1)],
+    ["Spread tutup (simulasi)", formatPrice(row.spread) + " (= buka)"],
+    ["Spread candle tutup", hasExit(row) ? formatPrice(row.exit_candle_spread) + " (tercatat)" : "–"],
+  ]);
+  html += kvSection("Penilaian", [
+    ["Label aktual", escapeHtml(row.actual_label || "–") + " <span class='muted'>(" + escapeHtml(row.label_status) + ")</span>"],
+    ["Close t+H (bid)", formatPrice(row.future_close)],
+    ["Perubahan t+H", "<span class='" + moveClass + "'>" + formatPrice(move) + " (" + formatPercent(row.actual_return, 3) + ")</span>"],
+    ["Arah t+H", "<span class='result " + row.direction_result + "'>" + escapeHtml(row.direction_result) + "</span>"],
+    ["P(BUY/NT/SELL)", formatPercent(row.probability_buy) + " / " + formatPercent(row.probability_no_trade) + " / " + formatPercent(row.probability_sell)],
+    ["Alasan model", "<span class='muted'>" + escapeHtml(row.reason_code) + "</span>"],
+    ["Model", "<span class='muted'>" + escapeHtml(row.model_version) + "</span>"],
+  ]);
+  panel.innerHTML = html;
+}
+
+function kvSection(title, items) {
+  // items: [label, nilai HTML]; nilai dari data teks sudah di-escape oleh pemanggil.
+  let html = '<h3 class="kv-title">' + title + '</h3><dl class="kv">';
+  for (const item of items) {
+    html += "<dt>" + item[0] + "</dt><dd class='num'>" + item[1] + "</dd>";
+  }
+  return html + "</dl>";
 }
 
 chartParts.chart.subscribeClick(function (param) {
@@ -427,23 +590,38 @@ function renderTable() {
   let html = "";
   for (let index = 0; index < pageRows.length; index += 1) {
     const row = pageRows[index];
-    let returnClass = "";
-    if (Number.isFinite(row.actual_return)) {
-      returnClass = row.actual_return >= 0 ? "pos" : "neg";
+    const level = levels(row);
+    const shares = spreadShares(row);
+
+    let closeCell = "<span class='muted'>" + escapeHtml(row.prediction_result) + "</span>";
+    let exitCell = "<span class='muted'>–</span>";
+    let exitPriceCell = "–";
+    let pnlCell = "–";
+    let pnlClass = "";
+    if (hasExit(row)) {
+      closeCell = formatTime(row.exit_time) +
+        "<span class='cell-sub'>t+" + row.exit_step + " · " + row.holding_minutes + " menit</span>";
+      exitCell = "<span class='result " + row.exit_reason + "'>" + EXIT_SHORT[row.exit_reason] + "</span>";
+      exitPriceCell = formatPrice(row.exit_price) + "<span class='cell-sub'>" + exitSide(row) + "</span>";
+      pnlCell = signedPrice(row.pnl) + "<span class='cell-sub'>" + signedPercent(row.net_return, 3) + "</span>";
+      pnlClass = row.pnl >= 0 ? "pos" : "neg";
     }
+
     html += '<tr data-index="' + (start + index) + '" data-time="' + row.candleTime + '">' +
       "<td class='num'>" + formatTime(row.prediction_time) + "</td>" +
       "<td><span class='signal-badge " + row.signal + "'>" + row.signal + "</span></td>" +
       "<td class='num'>" + formatPercent(row.confidence) + "</td>" +
-      "<td class='num'>" + formatPrice(entryReference(row)) + "</td>" +
-      "<td class='num'>" + formatPrice(row.spread) + "</td>" +
-      "<td class='num'>" + formatPrice(row.barrier) + "</td>" +
-      "<td class='num'>" + formatPrice(row.future_close) + "</td>" +
-      "<td class='num " + returnClass + "'>" + formatPercent(row.actual_return, 3) + "</td>" +
-      "<td>" + escapeHtml(row.actual_label || "–") + "</td>" +
-      "<td><span class='result " + row.prediction_result + "'>" + row.prediction_result + "</span></td>" +
-      "<td><span class='result " + row.direction_result + "'>" + row.direction_result + "</span></td>" +
-      "<td class='muted'>" + escapeHtml(row.model_version) + "</td></tr>";
+      "<td class='num'>" + formatPrice(level.entry) + "<span class='cell-sub'>" + entrySide(row) + "</span></td>" +
+      "<td class='num'>" + formatPrice(row.spread) + "<span class='cell-sub'>" +
+      formatPercent(shares.toPrice, 4) + " · " + formatPercent(shares.toBarrier, 1) + "</span></td>" +
+      "<td class='num'>" + formatPrice(level.takeProfit) + " / " + formatPrice(level.stopLoss) + "</td>" +
+      "<td class='num'>" + closeCell + "</td>" +
+      "<td>" + exitCell + "</td>" +
+      "<td class='num'>" + exitPriceCell + "</td>" +
+      "<td class='num " + pnlClass + "'>" + pnlCell + "</td>" +
+      "<td><span class='result " + row.prediction_result + "'>" + row.prediction_result + "</span>" +
+      "<span class='cell-sub'>label " + escapeHtml(row.actual_label || "–") + "</span></td>" +
+      "<td><span class='result " + row.direction_result + "'>" + row.direction_result + "</span></td></tr>";
   }
   body.innerHTML = html;
   highlightRow();
@@ -511,6 +689,7 @@ element("nextPage").addEventListener("click", function () {
 
 function renderMetrics(summary) {
   element("metrics").style.display = "";
+  element("tradePanel").style.display = "";
   const classification = summary.classification;
   const counts = summary.signal_counts;
 
@@ -591,15 +770,77 @@ function renderMetrics(summary) {
   renderEquity(simulation.equity_curve || []);
   if (simulation.trades > 0) {
     const instrument = simulation.instrument;
-    const reasons = simulation.exit_reasons;
     element("simulationNote").textContent =
       "Lot " + instrument.lot + " × kontrak " + instrument.contract_size + " oz, leverage 1:" + instrument.leverage +
-      ". Keluar: TP " + (reasons.TP || 0) + ", SL " + (reasons.SL || 0) + ", waktu habis " + (reasons.TIME || 0) +
-      ", dua sisi " + (reasons.BOTH_SAME_CANDLE || 0) + " (dianggap SL). Total biaya spread " +
-      formatPrice(simulation.total_spread_cost) + " (harga). Simulasi tingkat candle, tanpa slippage/komisi/swap.";
+      ". Rincian alasan tutup dan biaya spread ada di panel 4. Simulasi tingkat candle, tanpa slippage/komisi/swap.";
   } else {
     element("simulationNote").textContent = "";
   }
+  renderTradePanel(summary);
+}
+
+function renderTradePanel(summary) {
+  const bars = summary.horizon_bars;
+  const minutes = summary.horizon_minutes;
+  const k = summary.barrier_atr_multiple;
+  const rules = [
+    "<b>Kapan model menilai:</b> setiap candle M5 yang sudah tutup (setiap 5 menit). Hanya BUY/SELL yang membuka posisi; NO_TRADE tidak membuka apa pun.",
+    "<b>Buka:</b> di close candle keputusan. BUY dibeli di <b>Ask</b> = close (bid) + spread; SELL dijual di <b>Bid</b> = close.",
+    "<b>Target:</b> barrier = " + k + " × ATR14 + spread. TP dan SL = close ± barrier pada harga bid.",
+    "<b>Tutup:</b> posisi diawasi " + bars + " candle (" + minutes + " menit). Posisi tutup saat high/low pertama kali menyentuh TP atau SL. " +
+      "Jika keduanya tersentuh di candle yang sama, dianggap SL. Jika tidak ada yang tersentuh, tutup di close candle ke-" + bars + " (waktu habis).",
+    "<b>Spread saat tutup:</b> spread di titik sentuh tidak tercatat, jadi dianggap sama dengan spread saat buka. " +
+      "BUY membayar spread saat buka, SELL saat tutup (beli kembali di Ask).",
+    "<b>Hasil bersih:</b> TP = +" + k + "·ATR; SL = −(" + k + "·ATR + 2 × spread); waktu habis = selisih harga di close candle ke-" + bars + " dikurangi spread.",
+    "<b>Posisi tumpang tindih diizinkan:</b> sinyal baru tetap membuka posisi walaupun posisi sebelumnya belum tutup.",
+  ];
+  let rulesHtml = "";
+  for (const rule of rules) {
+    rulesHtml += "<li>" + rule + "</li>";
+  }
+  element("tradeRules").innerHTML = rulesHtml;
+
+  const simulation = summary.simulation;
+  if (!simulation.trades) {
+    element("exitSplit").innerHTML = '<p class="muted">Belum ada transaksi dengan horizon lengkap.</p>';
+    element("spreadCards").innerHTML = "";
+    element("spreadNote").textContent = "";
+    return;
+  }
+
+  const counts = simulation.exit_reasons;
+  const shares = simulation.exit_reason_share;
+  let split = '<div class="split">';
+  for (const reason of EXIT_ORDER) {
+    split += '<i style="width:' + ((shares[reason] || 0) * 100) + "%;background:" + EXIT_COLORS[reason] + '"></i>';
+  }
+  split += '</div><div class="legend-row">';
+  for (const reason of EXIT_ORDER) {
+    split += '<span style="--c:' + EXIT_COLORS[reason] + '">' + EXIT_SHORT[reason] + " " + (counts[reason] || 0) +
+      " (" + formatPercent(shares[reason] || 0) + ")</span>";
+  }
+  split += "</div>";
+  element("exitSplit").innerHTML = split;
+
+  const spread = simulation.spread;
+  let cards = "";
+  cards += metricCard("Spread rata-rata", formatPrice(spread.average),
+    "median " + formatPrice(spread.median) + " · maks " + formatPrice(spread.maximum) + " (harga)");
+  cards += metricCard("Spread / harga buka", formatPercent(spread.average_to_price, 4), "biaya relatif terhadap harga");
+  cards += metricCard("Spread / jarak TP", formatPercent(spread.average_to_barrier, 1), "porsi barrier untuk menutup spread");
+  cards += metricCard("Total biaya spread", formatPrice(spread.total_cost_usd) + " USD",
+    simulation.trades + " transaksi · lot " + simulation.instrument.lot, COLORS.sell);
+  cards += metricCard("P&amp;L kotor → bersih", signedPrice(spread.gross_pnl_before_spread) + " → " + signedPrice(spread.net_pnl_after_spread),
+    "USD, sebelum → sesudah spread");
+  cards += metricCard("Spread candle tutup", formatPrice(spread.average_exit_candle_spread),
+    "rata-rata tercatat; simulasi memakai spread buka");
+  cards += metricCard("Lama posisi rata-rata", simulation.average_holding_minutes.toFixed(1) + " mnt", "maksimal " + minutes + " menit");
+  cards += metricCard("Posisi tumpang tindih", String(simulation.overlapping_trades),
+    formatPercent(simulation.overlapping_share) + " transaksi dibuka saat posisi lain masih terbuka");
+  element("spreadCards").innerHTML = cards;
+  element("spreadNote").textContent =
+    "Persentase spread adalah rata-rata per transaksi. Spread berasal dari candle MT5 akun demo dan belum tentu sama dengan akun live. " +
+    "Total biaya spread = jumlah spread × lot × ukuran kontrak.";
 }
 
 function confusionTable(confusion) {
@@ -715,7 +956,9 @@ element("applyRange").addEventListener("click", function () {
 for (const id of ["lotInput", "leverageInput"]) {
   element(id).addEventListener("change", function () {
     if (state.runId) {
-      loadSummary();
+      refreshInstrument().catch(function (error) {
+        showOverlay("Gagal memuat ulang simulasi: " + error.message);
+      });
     }
   });
 }

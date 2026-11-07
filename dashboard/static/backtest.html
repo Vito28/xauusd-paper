@@ -65,6 +65,23 @@
       </div>
     </section>
 
+    <section class="panel" id="tradePanel">
+      <h2>4 · Buka/tutup posisi &amp; laporan spread <span class="hint">satu sinyal BUY/SELL = satu posisi simulasi</span></h2>
+      <div class="trade-layout">
+        <div>
+          <h3 class="kv-title" style="margin-top:0">Aturan buka dan tutup</h3>
+          <ol class="rules" id="tradeRules"></ol>
+        </div>
+        <div>
+          <h3 class="kv-title" style="margin-top:0">Alasan posisi ditutup</h3>
+          <div id="exitSplit"></div>
+          <h3 class="kv-title">Laporan spread</h3>
+          <div class="metric-grid wide" id="spreadCards"></div>
+          <p class="note" id="spreadNote"></p>
+        </div>
+      </div>
+    </section>
+
     <section class="grid-main">
       <div class="panel">
         <h2>Candlestick + sinyal <span class="hint">▲ BUY · ▼ SELL · NO_TRADE tanpa marker · klik marker/baris untuk detail</span></h2>
@@ -76,14 +93,15 @@
       </div>
       <div class="stack">
         <div class="panel">
-          <h2>Detail prediksi</h2>
+          <h2>Detail transaksi</h2>
           <div id="detailPanel"><p class="muted">Pilih sinyal di grafik atau di tabel.</p></div>
         </div>
         <div class="panel">
           <details class="help">
             <summary>Cara membaca</summary>
             <ul>
-              <li><b>Marker</b> diletakkan pada candle saat sinyal dibuat (keputusan di <i>close</i> candle). Garis putus-putus: harga entry, TP, dan SL simulasi.</li>
+              <li><b>Marker ▲/▼</b> diletakkan pada candle saat posisi <b>dibuka</b> (keputusan di <i>close</i> candle). Setelah sinyal dipilih, marker <b>TUTUP</b> muncul di candle tempat posisi ditutup (TP, SL, atau waktu habis). Garis putus-putus: harga buka, TP, dan SL.</li>
+              <li><b>Waktu tutup TP/SL</b> ditampilkan sebagai candle tempat barrier tersentuh. Data M5 tidak menyimpan urutan harga di dalam candle, jadi menit persisnya tidak diketahui.</li>
               <li><b>Entry referensi</b>: BUY memakai <b>Ask</b> = close (bid) + spread; SELL memakai <b>Bid</b> = close. OHLC MT5 adalah harga bid; ini simulasi tingkat candle, bukan eksekusi tick.</li>
               <li><b>CORRECT</b>: barrier searah (k·ATR + spread) tersentuh lebih dulu dalam horizon. <b>INCORRECT</b>: barrier lawan lebih dulu. <b>NEUTRAL</b>: tidak ada barrier tersentuh, jadi kenaikan kecil tidak dihitung sebagai BUY benar. <b>PENDING</b>: horizon belum selesai. <b>UNAVAILABLE</b>: horizon melewati gap pasar sehingga tidak bisa dinilai.</li>
               <li><b>Arah HIT/MISS</b> hanya membandingkan tanda close t+H − close t, tanpa ambang. Ukuran ini sengaja dipisah dari akurasi label.</li>
@@ -95,7 +113,7 @@
     </section>
 
     <section class="panel">
-      <h2>Riwayat prediksi <span class="hint" id="tableCount"></span></h2>
+      <h2>Riwayat transaksi: buka → tutup <span class="hint" id="tableCount"></span></h2>
       <div class="controls" style="margin-bottom:10px">
         <div class="segmented" id="signalFilter">
           <button type="button" data-value="ALL" class="active">Semua</button>
@@ -116,9 +134,10 @@
         <table>
           <thead>
             <tr>
-              <th>Waktu sinyal (UTC)</th><th>Sinyal</th><th class="num">Conf.</th><th class="num">Entry ref.</th>
-              <th class="num">Spread</th><th class="num">Barrier ±</th><th class="num">Harga t+H</th>
-              <th class="num">Return aktual</th><th>Label aktual</th><th>Hasil</th><th>Arah</th><th>Model</th>
+              <th>Buka (UTC)</th><th>Sinyal</th><th class="num">Conf.</th><th class="num">Harga buka</th>
+              <th class="num">Spread · % harga · % TP</th><th class="num">TP / SL (bid)</th>
+              <th>Tutup (UTC)</th><th>Alasan tutup</th><th class="num">Harga tutup</th>
+              <th class="num">P&amp;L USD · return</th><th>Hasil vs label</th><th>Arah t+H</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>

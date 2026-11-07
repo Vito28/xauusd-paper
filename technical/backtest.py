@@ -32,7 +32,12 @@ import pandas as pd
 
 from technical.config import CLASS_NAMES
 from technical.evaluation import evaluate_predictions
-from technical.simulation import InstrumentSpec, simulate_predictions, summarize_trades
+from technical.simulation import (
+    InstrumentSpec,
+    simulate_predictions,
+    spread_report,
+    summarize_trades,
+)
 
 CANDLE_COLUMNS = ["open_time_utc", "open", "high", "low", "close", "tick_volume", "spread"]
 CLASS_INDEX = {"SELL": 0, "NO_TRADE": 1, "BUY": 2}
@@ -214,8 +219,16 @@ def confidence_histogram(predictions: pd.DataFrame, bins: int = 10) -> dict:
     return result
 
 
-def summarize_period(predictions: pd.DataFrame, horizon_bars: int, spec: InstrumentSpec) -> dict:
-    """Ringkasan untuk panel Performance Analytics."""
+def summarize_period(
+    predictions: pd.DataFrame,
+    horizon_bars: int,
+    spec: InstrumentSpec,
+    candles: pd.DataFrame | None = None,
+) -> dict:
+    """Ringkasan untuk panel Performance Analytics.
+
+    candles (opsional) dipakai untuk melaporkan spread yang tercatat pada candle tutup.
+    """
     counts = {}
     for name in CLASS_NAMES:
         counts[name] = int((predictions["signal"] == name).sum())
@@ -253,6 +266,7 @@ def summarize_period(predictions: pd.DataFrame, horizon_bars: int, spec: Instrum
 
     trades = simulate_predictions(predictions, horizon_bars, spec)
     simulation = summarize_trades(trades)
+    simulation["spread"] = spread_report(trades, candles)
     equity = []
     if not trades.empty:
         cumulative = trades["pnl"].cumsum().to_numpy()
