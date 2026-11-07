@@ -1,51 +1,111 @@
 # Konfigurasi eksperimen Technical Agent XAUUSD.
 # Setiap nilai di sini dijelaskan asal-usulnya di SOURCE_OF_TRUTH.md (bagian A, D, G).
 # Ubah file ini, bukan kode, ketika ingin menjalankan eksperimen lain.
+#
+# Nilai default yang sama juga dideklarasikan di technical/config.py dan dipakai jika
+# sebuah kunci dihapus dari file ini. Jika nilai atau alasannya diubah, ubah di kedua file.
+#
+# Penanda sumber alasan pada komentar:
+#   [SoT X]  alasan tertulis di SOURCE_OF_TRUTH.md (bagian atau ID X).
+#   [design] pilihan rancangan, BELUM hasil tuning. Validasi lewat walk-forward
+#            (rata-rata fold 2021-2025), jangan pernah memakai data 2026 untuk memilihnya.
+#   [teknis] konsekuensi matematis atau komputasi yang pasti, bukan selera.
 
 [data]
+# Broker demo MetaQuotes; spread akun demo belum tentu sama dengan akun live [SoT B.1, A-09].
 source_key = "metaquotes-demo-xauusd"
 symbol = "XAUUSD"
+# M1 lebih bising dan spread relatif lebih besar terhadap gerak per bar; M15 mengurangi
+# jumlah sampel tanpa alasan kuat [SoT D-01]. validate_config menolak timeframe selain M5.
 timeframe = "M5"
+# Sekitar 10 tahun (~750 ribu candle M5), mencakup beberapa kondisi pasar. Panjang
+# 10 tahun bukan angka yang "dibuktikan" literatur [SoT A-03].
 history_start = "2016-01-01T00:00:00Z"
 # Batas akhir data pengembangan (eksklusif): seluruh training, tuning,
-# kalibrasi, dan pemilihan threshold harus selesai sebelum timestamp ini.
+# kalibrasi, dan pemilihan threshold harus selesai sebelum timestamp ini [SoT A-03].
 development_end = "2026-01-01T00:00:00Z"
 # Batas akhir data uji 2026 (eksklusif). Hanya label yang horizonnya lengkap dinilai.
+# 2026 = retrospective out-of-sample, BUKAN blind test [SoT A-04, A-05].
 test_end = "2027-01-01T00:00:00Z"
 
 [labels]
 # "triple_barrier" (utama) atau "fixed_horizon" (pembanding/ablation).
+# Triple-barrier menyesuaikan volatilitas, memperhitungkan spread, dan NO_TRADE muncul
+# secara alami bila tidak ada gerak berarti [SoT D-03].
 method = "triple_barrier"
-horizon_bars = 6            # 6 x M5 = 30 menit
+# 6 x M5 = 30 menit. Pada 15 menit (3 bar) gerak tipikal terlalu kecil dibanding spread.
+# Nilai final menunggu label-scan (EXP-R01) [SoT D-02, D-18].
+horizon_bars = 6
+# Konvensi Wilder, BUKAN nilai optimal yang terbukti [SoT tabel C].
 atr_period = 14
-barrier_atr_multiple = 1.0  # lebar barrier = k * ATR14 + spread saat keputusan
+# k pada lebar barrier = k * ATR14 + spread saat keputusan. Usulan awal, menunggu
+# label-scan [SoT D-03]. k lebih besar -> barrier lebih jarang tersentuh -> NO_TRADE
+# lebih banyak; k lebih kecil -> label makin dekat dengan noise dan spread [teknis].
+barrier_atr_multiple = 1.0
 
 [splits]
-# Walk-forward expanding window: setiap tahun di bawah menjadi tahun evaluasi.
+# Walk-forward expanding window: setiap tahun di bawah menjadi tahun evaluasi [SoT D-10].
+# Dimulai 2021 agar fold pertama tetap punya ~4,5 tahun data TRAIN
+# (2016-01 s/d 2020-07) [design].
 validation_years = [2021, 2022, 2023, 2024, 2025]
 # Embargo tambahan (dalam bar M5) di akhir setiap blok, selain purging label.
+# Disamakan dengan horizon_bars karena label "melihat" H candle ke depan [SoT D-11].
+# Jika horizon_bars diubah, nilai ini sebaiknya ikut diubah.
 embargo_bars = 6
 
 [features]
 # Kelompok fitur yang dipakai. Hapus nama kelompok untuk ablation.
+# Total 41 fitur dalam 7 kelompok; seleksi lewat ablation kelompok [SoT D-06].
 groups = ["price_action", "trend", "momentum", "volatility", "volume", "spread", "time"]
 
 [xgboost]
+# Model referensi utama [SoT D-04]. Nilai di bagian ini [design] kecuali disebut lain.
+# Sebagai pembanding, default XGBoost: learning_rate 0.3, max_depth 6,
+# min_child_weight 1, reg_lambda 1, subsample 1, colsample_bytree 1, max_bin 256.
+#
+# Batas ATAS jumlah ronde, bukan jumlah final: early stopping memilih ronde terbaik.
 n_estimators = 300
+# Pohon dangkal (weak learner): maksimal 2^4 = 16 daun, interaksi sampai 4 fitur.
+# Depth 6 (default) lebih mudah menghafal pola kebetulan di data M5 yang bising.
 max_depth = 4
+# Shrinkage: setiap pohon hanya menyumbang 5% dari koreksinya -> langkah hati-hati,
+# butuh banyak pohon. 0.3 cepat menghafal noise; 0.01 butuh ribuan pohon (lambat).
 learning_rate = 0.05
+# Minimum JUMLAH HESSIAN per daun, bukan jumlah baris. Untuk multi:softprob,
+# Hessian per baris = 2p(1-p) <= 0.5, jadi 20 berarti minimal ~40 candle per daun
+# (p=0.5), ~63 (p=0.2), ~111 (p=0.1) [teknis]. Default 1 = daun bisa berisi ~2 candle.
 min_child_weight = 20.0
+# L2 pada bobot daun w = -G / (H + lambda). Daun kecil (H=20) dikecilkan menjadi
+# 20/25 = 80% dari langkah Newton, daun besar (H=1000) tetap ~99,5% [teknis].
+# Yang terutama ditekan adalah daun kecil, yang paling mungkin berisi noise.
 reg_lambda = 5.0
+# L1 dimatikan: 41 fitur padat (bukan sparse); reg_lambda dan min_child_weight sudah
+# cukup menjadi rem.
 reg_alpha = 0.0
+# Gain minimum per split dimatikan; pruning cukup lewat max_depth dan min_child_weight.
+# Dengan gamma = 0, library dan scratch identik meskipun konvensi gamma keduanya
+# berbeda faktor 2 [SoT E-5, EXP-S05].
 gamma = 0.0
+# Setiap pohon hanya melihat 80% baris dan 80% fitur (~32-33 dari 41) yang dipilih acak
+# -> pohon lebih beragam, variance turun. Di bawah ~0.5 setiap pohon kehilangan terlalu
+# banyak informasi. compare-scratch mengubah keduanya menjadi 1.0.
 subsample = 0.8
 colsample_bytree = 0.8
+# 64 bin kuantil per fitur (~1,6% data per bin). Lebih sedikit bin daripada default 256
+# = training lebih cepat dan model tidak bisa membuat potongan super halus yang hanya
+# cocok dengan noise.
 max_bin = 64
+# Berhenti jika mlogloss di blok CALIBRATION tidak membaik selama 30 ronde (~10% dari
+# n_estimators). Terlalu kecil -> berhenti karena fluktuasi kecil; terlalu besar ->
+# membuang waktu. Blok yang sama juga dipakai temperature scaling, sehingga kalibrasi
+# sedikit optimistis [SoT D-13]. Nilai ini juga dipakai model scratch.
 early_stopping_rounds = 30
 
 [scratch]
 # XGBoost from scratch (NumPy). Default dibuat sebanding dengan [xgboost],
 # tetapi tanpa subsampling agar hasilnya deterministik.
+# 150 (bukan 300) karena waktu komputasi: scratch ~3,4 detik per ronde, sehingga
+# 150 ronde ~9 menit per fold [SoT EXP-S04].
 n_estimators = 150
 max_depth = 4
 learning_rate = 0.05
@@ -53,43 +113,72 @@ min_child_weight = 20.0
 reg_lambda = 5.0
 reg_alpha = 0.0
 gamma = 0.0
+# Maksimal 255: indeks bin disimpan sebagai uint8 dan satu bin dicadangkan untuk NaN [teknis].
 max_bin = 64
 
 [random_forest]
 # Anggota bagging ensemble: pohon dalam pada sampel bootstrap -> menurunkan variance.
+# Nilai di bagian ini [design].
+# Menambah pohon tidak membuat random forest overfit, hanya menambah waktu;
+# di atas beberapa ratus pohon, perbaikannya makin kecil.
 n_estimators = 300
+# Pohon dalam (bias rendah), dibatasi agar tidak menghafal dan ukuran model tetap wajar.
 max_depth = 12
 min_samples_leaf = 100   # data M5 bising: daun minimal 100 candle
-max_features = 0.33      # proporsi fitur acak per split (membuat pohon beragam)
+max_features = 0.33      # proporsi fitur acak per split (~13 dari 41), membuat pohon beragam
 max_samples = 0.5        # proporsi baris per pohon (bootstrap), juga mempercepat training
 
 [ensemble]
 # Soft voting berbobot. Setiap anggota dikalibrasi (temperature scaling), lalu bobot dipilih
-# pada blok CALIBRATION dari grid kelipatan weight_step yang jumlahnya 1.
+# pada blok CALIBRATION dari grid kelipatan weight_step yang jumlahnya 1 [SoT D-20].
+# Anggota dipilih agar kesalahannya berbeda: boosting (bias turun), bagging (variance turun),
+# dan model linear.
 members = ["xgboost", "random_forest", "logistic"]
+# Untuk 3 anggota: 0.05 -> 231 kombinasi bobot; 0.1 -> 66 (kasar); 0.01 -> 5.151
+# (lambat dan rawan overfit pada blok CALIBRATION) [teknis untuk jumlah, design untuk
+# pilihan]. Harus membagi 1 habis (dicek validate_config).
 weight_step = 0.05
 
 [feature_selection]
 # Dipakai model xgboost_selected. Semua langkah diulang di setiap fold, hanya memakai
-# blok TRAIN (filter) dan CALIBRATION (permutation importance).
+# blok TRAIN (filter) dan CALIBRATION (permutation importance) [SoT D-21].
+# Nilai di bagian ini [design].
 max_missing = 0.4            # buang fitur dengan nilai hilang > 40% di TRAIN
-sample_rows = 30000          # sampel TRAIN untuk mutual information dan korelasi
-redundancy_threshold = 0.95  # |Spearman| antarfitur di atas ini dianggap redundan
-leakage_threshold = 0.95     # |Spearman| fitur-label di atas ini dicurigai bocor
-permutation_repeats = 3      # berapa kali setiap fitur diacak
-min_features = 5             # jumlah fitur minimum yang dipertahankan
+# Sampel TRAIN untuk mutual information dan korelasi. Mutual information berbasis k-NN
+# lambat pada ratusan ribu baris; 30 ribu baris cukup stabil dan cepat.
+sample_rows = 30000
+# |Spearman| antarfitur di atas ini dianggap redundan. 0.95 = hanya pasangan yang hampir
+# identik yang dibuang (fitur dengan mutual information lebih tinggi dipertahankan).
+redundancy_threshold = 0.95
+# |Spearman| fitur-label di atas ini dicurigai bocor. Fitur kausal yang wajar tidak
+# mungkin berkorelasi setinggi itu dengan label masa depan.
+leakage_threshold = 0.95
+# Berapa kali setiap fitur diacak; rata-rata beberapa kali mengurangi efek kebetulan.
+# Biaya = repeats x jumlah fitur kali prediksi pada blok CALIBRATION.
+permutation_repeats = 3
+# Jaring pengaman: jika terlalu sedikit fitur yang permutation importance-nya > 0,
+# tetap pertahankan 5 fitur teratas.
+min_features = 5
 
 [decision]
 # Threshold confidence dipilih per kelas pada blok "threshold" (bukan data uji).
+# 0.34 = sedikit di atas 1/3 (tebakan seragam untuk 3 kelas) [design].
 threshold_grid_start = 0.34
+# Di atas 0.90 jumlah sinyal biasanya terlalu sedikit untuk lolos min_signals [design].
 threshold_grid_stop = 0.90
+# 0.34, 0.36, ..., 0.90 = 29 kandidat threshold [teknis].
 threshold_grid_step = 0.02
 # Precision kelas harus minimal (lift x prevalensi kelas tersebut di blok threshold).
+# Model acak punya precision = prevalensi, jadi 1.2 = minimal 20% lebih baik dari acak.
+# Angka 1.2 sendiri adalah pilihan rancangan [SoT D-09].
 min_precision_lift = 1.2
-# Minimum jumlah sinyal di blok threshold agar threshold dianggap dapat dipercaya.
+# Minimum jumlah sinyal di blok threshold agar threshold dianggap dapat dipercaya;
+# precision dari segelintir sinyal terlalu tidak stabil. Angka 30 = pilihan rancangan [SoT D-09].
 min_signals = 30
 
 [run]
+# Angka bebas agar hasil bisa diulang; 42 hanya konvensi, tidak punya makna statistik.
 random_state = 42
+# Jumlah thread CPU; terutama memengaruhi kecepatan.
 n_jobs = 4
 output_dir = "runs"
