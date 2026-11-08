@@ -18,8 +18,8 @@ Kode dan artefak yang dirujuk tautan di dalam laporan (misalnya
 `main`. Semuanya masih bisa dibuka dari riwayat git:
 
 ```bash
-git show a0e31c0:technical/artifacts/direction_v3/final_2026/metrics.json
-git show a0e31c0:analisis_teknikall/xgboost_matematis.py
+git show 9a31d44:technical/artifacts/direction_v3/final_2026/metrics.json
+git show 9a31d44:analisis_teknikall/xgboost_matematis.py
 ```
 
 Angka di laporan ini **tidak** dapat dibandingkan langsung dengan hasil pipeline baru

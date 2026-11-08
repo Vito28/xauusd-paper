@@ -417,7 +417,7 @@ bagian 10 juga memakai modul standard-library-only yang sama, bukan XGBoost.
 ## Penelusuran sumber
 
 > Catatan: file di bawah ini sudah dihapus dari `main` saat refactor Technical
-> Agent dan masih tersedia di riwayat git (`git show a0e31c0:<path>`). Versi
+> Agent dan masih tersedia di riwayat git (`git show 9a31d44:<path>`). Versi
 > barunya adalah `technical/xgboost_scratch.py`.
 
 - [File program lengkap](xgboost_matematis.py).
