@@ -1,0 +1,225 @@
+{
+ "keterangan": "Riwayat git ditulis ulang pada 8 November 2026 (penulis NetsMyDesign menjadi Vito28 dan trailer Co-Authored-By dihapus). Isi file setiap commit tidak berubah. Kolom git_commit di runs/*/run.json masih memakai hash lama; terjemahkan dengan tabel ini.",
+ "peta": [
+  {
+   "lama": "a0e31c05082309db7fe6f1485c3d79fb5c84e5b8",
+   "baru": "9a31d442a34682caa3a667dc628c0aba421427c4",
+   "commit": "2026-10-29 Merge branch 'main' of github.com:Vito28/xauusd-paper"
+  },
+  {
+   "lama": "6fbd90ce02e01d5e0b36d8e8b010130943fa8f4d",
+   "baru": "f18a537c51da63ffdf8ca7f0ea0064e65a8560d8",
+   "commit": "2026-10-29 add documents"
+  },
+  {
+   "lama": "073673ad8d6bbfb11167017aafcafe55a88a5691",
+   "baru": "59061b29b6672a41729c46fe8de10b67fc0f7c5b",
+   "commit": "2026-10-29 build(deps): buang mkdocs dan plotly, atur lint kode technical"
+  },
+  {
+   "lama": "2f732ede2a7afdb7b500dcfbdc35206a5996d3af",
+   "baru": "f259c71c486ef833be3d80900d7a21cbb26dc07c",
+   "commit": "2026-10-29 chore(docs): hapus MkDocs dan folder docs/"
+  },
+  {
+   "lama": "6d3cd16294948cc424f1c22726d9115ae7a44ecf",
+   "baru": "d451a9427e9d35e405f97d1dc2dce89c8d08f93c",
+   "commit": "2026-10-29 chore(technical): hapus pipeline teknikal lama dan artefaknya"
+  },
+  {
+   "lama": "48e75d1ee388806e079d3dae59414717af7f5bfa",
+   "baru": "fc0afa91023a1ebf22dd9b43d10838c1e19a2478",
+   "commit": "2026-10-29 docs(business-understanding): tambah sitasi IEEE dan bab perumusan matematis XGBoost"
+  },
+  {
+   "lama": "b4226b9325d1269a065ddf47fe4846043ae975e9",
+   "baru": "720e0c4fcd91e36df82cfc12dab9fcd6ae603b61",
+   "commit": "2026-10-29 docs(skripsi): tambah draf Bab I-III sistem multi-agen XAU/USD"
+  },
+  {
+   "lama": "a7a337d3cad51d4e0a6693e98a3f07f0652b967e",
+   "baru": "5b1263a204dc79d7bdceae52f4974470bc92e453",
+   "commit": "2026-10-29 docs(xgboost): lengkapi laporan eksperimen dan arsip analisis XAUUSD"
+  },
+  {
+   "lama": "21d7d7c4180bdb5a0755adfb24cc2572e3bc4568",
+   "baru": "3f1e4dd1eb08527f9d6e4e0468d606b134e05462",
+   "commit": "2026-10-29 docs: tulis ulang README dan tambah SOURCE_OF_TRUTH.md"
+  },
+  {
+   "lama": "9ebe45fbd2bee7b81d9d87abd4bb798a14168af2",
+   "baru": "d2e6a78ea1fd701d563e6c9e3e86e780852b7d64",
+   "commit": "2026-10-29 feat(technical): pipeline klasifikasi selektif BUY/SELL/NO_TRADE"
+  },
+  {
+   "lama": "b18c66095eda88b3eebc88923abbf65826fab11a",
+   "baru": "6cf0bf4270d290ba1780b81bfa0f03c45340a355",
+   "commit": "2026-10-29 feat(technical): tambah XGBoost from scratch berbasis NumPy"
+  },
+  {
+   "lama": "4a30ef4cefccc3a270c37915b5f100bc9e60fb1a",
+   "baru": "4696229a9de67dfd9f58ae3076b7ceb67696f307",
+   "commit": "2026-10-29 refactor(analytics): hapus forecast XGBoost harga harian"
+  },
+  {
+   "lama": "d074537b4798f4ee739ceaaa192aabcabc99be5c",
+   "baru": "c8751e4ce8cfb3afe8740c3082179ecab3f057fa",
+   "commit": "2026-10-31 build: dependency websocket/httpx, Docker memakai dashboard.app"
+  },
+  {
+   "lama": "cf06271d300268f85f895f71da134291d65483df",
+   "baru": "0330022f5b10afc86f2e6e29f7b0e87bae9e57b0",
+   "commit": "2026-10-31 chore: hapus reports/pr-preparation, site/, dan output forecast lama"
+  },
+  {
+   "lama": "8f68658d581e18b5629a19da4537d8474fce91cc",
+   "baru": "4ea8a8f65b786f8557e65e3d77c9ed37ffe06b0c",
+   "commit": "2026-10-31 docs(reports): arsipkan laporan pipeline lama ke reports/arsip_pipeline_lama"
+  },
+  {
+   "lama": "a841e1ca72d87d74e9a036f82280d86caa614db4",
+   "baru": "01172c4b7b10885a9360ec1b37109030d5c6e26c",
+   "commit": "2026-10-31 docs: README ringkas, METHODOLOGY.md, dan logika masuk/keluar posisi"
+  },
+  {
+   "lama": "303c363b3eb8368add9c9a61891d676971c3ca39",
+   "baru": "892abaf5ac208d98c843bc6a86e201da9386a2b7",
+   "commit": "2026-10-31 feat(dashboard): dashboard live MT5 dan dashboard backtest"
+  },
+  {
+   "lama": "074c613edfa0ade8b889911045a6de83d6796dd4",
+   "baru": "3c6d220a4af73918ba23c3400fe39603495e3802",
+   "commit": "2026-10-31 feat(technical): simpan prediksi backtest per fold dan simulasi P&L offline"
+  },
+  {
+   "lama": "6cc800b54281cfcfd363423e2e270d50d46d7900",
+   "baru": "5bcddd1aeb232eb3e950bd65076ab096b81a0167",
+   "commit": "2026-11-03 business understanding file"
+  },
+  {
+   "lama": "1794e163126169111a13b57a2ce6b3fa85e0df1f",
+   "baru": "892dc5658fef7f06be100245c52933a679400228",
+   "commit": "2026-11-03 update bab1-3 file"
+  },
+  {
+   "lama": "56e31482cdabecad4bc6e74fa0bcc5d8ac983748",
+   "baru": "de96aae47e688e2d69a556f8caa7f825ee14e9d6",
+   "commit": "2026-11-04 add issues"
+  },
+  {
+   "lama": "71329fe024afcd6cd37531e526eed83b4b560c73",
+   "baru": "2b884e0d675dbe254d6c5457b734c6d325a899c6",
+   "commit": "2026-11-04 docs(business-understanding): kembalikan file dan hapus nomor sitasi"
+  },
+  {
+   "lama": "0872a93820ce639be13bdb7726646f15af56ca3f",
+   "baru": "cf86f36cd1159928287f47f7af005678bc8f84d9",
+   "commit": "2026-11-04 docs(business-understanding): sesuaikan dengan kerangka pipeline saat ini"
+  },
+  {
+   "lama": "4b9ce81f7329b9c54cb1f107664070e1e5e2ed7b",
+   "baru": "b01c11862a4976d2e0b0ca35bc84ce72af682833",
+   "commit": "2026-11-04 docs(business-understanding): tambah bab Ensemble Learning"
+  },
+  {
+   "lama": "5c4c0d6601e699058ff5ba1bf291f8fb6a683934",
+   "baru": "1bca9711e55868a83c48b153ea6ab8ba61e713cd",
+   "commit": "2026-11-04 docs(materi): tambah 2 dokumen PDF materi kuliah sebagai referensi"
+  },
+  {
+   "lama": "a360e22530a7ddf934f24b464f4394a0e3403a5d",
+   "baru": "1f5cb17f8161e5ed02ee78f00e61722aee7e6256",
+   "commit": "2026-11-04 docs(skripsi): sesuaikan Bab I-III dengan kerangka pipeline saat ini"
+  },
+  {
+   "lama": "1b62d62a0fa2e9d5ef60a21b085987691e5478ae",
+   "baru": "822964ceb196c0c99e301453fbfcb27d74a15de8",
+   "commit": "2026-11-04 docs: jelaskan ensemble, random_forest, dan xgboost_balanced (D-20)"
+  },
+  {
+   "lama": "c2ca7f7e0991b8c2bfceca697535bd3ef2375f83",
+   "baru": "44ddfa989b20c72a359b49bc9d58f4968569a269",
+   "commit": "2026-11-04 docs: tambah dokumentasi kerangka sistem"
+  },
+  {
+   "lama": "22dbdbebc67c971f0be7d016c64fe8aa2abc83a4",
+   "baru": "c4ff05606b912b8e3edd33cbf092b3cd5074292f",
+   "commit": "2026-11-04 feat(technical): tambah ensemble soft voting berbobot dan Random Forest"
+  },
+  {
+   "lama": "980a2ece86ee435403d1f855bba75f96f7c6d958",
+   "baru": "04c44ea3b0e795caba42b75f3a79d051741e91c0",
+   "commit": "2026-11-04 merge: sinkronkan documents dengan main (ensemble learning)"
+  },
+  {
+   "lama": "399ffca7243ca69a9673a5a2cb0ccbeaefee2ed5",
+   "baru": "ed566b1988988af5a0f3393f40bdc5757e7f36ce",
+   "commit": "2026-11-04 merge: sinkronkan documents dengan main (pembersihan folder lama)"
+  },
+  {
+   "lama": "66ebf175eb95aa98e0fc990493ee9d155c038436",
+   "baru": "dd927639013667b44d93dc7ca2dcede7b5ce2779",
+   "commit": "2026-11-06 docs: bahas feature selection di Business Understanding dan Bab III"
+  },
+  {
+   "lama": "80f5114b63250abea8329b21e80b3fac8ad646d5",
+   "baru": "b4f68284d94f100632596c0b7af0b9afb4fa1093",
+   "commit": "2026-11-06 docs: jelaskan feature selection di dalam fold (D-21)"
+  },
+  {
+   "lama": "bc6caaf8d721964b5973e63894c1195cae116352",
+   "baru": "751b491b716ae4e1a043a3cfe2e8f9c58626f0ab",
+   "commit": "2026-11-06 feat(technical): feature selection di dalam setiap fold (xgboost_selected)"
+  },
+  {
+   "lama": "8ee929153871d2b7012892602de1c660ff576f5f",
+   "baru": "7acddacda2bd20a9ba3d6dba30540e5f72f22af2",
+   "commit": "2026-11-06 merge: sinkronkan documents dengan main (feature selection)"
+  },
+  {
+   "lama": "0f4972347988100cf5ea7cceef958b8990ab9a44",
+   "baru": "bcd61c39b0302b8e9296b9c16709a6fb7e8bb0f5",
+   "commit": "2026-11-07 ."
+  },
+  {
+   "lama": "69f16a72e96d07c30fbee5eef41382ddad66fd68",
+   "baru": "355ebcbd70742a082c950af0ee84a201e1e04472",
+   "commit": "2026-11-07 >"
+  },
+  {
+   "lama": "2380d1f199e0137dd225372dbd80a511c06ce82b",
+   "baru": "868adf20da68b109a5f2d93f2c1740076e43285b",
+   "commit": "2026-11-07 >"
+  },
+  {
+   "lama": "47d2939280ca4b832e227ec0c8ec526dca182e59",
+   "baru": "615ed2a0f9d1118019f39fa8e94b93918eb564a9",
+   "commit": "2026-11-07 docs(config): jelaskan alasan setiap nilai konstanta di technical.toml dan config.py"
+  },
+  {
+   "lama": "677ac5e7300b665b53b130a45379774b04239b8e",
+   "baru": "9054c2e4a3ca8abd45fc957ab83fa4e5994f07c4",
+   "commit": "2026-11-07 docs: aturan transaksi di Business Understanding dan draf Laporan UTS Milestone 1"
+  },
+  {
+   "lama": "1b7463a28496fddb0fe0617a481d053d4a3146ed",
+   "baru": "0156dc89c63e6a1553532ce4bf202ded0c006f82",
+   "commit": "2026-11-07 feat(dashboard): tampilkan waktu buka/tutup posisi dan laporan spread di backtest"
+  },
+  {
+   "lama": "a337b1821718ee04a05ea07016edf504c694fdd0",
+   "baru": "07725b38be36c77b04908438b0bc9d540ac7d9da",
+   "commit": "2026-11-08 ."
+  },
+  {
+   "lama": "a7f53ced1cfc8db329edbb4cc99d3d0e894b832e",
+   "baru": "7332434c52a2d847944c745cff40255ada72ca23",
+   "commit": "2026-11-08 docs(laporan-uts): finalisasi Laporan UTS Milestone 1 sesuai rubrik"
+  },
+  {
+   "lama": "964b5cff065d33075701e6a56b32d16515bc8a9c",
+   "baru": "ae26978aba3e24f7159f9f5f0f88118e54674a26",
+   "commit": "2026-11-08 docs(laporan-uts): isi hasil eksperimen dan analisis dari folder runs"
+  }
+ ]
+}

@@ -116,6 +116,20 @@ def load_json(path: Path) -> dict:
         return json.load(file)
 
 
+# Riwayat git ditulis ulang pada 8 November 2026; run.json masih menyimpan hash lama.
+COMMIT_MAP_PATH = Path(__file__).with_name("peta_commit.json")
+COMMIT_MAP = {}
+if COMMIT_MAP_PATH.exists():
+    for row in load_json(COMMIT_MAP_PATH)["peta"]:
+        COMMIT_MAP[row["lama"]] = row["baru"]
+
+
+def commit_hash(run: dict) -> str:
+    """Hash commit pendek pada riwayat sekarang (diterjemahkan dari hash lama bila perlu)."""
+    commit = str(run.get("git_commit"))
+    return COMMIT_MAP.get(commit, commit)[:7]
+
+
 # ---------------------------------------------------------------------------
 # Label-scan (bab 3)
 # ---------------------------------------------------------------------------
@@ -199,7 +213,7 @@ def data_table(directories: list[Path], numbering: Numbering) -> list[str]:
         f"| Rentang | {report.get('first_open_time', '')[:16]} – {report.get('last_close_time', '')[:16]} UTC |",
         f"| Transisi gap | {integer(report.get('gap_count'))} |",
         f"| Fitur | {len(run.get('features', []))} fitur, 7 kelompok |",
-        f"| Commit kode / config hash | `{str(run.get('git_commit'))[:7]}` / `{run.get('config_hash')}` |",
+        f"| Commit kode / config hash | `{commit_hash(run)}` / `{run.get('config_hash')}` |",
         f"| Versi paket | {packages} |",
         "",
     ]
@@ -619,7 +633,7 @@ def final_test_tables(directory: Path, spec: InstrumentSpec, numbering: Numberin
     counts = period["status_counts"]
     lines = [
         f"Sumber: `{directory.name}` (model {model}, dibuat {run['created_utc'][:16]} UTC, commit "
-        f"`{run['git_commit'][:7]}`, config hash `{run['config_hash']}`).",
+        f"`{commit_hash(run)}`, config hash `{run['config_hash']}`).",
         "",
         f"Tabel {numbering.take()} Hasil Uji Out-of-Sample Retrospektif 2026 Model {model}",
         "<!-- widths: 36,64 -->",

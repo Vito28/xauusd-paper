@@ -8,7 +8,7 @@ Tabel 10.2 Data dan Run Walk-Forward yang Dipakai
 | Rentang | 2016-01-04T01:05 – 2026-01-01T00:00 UTC |
 | Transisi gap | 2.642 |
 | Fitur | 41 fitur, 7 kelompok |
-| Commit kode / config hash | `1b62d62` / `13dc74b30d` |
+| Commit kode / config hash | `822964c` / `13dc74b30d` |
 | Versi paket | python 3.12.13, numpy 2.5.3, pandas 3.0.6, scikit-learn 1.9.1, xgboost 3.4.1 |
 
 Tabel 10.3 Ringkasan Walk-Forward 2021–2025 per Model (rata-rata ± simpangan baku lima fold)

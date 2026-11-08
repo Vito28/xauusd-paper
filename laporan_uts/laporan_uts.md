@@ -484,7 +484,7 @@ Tabel 7.2 Hasil Pipeline Generasi Sebelumnya pada TEST Januari–September 2026
 | Macro F1 pada blok TUNE (konfigurasi terbaik) | 0,3525 |
 | Keputusan BUY/SELL setelah aturan sinyal | 0 dari 51.236 keputusan |
 
-Sumber: `git show a0e31c0:technical/artifacts/direction_v3/final_2026/metrics.json` dan `hyperparameters.json` (dikutip pada BUSINESS UNDERSTANDING.docx Tabel 4.2 dan 5.2).
+Sumber: `git show 9a31d44:technical/artifacts/direction_v3/final_2026/metrics.json` dan `hyperparameters.json` (dikutip pada BUSINESS UNDERSTANDING.docx Tabel 4.2 dan 5.2).
 
 ## 7.3 Hasil Baseline
 
@@ -879,6 +879,7 @@ Tabel 12.2 Isi Repositori
 | `analytics/`, `reports/` | EDA harian (Gambar 4.1–4.7) |
 | `dashboard/` | Aplikasi FastAPI: dashboard live (`/`) dan backtest (`/backtest`) |
 | `runs/<waktu>_<perintah>_<hash>/` | run.json (config, hash, commit, versi paket), metrics.json, dan prediksi per candle |
+| `docs/peta_commit.json` | Peta hash commit lama → baru setelah riwayat git dirapikan pada 8 November 2026; hash di run.json run lama diterjemahkan dengan tabel ini |
 | `SOURCE_OF_TRUTH.md`, `docs/METHODOLOGY.md` | Keputusan desain (kode SoT) dan metodologi |
 
 Setiap angka di bab 3, 4, 6, 10, dan 11 dibuat ulang otomatis dari folder runs/ oleh skrip di `laporan_uts/` (`ringkas_runs.py`, `eda_m5.py`, `uji_scratch_bin.py`), sehingga tidak ada angka hasil yang diketik manual. Perintah untuk mengulang eksperimen:

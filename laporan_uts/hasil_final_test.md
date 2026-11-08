@@ -1,4 +1,4 @@
-Sumber: `20261103T150145Z_final-test_062047d030` (model xgboost, dibuat 2026-11-03T15:01 UTC, commit `a841e1c`, config hash `062047d030`).
+Sumber: `20261103T150145Z_final-test_062047d030` (model xgboost, dibuat 2026-11-03T15:01 UTC, commit `01172c4`, config hash `062047d030`).
 
 Tabel 10.18 Hasil Uji Out-of-Sample Retrospektif 2026 Model xgboost
 <!-- widths: 36,64 -->
