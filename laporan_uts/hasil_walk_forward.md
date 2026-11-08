@@ -2,7 +2,7 @@ Tabel 10.2 Data dan Run Walk-Forward yang Dipakai
 <!-- widths: 34,66 -->
 | Atribut | Nilai |
 |---|---|
-| Run | `20261107T042522Z_walk-forward_13dc74b30d`<br>`20261107T144502Z_walk-forward_13dc74b30d` |
+| Run | `20261107T042522Z_walk-forward_13dc74b30d`<br>`20261107T144502Z_walk-forward_13dc74b30d`<br>`20261108T025726Z_walk-forward_2a8bb1db55` |
 | Sumber data | `postgres:market.processed_m5:metaquotes-demo-xauusd` |
 | Candle masuk / valid / dipakai | 703.425 / 703.425 / 703.425 |
 | Rentang | 2016-01-04T01:05 – 2026-01-01T00:00 UTC |
@@ -22,10 +22,13 @@ Tabel 10.3 Ringkasan Walk-Forward 2021–2025 per Model (rata-rata ± simpangan 
 | xgboost_balanced | 0,1969 ± 0,0364 | 0,1284 ± 0,0472 | 48,52% ± 1,91% | 48,22% ± 2,01% | 14,77% ± 6,60% |
 | random_forest | 0,1491 ± 0,0503 | 0,0633 ± 0,0599 | 48,42% ± 2,48% (4 fold) | 45,84% ± 1,62% | 6,76% ± 6,88% |
 | ensemble | 0,1944 ± 0,0434 | 0,1253 ± 0,0580 | 47,84% ± 1,54% | 47,73% ± 1,77% (4 fold) | 14,14% ± 7,21% |
+| xgboost_selected | 0,1980 ± 0,0404 | 0,1306 ± 0,0569 | 47,57% ± 0,83% | 47,11% ± 1,25% (4 fold) | 15,18% ± 7,07% |
 
 Keterangan: "(n fold)" berarti precision hanya terdefinisi pada n fold karena pada fold lain arah tersebut dinonaktifkan atau tidak menghasilkan sinyal.
 
 Catatan reproduksi: model xgboost juga ada di `20261107T144502Z_walk-forward_13dc74b30d` dan ringkasannya identik (hasil dapat direproduksi).
+
+Catatan reproduksi: config hash berbeda antarrun: 13dc74b30d, 2a8bb1db55.
 
 Tabel 10.4 Directional F1 per Tahun Evaluasi
 | Model | 2021 | 2022 | 2023 | 2024 | 2025 |
@@ -37,6 +40,7 @@ Tabel 10.4 Directional F1 per Tahun Evaluasi
 | xgboost_balanced | 0,1552 | 0,1686 | 0,0525 | 0,1717 | 0,0941 |
 | random_forest | 0,1035 | 0,0197 | 0,0130 | 0,1624 | 0,0178 |
 | ensemble | 0,1313 | 0,1565 | 0,0200 | 0,1942 | 0,1246 |
+| xgboost_selected | 0,1711 | 0,1422 | 0,0183 | 0,1583 | 0,1632 |
 
 Tabel 10.5 Coverage Sinyal per Tahun Evaluasi
 | Model | 2021 | 2022 | 2023 | 2024 | 2025 |
@@ -48,6 +52,7 @@ Tabel 10.5 Coverage Sinyal per Tahun Evaluasi
 | xgboost_balanced | 16,94% | 18,88% | 4,75% | 23,30% | 9,97% |
 | random_forest | 10,58% | 1,82% | 1,14% | 18,59% | 1,66% |
 | ensemble | 13,52% | 17,04% | 1,81% | 24,10% | 14,24% |
+| xgboost_selected | 20,11% | 15,08% | 1,61% | 20,83% | 18,26% |
 
 Tabel 10.6 Hasil per Tahun Evaluasi Model xgboost
 <!-- widths: 9,10,18,18,11,14,10,10 -->
@@ -130,7 +135,35 @@ Tabel 10.12 Keragaman Kesalahan Antaranggota Ensemble (rata-rata lima fold, blok
 | xgboost – logistic | 38,1% | 0,370 |
 | random_forest – logistic | 44,2% | 0,266 |
 
-Tabel 10.13 Simulasi Transaksi Gabungan 2021–2025 per Model (lot 0,01, setelah spread)
+Tabel 10.13 Hasil Feature Selection per Fold
+| Tahun | Fitur awal | Lolos filter | Terpilih | Dugaan bocor | Korelasi gain vs permutation |
+|---|---|---|---|---|---|
+| 2021 | 41 | 37 | 33 | 0 | 0,880 |
+| 2022 | 41 | 37 | 31 | 0 | 0,867 |
+| 2023 | 41 | 37 | 33 | 0 | 0,879 |
+| 2024 | 41 | 37 | 28 | 0 | 0,741 |
+| 2025 | 41 | 37 | 30 | 0 | 0,809 |
+
+Tabel 10.14 Fitur Paling Stabil (terpilih di paling banyak fold)
+| Fitur | Kelompok | Terpilih (fold) | Rata-rata permutation importance |
+|---|---|---|---|
+| `hour_cos` | time | 5/5 | 0,02749 |
+| `tick_volume_z_48` | volume | 5/5 | 0,01544 |
+| `atr_14_vs_daily_mean` | volatility | 5/5 | 0,01329 |
+| `spread_atr` | spread | 5/5 | 0,01024 |
+| `hour_sin` | time | 5/5 | 0,00808 |
+| `bars_since_gap` | time | 5/5 | 0,00645 |
+| `realized_vol_48` | volatility | 5/5 | 0,00141 |
+| `session_london` | time | 5/5 | 0,00099 |
+| `candle_range_atr` | price_action | 5/5 | 0,00076 |
+| `day_of_week` | time | 5/5 | 0,00058 |
+| `rsi_14` | momentum | 5/5 | 0,00049 |
+| `stochastic_k_14` | momentum | 5/5 | 0,00042 |
+| `tick_volume_ratio_12_288` | volume | 5/5 | 0,00037 |
+| `close_vs_ema_48_atr` | trend | 5/5 | 0,00010 |
+| `bollinger_width_20` | volatility | 5/5 | 0,00010 |
+
+Tabel 10.15 Simulasi Transaksi Gabungan 2021–2025 per Model (lot 0,01, setelah spread)
 <!-- widths: 22,11,10,9,9,11,11,17 -->
 | Model / periode | Transaksi | Win rate | TP | SL | Waktu habis | Profit factor | Net P&L USD |
 |---|---|---|---|---|---|---|---|
@@ -139,8 +172,9 @@ Tabel 10.13 Simulasi Transaksi Gabungan 2021–2025 per Model (lot 0,01, setelah
 | xgboost_balanced | 51.050 | 49,8% | 47,4% | 47,2% | 5,4% | 0,90 | -4.170,06 |
 | random_forest | 23.402 | 48,8% | 46,6% | 48,7% | 4,7% | 0,86 | -2.908,33 |
 | ensemble | 48.901 | 49,6% | 47,1% | 47,4% | 5,5% | 0,90 | -4.652,72 |
+| xgboost_selected | 52.413 | 49,9% | 47,2% | 46,9% | 6,0% | 0,91 | -4.431,60 |
 
-Tabel 10.14 Laporan Spread Transaksi 2021–2025 per Model
+Tabel 10.16 Laporan Spread Transaksi 2021–2025 per Model
 <!-- widths: 20,13,16,17,15,19 -->
 | Model | Transaksi | Spread / harga buka | Spread / jarak TP | Biaya spread USD | P&L kotor → bersih USD |
 |---|---|---|---|---|---|
@@ -149,8 +183,9 @@ Tabel 10.14 Laporan Spread Transaksi 2021–2025 per Model
 | xgboost_balanced | 51.050 | 0,0039% | 6,2% | 4.506,39 | 336,33 → -4.170,06 |
 | random_forest | 23.402 | 0,0041% | 6,2% | 2.179,48 | -728,85 → -2.908,33 |
 | ensemble | 48.901 | 0,0039% | 5,9% | 4.469,27 | -183,45 → -4.652,72 |
+| xgboost_selected | 52.413 | 0,0039% | 6,0% | 4.838,81 | 407,21 → -4.431,60 |
 
-Tabel 10.15 Simulasi Transaksi XGBoost per Tahun
+Tabel 10.17 Simulasi Transaksi XGBoost per Tahun
 <!-- widths: 22,11,10,9,9,11,11,17 -->
 | Model / periode | Transaksi | Win rate | TP | SL | Waktu habis | Profit factor | Net P&L USD |
 |---|---|---|---|---|---|---|---|

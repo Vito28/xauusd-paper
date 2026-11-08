@@ -7,6 +7,8 @@ Sintaks yang didukung (satu blok per baris kosong):
   %toc                    field daftar isi (Update Field di Word)
   %pagebreak              pemisah halaman
   %image rIdN             salin paragraf gambar rIdN dari dokumen template
+  %figure path [cm]       sisipkan PNG dari path (relatif terhadap file markdown), lebar cm
+  %cover ... %endcover    halaman sampul (format draf skripsi Mikroskil), baris "kunci: nilai"
   Tabel/Kode/Gambar N.M   caption (miring, rata tengah, keepNext)
   Sumber: ...             catatan sumber kecil
   > teks                  kotak catatan (latar kuning muda)
@@ -17,7 +19,10 @@ Sintaks yang didukung (satu blok per baris kosong):
 Inline: **tebal**, *miring*, `kode`.
 """
 
+import json
 import re
+import struct
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -191,18 +196,157 @@ def table(rows: list[list[str]], widths: list[float] | None) -> str:
     return xml + "</w:tbl>" + paragraph("", '<w:spacing w:before="0" w:after="60"/>')
 
 
-def toc() -> str:
+def toc_entry(level: int, text: str, page) -> str:
+    indent = 0 if level == 1 else 360
+    ppr = (
+        f'<w:tabs><w:tab w:val="right" w:leader="dot" w:pos="{TABLE_WIDTH}"/></w:tabs>'
+        f'<w:spacing w:before="{80 if level == 1 else 0}" w:after="20"/><w:ind w:left="{indent}"/>'
+    )
+    number = "" if page is None else str(page)
+    runs = inline_runs(text, bold=level == 1) + f"<w:r><w:tab/><w:t>{number}</w:t></w:r>"
+    return f"<w:pPr>{ppr}</w:pPr>{runs}"
+
+
+def toc(entries: list[tuple[int, str, int | None]]) -> str:
+    """Daftar isi berupa field TOC yang hasilnya sudah terisi (bisa di-Update Field di Word)."""
     title = paragraph(text_run("Daftar Isi"), '<w:pStyle w:val="TOCHeading"/>')
-    field = (
-        '<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+    begin = (
+        '<w:r><w:fldChar w:fldCharType="begin"/></w:r>'
         '<w:r><w:instrText xml:space="preserve"> TOC \\o "1-2" \\h \\z \\u </w:instrText></w:r>'
         '<w:r><w:fldChar w:fldCharType="separate"/></w:r>'
-        + text_run(
-            "Klik kanan di sini lalu pilih Update Field untuk menampilkan daftar isi.", italic=True
-        )
-        + '<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>'
     )
-    return title + field
+    end = '<w:r><w:fldChar w:fldCharType="end"/></w:r>'
+    paragraphs = []
+    for index, (level, text, page) in enumerate(entries):
+        body = toc_entry(level, text, page)
+        ppr_end = body.index("</w:pPr>") + len("</w:pPr>")
+        prefix = begin if index == 0 else ""
+        suffix = end if index == len(entries) - 1 else ""
+        paragraphs.append(f"<w:p>{body[:ppr_end]}{prefix}{body[ppr_end:]}{suffix}</w:p>")
+    return title + "".join(paragraphs)
+
+
+def heading_entries(markdown: str) -> list[tuple[int, str]]:
+    entries = []
+    for line in markdown.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("# "):
+            entries.append((1, stripped[2:]))
+        elif stripped.startswith("## "):
+            entries.append((2, stripped[3:]))
+    return entries
+
+
+# ---------------------------------------------------------------------------
+# Gambar dari file PNG dan halaman sampul
+# ---------------------------------------------------------------------------
+
+EMU_PER_CM = 360_000
+
+
+def png_size(data: bytes) -> tuple[int, int]:
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError("Hanya PNG yang didukung")
+    return struct.unpack(">II", data[16:24])
+
+
+class Media:
+    """Kumpulan gambar baru: rId, nama file di word/media/, dan isi file."""
+
+    def __init__(self):
+        self.items: list[tuple[str, str, bytes]] = []
+
+    def add(self, data: bytes) -> str:
+        rid = f"rIdLap{len(self.items) + 1}"
+        self.items.append((rid, f"laporan_{len(self.items) + 1}.png", data))
+        return rid
+
+
+def read_image(reference: str, base: Path) -> bytes:
+    """path.png atau dokumen.docx#word/media/imageN.png (gambar diambil dari docx lain)."""
+    if "#" in reference:
+        archive, member = reference.split("#", 1)
+        with zipfile.ZipFile(base / archive) as source:
+            return source.read(member)
+    return (base / reference).read_bytes()
+
+
+def drawing(rid: str, width: int, height: int, number: int, name: str) -> str:
+    return (
+        '<w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">'
+        f'<wp:extent cx="{width}" cy="{height}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>'
+        f'<wp:docPr id="{number}" name="{escape(name)}"/>'
+        '<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>'
+        '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+        '<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+        '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+        f'<pic:nvPicPr><pic:cNvPr id="{number}" name="{escape(name)}"/><pic:cNvPicPr/></pic:nvPicPr>'
+        f'<pic:blipFill><a:blip r:embed="{rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
+        f'<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="{width}" cy="{height}"/></a:xfrm>'
+        '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic>'
+        "</wp:inline></w:drawing></w:r>"
+    )
+
+
+def figure(reference: str, width_cm: float, base: Path, media: Media) -> str:
+    data = read_image(reference, base)
+    pixels_wide, pixels_high = png_size(data)
+    width = int(width_cm * EMU_PER_CM)
+    height = int(width * pixels_high / pixels_wide)
+    rid = media.add(data)
+    number = 1000 + len(media.items)
+    ppr = '<w:keepNext/><w:spacing w:before="120" w:after="0"/><w:jc w:val="center"/>'
+    return paragraph(drawing(rid, width, height, number, Path(reference).name), ppr)
+
+
+COVER_FONT = (
+    '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
+)
+
+
+def cover_line(text: str, size: int, before: int = 0) -> str:
+    ppr = f'<w:spacing w:before="{before}" w:after="0" w:line="240" w:lineRule="auto"/><w:jc w:val="center"/>'
+    run = (
+        f'<w:r><w:rPr>{COVER_FONT}<w:b/><w:bCs/><w:sz w:val="{size}"/><w:szCs w:val="{size}"/></w:rPr>'
+        f'<w:t xml:space="preserve">{escape(text)}</w:t></w:r>'
+    )
+    return paragraph(run, ppr)
+
+
+def cover(fields: list[tuple[str, str]], base: Path, media: Media, section: str) -> str:
+    """Sampul mengikuti halaman pertama draf skripsi: judul, jenis, oleh, anggota, logo, instansi.
+
+    Diakhiri section break sehingga sampul tidak bernomor halaman.
+    """
+    out = []
+    members = [value for key, value in fields if key == "anggota"]
+    institution = [value for key, value in fields if key == "instansi"]
+    values = dict(fields)
+    out.append(cover_line(values["judul"], 28))
+    out.append(cover_line(values["jenis"], 24, before=1100))
+    if "keterangan" in values:
+        out.append(cover_line(values["keterangan"], 24, before=120))
+    out.append(cover_line("Oleh:", 24, before=1000))
+    if "kelompok" in values:
+        out.append(cover_line(values["kelompok"], 24, before=240))
+    for index, member in enumerate(members):
+        name, nim = (part.strip() for part in member.split("|"))
+        out.append(cover_line(name, 24, before=240 if index == 0 else 120))
+        out.append(cover_line(f"NIM. {nim}", 24))
+    data = read_image(values["logo"], base)
+    pixels_wide, pixels_high = png_size(data)
+    width = int(4.0 * EMU_PER_CM)  # sama dengan draf skripsi: lebar logo 4 cm
+    height = int(width * pixels_high / pixels_wide)
+    rid = media.add(data)
+    logo_ppr = '<w:spacing w:before="900" w:after="0"/><w:jc w:val="center"/>'
+    out.append(paragraph(drawing(rid, width, height, 999, "Logo Universitas Mikroskil"), logo_ppr))
+    for index, line in enumerate(institution):
+        out.append(cover_line(line, 24, before=900 if index == 0 else 0))
+    # Section break: sectPr di paragraf terakhir sampul (tanpa footer -> tanpa nomor halaman).
+    cover_section = re.sub(r"<w:footerReference [^>]*/>", "", section)
+    cover_section = re.sub(r"<w:pgNumType [^>]*/>", "", cover_section)
+    out.append(f"<w:p><w:pPr>{cover_section}</w:pPr></w:p>")
+    return "".join(out)
 
 
 MAX_IMAGE_WIDTH = 5_300_000  # EMU, sedikit di bawah lebar teks A4 (9026 dxa = 5.731.510 EMU)
@@ -245,7 +389,14 @@ def image_paragraphs(template_xml: str) -> dict[str, str]:
     return found
 
 
-def convert(markdown: str, images: dict[str, str] | None = None) -> str:
+def convert(
+    markdown: str,
+    images: dict[str, str] | None = None,
+    base: Path | None = None,
+    media: Media | None = None,
+    toc_entries: list | None = None,
+    section: str = "",
+) -> str:
     lines = markdown.splitlines()
     out = []
     index = 0
@@ -261,6 +412,9 @@ def convert(markdown: str, images: dict[str, str] | None = None) -> str:
             index += 1
             continue
         if stripped.startswith("<!--"):
+            # Komentar bisa beberapa baris: lewati sampai baris yang memuat "-->".
+            while index < len(lines) and "-->" not in lines[index]:
+                index += 1
             index += 1
             continue
         if stripped.startswith("```"):
@@ -293,7 +447,19 @@ def convert(markdown: str, images: dict[str, str] | None = None) -> str:
         elif stripped.startswith("%subtitle "):
             out.append(paragraph(inline_runs(stripped[10:]), '<w:pStyle w:val="Subtitle"/>'))
         elif stripped == "%toc":
-            out.append(toc())
+            out.append(toc(toc_entries or []))
+        elif stripped == "%cover":
+            fields = []
+            index += 1
+            while lines[index].strip() != "%endcover":
+                key, value = lines[index].split(":", 1)
+                fields.append((key.strip(), value.strip()))
+                index += 1
+            out.append(cover(fields, base, media, section))
+        elif stripped.startswith("%figure "):
+            parts = stripped.split()
+            width_cm = float(parts[2]) if len(parts) > 2 else 15.5
+            out.append(figure(parts[1], width_cm, base, media))
         elif stripped == "%pagebreak":
             out.append('<w:p><w:r><w:br w:type="page"/></w:r></w:p>')
         elif stripped.startswith("%image "):
@@ -366,8 +532,28 @@ def expand_directives(markdown: str, repo: Path, base: Path) -> str:
     return "\n".join(lines)
 
 
-def build_document(template: Path, markdown_path: Path, output: Path, repo: Path) -> None:
-    """Dokumen baru: styles/theme/numbering dari template, isi dari markdown."""
+FOOTER_RID = "rIdLapFooter"
+FOOTER_XML = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    '<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    '<w:p><w:pPr><w:jc w:val="center"/></w:pPr>'
+    '<w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+    '<w:r><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>'
+    '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>1</w:t></w:r>'
+    '<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p></w:ftr>'
+)
+FOOTER_TYPE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer"
+IMAGE_TYPE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"
+
+
+def build_document(
+    template: Path, markdown_path: Path, output: Path, repo: Path, toc_pages: Path | None = None
+) -> None:
+    """Dokumen baru: styles/theme/numbering dari template, isi dari markdown.
+
+    Isi utama diberi footer nomor halaman (mulai 1 setelah sampul). toc_pages (JSON dari
+    perintah toc-pages) mengisi nomor halaman daftar isi.
+    """
     with zipfile.ZipFile(template) as source_zip:
         template_xml = source_zip.read("word/document.xml").decode("utf-8")
         rels = source_zip.read("word/_rels/document.xml.rels").decode("utf-8")
@@ -377,11 +563,21 @@ def build_document(template: Path, markdown_path: Path, output: Path, repo: Path
             markdown_path.read_text(encoding="utf-8"), repo, markdown_path.parent
         )
         used = set(re.findall(r"^%image (rId\d+)", markdown, re.M))
-        body = convert(markdown, images)
+        pages = json.loads(toc_pages.read_text(encoding="utf-8")) if toc_pages else {}
+        entries = [(level, text, pages.get(text)) for level, text in heading_entries(markdown)]
 
         head = template_xml[: template_xml.find("<w:body>") + len("<w:body>")]
         section = re.search(r"<w:sectPr.*?</w:sectPr>", template_xml, re.S).group(0)
-        document = head + body + section + "</w:body></w:document>"
+        main_section = section.replace(
+            "<w:pgSz",
+            f'<w:footerReference w:type="default" r:id="{FOOTER_RID}"/><w:pgSz',
+            1,
+        )
+        # Urutan skema sectPr: ... pgSz, pgMar, ..., pgNumType, cols, ... (pgNumType sebelum cols).
+        main_section = main_section.replace("<w:cols", '<w:pgNumType w:start="1"/><w:cols', 1)
+        media = Media()
+        body = convert(markdown, images, markdown_path.parent, media, entries, section)
+        document = head + body + main_section + "</w:body></w:document>"
 
         # Buang relasi gambar yang tidak dipakai beserta file media-nya.
         kept_media = set()
@@ -396,6 +592,14 @@ def build_document(template: Path, markdown_path: Path, output: Path, repo: Path
             return relationship
 
         rels = re.sub(r"<Relationship [^>]*/>", keep_relationship, rels)
+        extra = [
+            f'<Relationship Id="{FOOTER_RID}" Type="{FOOTER_TYPE}" Target="footer_laporan.xml"/>'
+        ]
+        for rid, filename, _ in media.items:
+            extra.append(
+                f'<Relationship Id="{rid}" Type="{IMAGE_TYPE}" Target="media/{filename}"/>'
+            )
+        rels = rels.replace("</Relationships>", "".join(extra) + "</Relationships>")
 
         with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as target_zip:
             for name in names:
@@ -407,6 +611,13 @@ def build_document(template: Path, markdown_path: Path, output: Path, repo: Path
                     target_zip.writestr(name, document)
                 elif name == "word/_rels/document.xml.rels":
                     target_zip.writestr(name, rels)
+                elif name == "[Content_Types].xml":
+                    types = source_zip.read(name).decode("utf-8")
+                    override = (
+                        '<Override PartName="/word/footer_laporan.xml" ContentType="application/'
+                        'vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>'
+                    )
+                    target_zip.writestr(name, types.replace("</Types>", override + "</Types>"))
                 elif name == "docProps/core.xml":
                     core = source_zip.read(name).decode("utf-8")
                     title = output.stem
@@ -416,6 +627,56 @@ def build_document(template: Path, markdown_path: Path, output: Path, repo: Path
                     target_zip.writestr(name, core)
                 else:
                     target_zip.writestr(name, source_zip.read(name))
+            target_zip.writestr("word/footer_laporan.xml", FOOTER_XML)
+            for _, filename, data in media.items:
+                target_zip.writestr(f"word/media/{filename}", data)
+
+
+def normalize(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip().upper()
+
+
+def toc_pages(pdf: Path, markdown_path: Path, repo: Path, output: Path, offset: int = 1) -> None:
+    """Cari halaman setiap heading pada PDF hasil render; nomor = halaman PDF − offset (sampul).
+
+    Heading dicari berurutan: setiap heading dicari mulai dari halaman heading sebelumnya,
+    dan pencarian dimulai setelah halaman daftar isi.
+    """
+    markdown = expand_directives(
+        markdown_path.read_text(encoding="utf-8"), repo, markdown_path.parent
+    )
+    entries = heading_entries(markdown)
+    count = int(
+        re.search(
+            r"Pages:\s+(\d+)",
+            subprocess.run(["pdfinfo", str(pdf)], capture_output=True, text=True).stdout,
+        ).group(1)
+    )
+    texts = []
+    for page in range(1, count + 1):
+        result = subprocess.run(
+            ["pdftotext", "-f", str(page), "-l", str(page), "-layout", str(pdf), "-"],
+            capture_output=True,
+            text=True,
+        )
+        texts.append(normalize(result.stdout))
+    # Halaman daftar isi memuat semua judul; mulai mencari setelah halaman terakhir yang memuat "DAFTAR ISI".
+    start = 0
+    for index, text in enumerate(texts):
+        if "DAFTAR ISI" in text:
+            start = index + 1
+    pages = {}
+    current = start
+    for _, text in entries:
+        target = normalize(text)
+        for index in range(current, len(texts)):
+            if target in texts[index]:
+                pages[text] = index + 1 - offset
+                current = index
+                break
+    output.write_text(json.dumps(pages, indent=1, ensure_ascii=False), encoding="utf-8")
+    missing = [text for _, text in entries if text not in pages]
+    print(f"{len(pages)} heading ditemukan; tidak ditemukan: {missing}")
 
 
 def insert_section(
@@ -435,8 +696,13 @@ def insert_section(
 if __name__ == "__main__":
     command = sys.argv[1]
     if command == "build":
-        build_document(Path(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4]), Path(sys.argv[5]))
+        toc_json = Path(sys.argv[6]) if len(sys.argv) > 6 else None
+        build_document(
+            Path(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4]), Path(sys.argv[5]), toc_json
+        )
+    elif command == "toc-pages":
+        toc_pages(Path(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4]), Path(sys.argv[5]))
     elif command == "insert":
         insert_section(Path(sys.argv[2]), Path(sys.argv[3]), sys.argv[4], sys.argv[5])
     else:
-        raise SystemExit("perintah: build | insert")
+        raise SystemExit("perintah: build | toc-pages | insert")

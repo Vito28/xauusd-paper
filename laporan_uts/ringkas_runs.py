@@ -11,6 +11,9 @@ Menulis tiga berkas ke --out:
     hasil_label_scan.md     tabel bab 3 (distribusi label per horizon dan k)
     hasil_walk_forward.md   tabel bab 10 (gabungan semua run walk-forward)
     hasil_final_test.md     tabel bab 10 (uji 2026)
+    hasil_uji_scratch.md      tabel bab 10.5 dari --uji-scratch <uji_scratch_bin_2025.json>
+    hasil_compare_scratch.md  tabel bab 10 (library vs from scratch), bila ada run compare-scratch
+    hasil_ablation.md         tabel bab 10 (ablation kelompok fitur), bila ada run ablation
 Model yang muncul di lebih dari satu run walk-forward hanya diambil sekali, setelah
 dicek apakah ringkasannya identik.
 """
@@ -22,6 +25,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 sys.path.insert(0, str(Path.cwd()))
 
@@ -51,6 +55,17 @@ def number(value, digits=4) -> str:
         return "–"
     text = f"{value:,.{digits}f}"
     return text.replace(",", "_").replace(".", ",").replace("_", ".")
+
+
+SUPERSCRIPT = str.maketrans("-0123456789", "⁻⁰¹²³⁴⁵⁶⁷⁸⁹")
+
+
+def probability_difference(value) -> str:
+    """Selisih kecil ditulis ilmiah (2,4 × 10⁻⁶) agar tidak tampil sebagai 0,0000."""
+    if value >= 0.001:
+        return number(value)
+    mantissa, exponent = f"{value:.1e}".split("e")
+    return f"{mantissa.replace('.', ',')} × 10{str(int(exponent)).translate(SUPERSCRIPT)}"
 
 
 def integer(value) -> str:
@@ -644,10 +659,453 @@ def final_test_tables(directory: Path, spec: InstrumentSpec, numbering: Numberin
     return lines
 
 
+WIB_OFFSET_HOURS = 7  # WIB = UTC+7, untuk menulis jam sinyal dalam waktu Indonesia
+# Timestamp tersimpan sebenarnya jam server MetaQuotes (EET/EEST), bukan UTC (laporan bab 3.4).
+SERVER_TIMEZONE = "Europe/Helsinki"
+
+
+def server_to_utc(times: pd.Series) -> pd.Series:
+    naive = times.dt.tz_localize(None)
+    local = naive.dt.tz_localize(SERVER_TIMEZONE, ambiguous="NaT", nonexistent="shift_forward")
+    return local.dt.tz_convert("UTC")
+
+
+def interval_text(minutes: float) -> str:
+    if minutes < 120:
+        return f"{number(minutes, 0)} menit"
+    return f"{number(minutes / 60, 1)} jam"
+
+
+def frequency_row(label: str, path: Path) -> str:
+    """Seberapa sering model mengeluarkan BUY/SELL pada satu periode prediksi."""
+    frame = pd.read_csv(path, usecols=["candle_open_time", "signal"])
+    times = pd.to_datetime(frame["candle_open_time"], utc=True)
+    is_signal = frame["signal"] != "NO_TRADE"
+    signal_times = times[is_signal]
+    buy = int((frame["signal"] == "BUY").sum())
+    sell = int((frame["signal"] == "SELL").sum())
+    total = buy + sell
+    days = times.dt.date.nunique()
+    if total == 0:
+        return f"| {label} | {integer(len(frame))} | 0 | 0 | – | 0 / {days} | – | – | – |"
+    per_day = signal_times.groupby(signal_times.dt.date).size()
+    gaps = signal_times.diff().dt.total_seconds().div(60).dropna()
+    consecutive = float((gaps == 5).mean()) if len(gaps) else 0.0
+    hours = server_to_utc(signal_times).dt.hour.value_counts()
+    busiest = []
+    for hour in hours.index[:2]:
+        busiest.append(f"{hour:02d} ({(hour + WIB_OFFSET_HOURS) % 24:02d})")
+    return (
+        f"| {label} | {integer(len(frame))} | {integer(buy)} | {integer(sell)} | "
+        f"{interval_text(len(frame) / total * 5)} | {len(per_day)} / {days} | "
+        f"{number(per_day.median(), 0)} | {percent(consecutive, 0)} | {', '.join(busiest)} |"
+    )
+
+
+def frequency_table(walk_directories, final_directory, numbering, model="xgboost") -> list[str]:
+    periods = []
+    for directory in walk_directories:
+        model_directory = directory / "backtest" / model
+        if not model_directory.is_dir():
+            continue
+        for period_directory in sorted(model_directory.iterdir()):
+            label = period_directory.name.replace("validation_", "")
+            if label not in [name for name, _ in periods]:
+                periods.append((label, period_directory / "predictions.csv"))
+    if final_directory is not None:
+        path = final_directory / "backtest" / model / "final_test" / "predictions.csv"
+        if path.exists():
+            periods.append(("2026 (final-test)", path))
+    if not periods:
+        return []
+    lines = [
+        f"Tabel {numbering.take()} Frekuensi Sinyal Model {model} per Periode",
+        "<!-- widths: 10,10,10,8,10,11,10,13,18 -->",
+        "| Periode | Candle | BUY | SELL | Rata-rata 1 sinyal tiap | Hari ada sinyal | Median sinyal per hari aktif | Sinyal berurutan | Jam tersibuk UTC (WIB) |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for label, path in periods:
+        if path.exists():
+            lines.append(frequency_row(label, path))
+    lines += [
+        "",
+        "Model menilai setiap candle M5 yang sudah tutup. Kolom candle mencakup candle yang labelnya belum "
+        "lengkap (GAP/PENDING), sehingga jumlah sinyal di sini dapat sedikit lebih besar daripada jumlah sinyal "
+        "yang dinilai. Sinyal berurutan adalah proporsi sinyal yang berjarak tepat 5 menit dari sinyal "
+        "sebelumnya. Jam ditulis dalam UTC setelah koreksi zona waktu server (bab 3.4), dengan WIB (UTC+7) "
+        "di dalam kurung.",
+        "",
+    ]
+    return lines
+
+
+# ---------------------------------------------------------------------------
+# Ablation kelompok fitur (bab 10, feature selection wrapper)
+# ---------------------------------------------------------------------------
+
+ABLATION_KEYS = [
+    ("directional_macro_f1", False),
+    ("buy_precision", True),
+    ("sell_precision", True),
+    ("signal_coverage", True),
+]
+
+
+def ablation_tables(directory: Path, numbering: Numbering) -> list[str]:
+    """Walk-forward XGBoost tanpa satu kelompok fitur; selisih dibanding semua fitur."""
+    ablation = load_json(directory / "ablation.json")
+    run = load_json(directory / "run.json")
+    reference = ablation["all"]["summary"]
+    lines = [
+        f"Sumber: `{directory.name}` (dibuat {run['created_utc'][:16]} UTC, config hash `{run['config_hash']}`).",
+        "",
+        f"Tabel {numbering.take()} Ablation Kelompok Fitur: Walk-Forward XGBoost 2021–2025 tanpa Satu Kelompok",
+        "<!-- widths: 22,22,12,16,16,12 -->",
+        "| Varian | Directional F1 | Δ vs semua | Precision BUY | Precision SELL | Coverage |",
+        "|---|---|---|---|---|---|",
+    ]
+    for variant, entry in ablation.items():
+        summary = entry["summary"]
+        cells = [mean_std(summary, key, as_percent) for key, as_percent in ABLATION_KEYS]
+        delta = "–"
+        if variant != "all":
+            difference = (
+                summary["directional_macro_f1"]["mean"] - reference["directional_macro_f1"]["mean"]
+            )
+            delta = ("+" if difference >= 0 else "−") + number(abs(difference))
+        label = "semua kelompok" if variant == "all" else variant.replace("without_", "tanpa ")
+        lines.append(f"| {label} | {cells[0]} | {delta} | {cells[1]} | {cells[2]} | {cells[3]} |")
+    lines += [
+        "",
+        "Δ negatif berarti kinerja turun ketika kelompok dihapus (kelompok berguna); Δ mendekati nol atau "
+        "positif berarti kelompok tidak menambah informasi pada konfigurasi ini.",
+        "",
+    ]
+    return lines
+
+
+# ---------------------------------------------------------------------------
+# compare-scratch: XGBoost library vs from scratch pada satu fold
+# ---------------------------------------------------------------------------
+
+
+def compare_scratch_tables(directory: Path, numbering: Numbering) -> list[str]:
+    comparison = load_json(directory / "comparison.json")
+    run = load_json(directory / "run.json")
+    library = comparison["xgboost"]
+    scratch = comparison["xgboost_scratch"]
+    agreement = comparison["agreement"]
+
+    def threshold(result, direction):
+        rule = result["thresholds"][direction]
+        return number(rule["threshold"], 2) if rule["enabled"] else "nonaktif"
+
+    def precision(result, direction):
+        return percent(result["evaluation"]["per_class"][direction]["precision"])
+
+    def signals(result):
+        per_class = result["evaluation"]["per_class"]
+        return (
+            f"{integer(per_class['BUY']['predicted'])} / {integer(per_class['SELL']['predicted'])}"
+        )
+
+    rows = [
+        ("Pohon per kelas (early stopping)", lambda r: integer(r["best_iteration"] + 1)),
+        ("Waktu training (detik)", lambda r: number(r["training_seconds"], 1)),
+        ("Temperatur kalibrasi", lambda r: number(r["calibration"]["temperature"], 3)),
+        ("Threshold BUY / SELL", lambda r: f"{threshold(r, 'BUY')} / {threshold(r, 'SELL')}"),
+        ("Sinyal BUY / SELL", signals),
+        ("Precision BUY", lambda r: precision(r, "BUY")),
+        ("Precision SELL", lambda r: precision(r, "SELL")),
+        ("Coverage", lambda r: percent(r["evaluation"]["signal_coverage"])),
+        ("Directional F1", lambda r: number(r["evaluation"]["directional_macro_f1"])),
+        (
+            "Macro F1 tanpa threshold (argmax)",
+            lambda r: number(r["evaluation_without_threshold"]["macro_f1"]),
+        ),
+        ("Log loss EVALUATION", lambda r: number(r["evaluation"]["probability"]["log_loss"])),
+    ]
+    fold = run.get("fold", {})
+    lines = [
+        f"Sumber: `{directory.name}` (fold {fold.get('name', '')}, dibuat {run['created_utc'][:16]} UTC, "
+        f"config hash `{run['config_hash']}`).",
+        "",
+        f"Tabel {numbering.take()} XGBoost Library vs From Scratch dengan Hyperparameter yang Disamakan",
+        "<!-- widths: 40,30,30 -->",
+        "| Ukuran | Library (xgboost) | From scratch |",
+        "|---|---|---|",
+    ]
+    for label, getter in rows:
+        lines.append(f"| {label} | {getter(library)} | {getter(scratch)} |")
+    lines += [
+        "",
+        f"Tabel {numbering.take()} Kesesuaian Probabilitas Library dan From Scratch pada Blok EVALUATION",
+        "<!-- widths: 60,40 -->",
+        "| Ukuran | Nilai |",
+        "|---|---|",
+        f"| Kelas argmax sama | {percent(agreement['argmax_agreement_rate'])} |",
+        f"| Rata-rata selisih absolut probabilitas | {number(agreement['mean_absolute_probability_difference'])} |",
+        f"| Selisih absolut probabilitas maksimum | {number(agreement['max_absolute_probability_difference'])} |",
+        "",
+    ]
+    return lines
+
+
+def scratch_bin_tables(path: Path, numbering: Numbering) -> list[str]:
+    """Tabel dari uji_scratch_bin.py: library, scratch, dan scratch dengan batas bin library."""
+    test = load_json(path)
+    models = test["models"]
+    names = ["library", "scratch", "scratch_library_cuts"]
+    fold = test["fold"]
+    blocks = test["block_sizes"]
+
+    def thresholds(model):
+        texts = []
+        for direction in ["BUY", "SELL"]:
+            value = model["thresholds"][direction]
+            texts.append("nonaktif" if value is None else number(value, 2))
+        return " / ".join(texts)
+
+    rows = [
+        ("Pohon per kelas (early stopping)", lambda m: integer(m["trees"])),
+        ("Waktu training (detik)", lambda m: number(m["training_seconds"], 1)),
+        ("Temperatur kalibrasi", lambda m: number(m["temperature"], 3)),
+        ("Threshold BUY / SELL", thresholds),
+        (
+            "Sinyal BUY / SELL",
+            lambda m: f"{integer(m['signals']['BUY'])} / {integer(m['signals']['SELL'])}",
+        ),
+        ("Precision BUY", lambda m: percent(m["precision"]["BUY"])),
+        ("Precision SELL", lambda m: percent(m["precision"]["SELL"])),
+        ("Coverage", lambda m: percent(m["coverage"])),
+        ("Accuracy argmax (tanpa threshold)", lambda m: percent(m["argmax_accuracy"])),
+        ("Macro F1 argmax (tanpa threshold)", lambda m: number(m["argmax_macro_f1"])),
+        ("Log loss EVALUATION", lambda m: number(m["log_loss"])),
+    ]
+    lines = [
+        f"Sumber: `laporan_uts/uji_scratch_bin_2025.json` dari `laporan_uts/uji_scratch_bin.py` "
+        f"(XGBoost {test['packages']['xgboost']}). Data: {integer(test['rows_used'])} candle "
+        f"{test['history_start'][:10]} s.d. 2025 dari `{test['source']}`. TRAIN "
+        f"{fold['train']['start'][:7]} s.d. {fold['train']['end'][:7]} ({integer(blocks['train'])} candle), "
+        f"CALIBRATION {integer(blocks['calibration'])}, THRESHOLD {integer(blocks['threshold'])}, "
+        f"EVALUATION 2025 {integer(blocks['evaluation'])} candle.",
+        "",
+        f"Tabel {numbering.take()} XGBoost Library vs From Scratch dengan Hyperparameter yang Disamakan (fold 2025)",
+        "<!-- widths: 34,22,22,22 -->",
+        "| Ukuran | Library | Scratch (kuantil sendiri) | Scratch (batas bin library) |",
+        "|---|---|---|---|",
+    ]
+    for label, getter in rows:
+        cells = [getter(models[name]) for name in names]
+        lines.append(f"| {label} | {' | '.join(cells)} |")
+
+    plain = test["vs_library"]["scratch"]
+    same_cuts = test["vs_library"]["scratch_library_cuts"]
+
+    def pearson(entry):
+        return " / ".join(number(value, 4) for value in entry["pearson_sell_notrade_buy"])
+
+    agreement_rows = [
+        ("Kelas argmax sama, semua baris", lambda e: percent(e["argmax_agreement"])),
+        (
+            f"Kelas argmax sama, baris dengan selisih dua probabilitas teratas ≥ 0,01 "
+            f"({percent(plain['share_rows_margin_ge_0.01'], 1)} baris)",
+            lambda e: percent(e["argmax_agreement_margin_ge_0.01"]),
+        ),
+        (
+            f"Kelas argmax sama, selisih ≥ 0,02 ({percent(plain['share_rows_margin_ge_0.02'], 1)} baris)",
+            lambda e: percent(e["argmax_agreement_margin_ge_0.02"]),
+        ),
+        (
+            "Rata-rata selisih absolut probabilitas",
+            lambda e: probability_difference(e["mean_abs_probability_difference"]),
+        ),
+        ("Korelasi Pearson P(SELL) / P(NO_TRADE) / P(BUY)", pearson),
+        (
+            "Keputusan akhir sama (threshold masing-masing)",
+            lambda e: percent(e["decision_agreement_own_thresholds"]),
+        ),
+        (
+            "Keputusan akhir sama bila memakai threshold library",
+            lambda e: percent(e["decision_agreement_library_thresholds"]),
+        ),
+    ]
+    lines += [
+        "",
+        f"Tabel {numbering.take()} Kesesuaian From Scratch dengan Library pada Blok EVALUATION 2025",
+        "<!-- widths: 50,25,25 -->",
+        "| Ukuran | Scratch (kuantil sendiri) | Scratch (batas bin library) |",
+        "|---|---|---|",
+    ]
+    for label, getter in agreement_rows:
+        lines.append(f"| {label} | {getter(plain)} | {getter(same_cuts)} |")
+    cuts = test["cuts"]
+    lines += [
+        "",
+        f"Batas bin hasil `np.quantile` sama dengan batas bin XGBoost hanya pada "
+        f"{cuts['features_with_identical_cuts']} dari {cuts['feature_count']} fitur. Varian batas bin "
+        "library memakai batas dari `xgboost.QuantileDMatrix(...).get_quantile_cut()` pada data TRAINING "
+        "yang sama dan membulatkan fitur ke float32 seperti XGBoost; rumus gradien, Hessian, bobot daun, "
+        "gain, dan base score tidak diubah.",
+        "",
+    ]
+    return lines
+
+
+# ---------------------------------------------------------------------------
+# Tabel bab 6 (daftar fitur) dan bab 9 (ukuran blok fold)
+# ---------------------------------------------------------------------------
+
+FEATURE_DESCRIPTIONS = {
+    "log_return_1": "ln(close[t] / close[t−1])",
+    "log_return_3": "ln(close[t] / close[t−3])",
+    "log_return_6": "ln(close[t] / close[t−6])",
+    "log_return_12": "ln(close[t] / close[t−12]), return 1 jam",
+    "return_6_atr": "(close[t] − close[t−6]) ÷ ATR14",
+    "return_24_atr": "(close[t] − close[t−24]) ÷ ATR14, perubahan 2 jam",
+    "candle_body_atr": "(close − open) ÷ ATR14, badan candle bertanda",
+    "candle_range_atr": "(high − low) ÷ ATR14",
+    "upper_wick_ratio": "Sumbu atas ÷ rentang candle",
+    "lower_wick_ratio": "Sumbu bawah ÷ rentang candle",
+    "close_position_in_range": "(close − low) ÷ (high − low)",
+    "close_vs_ema_12_atr": "(close − EMA12) ÷ ATR14",
+    "close_vs_ema_48_atr": "(close − EMA48) ÷ ATR14",
+    "close_vs_ema_288_atr": "(close − EMA288) ÷ ATR14, jarak ke tren 24 jam",
+    "ema_12_vs_48_atr": "(EMA12 − EMA48) ÷ ATR14",
+    "ema_48_slope_atr": "(EMA48[t] − EMA48[t−6]) ÷ ATR14",
+    "adx_14": "Average Directional Index 14 (kekuatan tren)",
+    "di_difference_14": "+DI14 − −DI14 (arah tren)",
+    "rsi_14": "Relative Strength Index 14",
+    "rsi_14_change_3": "RSI14[t] − RSI14[t−3]",
+    "macd_histogram_atr": "Histogram MACD (12, 26, 9) ÷ ATR14",
+    "stochastic_k_14": "Stochastic %K 14",
+    "donchian_position_48": "Posisi close dalam kanal high/low 48 candle",
+    "atr_14_pct": "ATR14 ÷ close",
+    "atr_14_vs_daily_mean": "ATR14 ÷ rata-rata ATR14 288 candle (rezim volatilitas)",
+    "realized_vol_12": "Simpangan baku log return 12 candle",
+    "realized_vol_48": "Simpangan baku log return 48 candle",
+    "bollinger_width_20": "Lebar Bollinger Bands (20, 2) ÷ middle band",
+    "bollinger_position_20": "Posisi close di dalam Bollinger Bands",
+    "tick_volume_z_48": "Z-score ln(1 + tick volume) terhadap 48 candle",
+    "tick_volume_ratio_12_288": "Rata-rata tick volume 12 ÷ 288 candle",
+    "spread_atr": "Spread ÷ ATR14 (porsi biaya)",
+    "spread_z_288": "Z-score spread terhadap 288 candle",
+    "hour_sin": "sin(2π · jam / 24)",
+    "hour_cos": "cos(2π · jam / 24)",
+    "day_of_week": "Hari dalam minggu (0 = Senin)",
+    "session_asia": "1 bila jam 09–18 waktu Tokyo",
+    "session_london": "1 bila jam 08–17 waktu London",
+    "session_newyork": "1 bila jam 08–17 waktu New York",
+    "session_london_newyork_overlap": "1 bila sesi London dan New York sama-sama buka",
+    "bars_since_gap": "Jumlah candle sejak gap terakhir (maksimum 288)",
+}
+
+
+def feature_table(directory: Path) -> list[str]:
+    """Tabel 6.3: 41 fitur, kelompok, deskripsi, dan berapa fold terpilih oleh xgboost_selected."""
+    run = load_json(directory / "run.json")
+    groups = run["feature_group_map"]
+    selected = {}
+    stability = directory / "feature_selection_xgboost_selected.csv"
+    if stability.exists():
+        with open(stability, encoding="utf-8") as file:
+            for row in csv.DictReader(file):
+                selected[row["feature"]] = f"{row['selected_folds']}/{row['total_folds']}"
+    lines = [
+        "Tabel 6.3 Daftar Fitur, Rumus, dan Stabilitas Seleksi",
+        "<!-- widths: 6,30,14,38,12 -->",
+        "| No. | Fitur | Kelompok | Rumus atau deskripsi | Terpilih (fold) |",
+        "|---|---|---|---|---|",
+    ]
+    for index, name in enumerate(run["features"], start=1):
+        description = FEATURE_DESCRIPTIONS.get(name, "")
+        lines.append(
+            f"| {index} | `{name}` | {groups[name]} | {description} | {selected.get(name, '–')} |"
+        )
+    lines += [
+        "",
+        f"Sumber: `{directory.name}/run.json` dan `feature_selection_xgboost_selected.csv`. Kolom terakhir "
+        "adalah jumlah fold walk-forward yang mempertahankan fitur tersebut pada xgboost_selected (bab 8.6). "
+        "Jam dan sesi dihitung dari timestamp tersimpan, yang sebenarnya jam server broker (bab 3.4).",
+        "",
+    ]
+    return lines
+
+
+def block_size_table(metrics: dict) -> list[str]:
+    """Tabel 9.3: jumlah candle berlabel per blok setiap fold (setelah purging dan embargo)."""
+    folds = metrics["xgboost"]["folds"]
+    lines = [
+        "Tabel 9.3 Jumlah Candle Berlabel per Blok Setiap Fold (setelah purging dan embargo)",
+        "<!-- widths: 20,20,20,20,20 -->",
+        "| Fold | TRAIN | CALIBRATION | THRESHOLD | EVALUATION |",
+        "|---|---|---|---|---|",
+    ]
+    for fold in folds:
+        sizes = fold["block_sizes"]
+        lines.append(
+            f"| {fold['fold']['name']} | {integer(sizes['train'])} | {integer(sizes['calibration'])} | "
+            f"{integer(sizes['threshold'])} | {integer(sizes['evaluation'])} |"
+        )
+    lines += ["", "Sumber: `block_sizes` model xgboost pada metrics.json run walk-forward.", ""]
+    return lines
+
+
+def selection_comparison(metrics: dict, summaries: dict, numbering: Numbering) -> list[str]:
+    """xgboost (41 fitur) vs xgboost_selected: rata-rata lima fold dan profit factor 2021–2025."""
+    base = metrics["xgboost"]
+    chosen = metrics["xgboost_selected"]
+    counts = [len(fold["feature_selection"]["selected"]) for fold in chosen["folds"]]
+    total = chosen["folds"][0]["feature_selection"]["total_features"]
+
+    def profit_factor(model):
+        periods = [
+            v
+            for (name, period), v in summaries.items()
+            if name == model and period.startswith("validation_")
+        ]
+        return aggregate(periods).get("profit_factor")
+
+    rows = []
+    for key, label, as_percent in [
+        ("macro_f1", "Macro F1", False),
+        ("directional_macro_f1", "Directional F1", False),
+        ("buy_precision", "Precision BUY", True),
+        ("sell_precision", "Precision SELL", True),
+        ("signal_coverage", "Coverage sinyal", True),
+    ]:
+        first = base["summary"][key]["mean"]
+        second = chosen["summary"][key]["mean"]
+        if as_percent:
+            difference = (
+                f"{'+' if second >= first else '−'}{number(abs(second - first) * 100, 2)} poin"
+            )
+        else:
+            difference = f"{'+' if second >= first else '−'}{number(abs(second - first))}"
+        rows.append(
+            f"| {label} | {mean_std(base['summary'], key, as_percent)} | "
+            f"{mean_std(chosen['summary'], key, as_percent)} | {difference} |"
+        )
+    pf_base = profit_factor("xgboost")
+    pf_chosen = profit_factor("xgboost_selected")
+    return [
+        f"Tabel {numbering.take()} xgboost (41 Fitur) dibanding xgboost_selected (Rata-rata ± Simpangan Baku Lima Fold)",
+        "<!-- widths: 28,26,26,20 -->",
+        "| Ukuran | xgboost | xgboost_selected | Selisih |",
+        "|---|---|---|---|",
+        f"| Jumlah fitur per fold | {total} | {min(counts)}–{max(counts)} | −{total - max(counts)} sampai −{total - min(counts)} |",
+        *rows,
+        f"| Profit factor 2021–2025 | {number(pf_base, 2)} | {number(pf_chosen, 2)} | "
+        f"{'+' if pf_chosen >= pf_base else '−'}{number(abs(pf_chosen - pf_base), 2)} |",
+        "",
+    ]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", required=True)
     parser.add_argument("--start", type=int, default=2, help="nomor tabel pertama bab 10")
+    parser.add_argument("--uji-scratch", default=None, help="JSON dari uji_scratch_bin.py")
     parser.add_argument("runs", nargs="+")
     arguments = parser.parse_args()
     out = Path(arguments.out)
@@ -687,12 +1145,37 @@ def main() -> None:
             lines += confusion_total(metrics, "xgboost", numbering)
         lines += ensemble_tables(metrics, numbering)
         lines += selection_tables(metrics, numbering)
-        lines += simulation_tables(period_summaries(directories, spec), spec, numbering)
+        summaries = period_summaries(directories, spec)
+        lines += simulation_tables(summaries, spec, numbering)
         (out / "hasil_walk_forward.md").write_text("\n".join(lines), encoding="utf-8")
+        if "xgboost" in metrics:
+            blocks = block_size_table(metrics)
+            (out / "hasil_blok_fold.md").write_text("\n".join(blocks), encoding="utf-8")
+        for directory in directories:
+            if (directory / "feature_selection_xgboost_selected.csv").exists():
+                features = feature_table(directory)
+                (out / "tabel_fitur.md").write_text("\n".join(features), encoding="utf-8")
 
     if groups["final-test"]:
         lines = final_test_tables(groups["final-test"][-1], spec, numbering)
+        lines += frequency_table(groups["walk-forward"], groups["final-test"][-1], numbering)
         (out / "hasil_final_test.md").write_text("\n".join(lines), encoding="utf-8")
+
+    if arguments.uji_scratch:
+        lines = scratch_bin_tables(Path(arguments.uji_scratch), numbering)
+        (out / "hasil_uji_scratch.md").write_text("\n".join(lines), encoding="utf-8")
+
+    if groups["walk-forward"] and "xgboost_selected" in metrics and "xgboost" in metrics:
+        lines = selection_comparison(metrics, summaries, numbering)
+        (out / "hasil_seleksi.md").write_text("\n".join(lines), encoding="utf-8")
+
+    if groups.get("compare-scratch"):
+        lines = compare_scratch_tables(groups["compare-scratch"][-1], numbering)
+        (out / "hasil_compare_scratch.md").write_text("\n".join(lines), encoding="utf-8")
+
+    if groups.get("ablation"):
+        lines = ablation_tables(groups["ablation"][-1], numbering)
+        (out / "hasil_ablation.md").write_text("\n".join(lines), encoding="utf-8")
 
     print(f"tabel bab 10 terakhir: 10.{numbering.next_number - 1}")
 
