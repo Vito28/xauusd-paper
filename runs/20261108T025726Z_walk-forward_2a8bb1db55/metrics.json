@@ -1,0 +1,3366 @@
+{
+  "xgboost_selected": {
+    "folds": [
+      {
+        "fold": {
+          "name": "validation_2021",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2020-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2020-07-01T00:00:00+00:00",
+            "end": "2020-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2020-10-01T00:00:00+00:00",
+            "end": "2021-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2021-01-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost_selected",
+        "block_sizes": {
+          "train": 307478,
+          "calibration": 17593,
+          "threshold": 17255,
+          "evaluation": 68628
+        },
+        "label_distribution": {
+          "train": {
+            "total": 307478,
+            "SELL": {
+              "count": 104079,
+              "share": 0.33849251003323816
+            },
+            "NO_TRADE": {
+              "count": 100640,
+              "share": 0.3273079700011058
+            },
+            "BUY": {
+              "count": 102759,
+              "share": 0.33419951996565606
+            }
+          },
+          "evaluation": {
+            "total": 68628,
+            "SELL": {
+              "count": 28282,
+              "share": 0.41210584601037475
+            },
+            "NO_TRADE": {
+              "count": 12845,
+              "share": 0.1871685026519788
+            },
+            "BUY": {
+              "count": 27501,
+              "share": 0.4007256513376464
+            }
+          }
+        },
+        "training_seconds": 72.18447700000002,
+        "best_iteration": 295,
+        "feature_selection": {
+          "total_features": 41,
+          "after_filter": 37,
+          "selected_count": 33,
+          "selected": [
+            "log_return_1",
+            "log_return_12",
+            "return_6_atr",
+            "return_24_atr",
+            "candle_range_atr",
+            "upper_wick_ratio",
+            "lower_wick_ratio",
+            "close_position_in_range",
+            "close_vs_ema_12_atr",
+            "close_vs_ema_48_atr",
+            "close_vs_ema_288_atr",
+            "ema_12_vs_48_atr",
+            "di_difference_14",
+            "rsi_14",
+            "rsi_14_change_3",
+            "macd_histogram_atr",
+            "stochastic_k_14",
+            "donchian_position_48",
+            "atr_14_pct",
+            "atr_14_vs_daily_mean",
+            "realized_vol_12",
+            "realized_vol_48",
+            "bollinger_width_20",
+            "tick_volume_z_48",
+            "tick_volume_ratio_12_288",
+            "spread_atr",
+            "spread_z_288",
+            "hour_sin",
+            "hour_cos",
+            "day_of_week",
+            "session_london",
+            "session_london_newyork_overlap",
+            "bars_since_gap"
+          ],
+          "leakage_flags": [],
+          "gain_permutation_rank_correlation": 0.8795637743006162,
+          "features": {
+            "log_return_1": {
+              "status": "selected",
+              "mutual_information": 0.00794523445140527,
+              "gain": 799.6502075195312,
+              "permutation_importance": 0.00014253457387288412,
+              "permutation_std": 1.9883090649235215e-05
+            },
+            "log_return_3": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.013513310454678518,
+              "gain": 691.5740356445312,
+              "permutation_importance": -2.314647038777669e-05,
+              "permutation_std": 1.1301469582341603e-05
+            },
+            "log_return_6": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.006846265928010631,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "return_6_atr"
+            },
+            "log_return_12": {
+              "status": "selected",
+              "mutual_information": 0.011716767562490737,
+              "gain": 1057.4110107421875,
+              "permutation_importance": 0.00012646118799845377,
+              "permutation_std": 4.075869259410949e-05
+            },
+            "return_6_atr": {
+              "status": "selected",
+              "mutual_information": 0.009050391664588098,
+              "gain": 1436.1383056640625,
+              "permutation_importance": 0.00010162591934204102,
+              "permutation_std": 4.635581125488226e-05
+            },
+            "return_24_atr": {
+              "status": "selected",
+              "mutual_information": 0.0007604847304283346,
+              "gain": 1491.3662109375,
+              "permutation_importance": 9.193023045857747e-05,
+              "permutation_std": 5.731567131590279e-05
+            },
+            "candle_body_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0010065084758967835,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_1"
+            },
+            "candle_range_atr": {
+              "status": "selected",
+              "mutual_information": 0.014702521839735638,
+              "gain": 4337.63037109375,
+              "permutation_importance": 0.00029716889063517254,
+              "permutation_std": 6.251619622320568e-05
+            },
+            "upper_wick_ratio": {
+              "status": "selected",
+              "mutual_information": 0.003408797194105251,
+              "gain": 330.1451110839844,
+              "permutation_importance": 2.84115473429362e-05,
+              "permutation_std": 9.3137648214515e-06
+            },
+            "lower_wick_ratio": {
+              "status": "selected",
+              "mutual_information": 0.008502448450440792,
+              "gain": 291.344970703125,
+              "permutation_importance": 6.874402364095052e-06,
+              "permutation_std": 1.205059238689145e-05
+            },
+            "close_position_in_range": {
+              "status": "selected",
+              "mutual_information": 0.004441798817792719,
+              "gain": 604.9164428710938,
+              "permutation_importance": 0.00010508298873901367,
+              "permutation_std": 2.7712164525938058e-05
+            },
+            "close_vs_ema_12_atr": {
+              "status": "selected",
+              "mutual_information": 0.007771135409735841,
+              "gain": 7060.91845703125,
+              "permutation_importance": 0.001909017562866211,
+              "permutation_std": 0.0002237245765308845
+            },
+            "close_vs_ema_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.0037501847919014786,
+              "gain": 2053.60595703125,
+              "permutation_importance": 3.818670908610026e-05,
+              "permutation_std": 6.263457197314399e-05
+            },
+            "close_vs_ema_288_atr": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 6359.048828125,
+              "permutation_importance": 0.00046292940775553387,
+              "permutation_std": 0.00011387411183652809
+            },
+            "ema_12_vs_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.005093679462134126,
+              "gain": 2733.511474609375,
+              "permutation_importance": 0.00017730394999186197,
+              "permutation_std": 6.012294515309563e-05
+            },
+            "ema_48_slope_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "ema_12_vs_48_atr"
+            },
+            "adx_14": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0011227370074893273,
+              "gain": 3165.940673828125,
+              "permutation_importance": -0.0002702673276265462,
+              "permutation_std": 0.00017650307341263716
+            },
+            "di_difference_14": {
+              "status": "selected",
+              "mutual_information": 0.0077619690365748895,
+              "gain": 1984.29541015625,
+              "permutation_importance": 0.00018227100372314453,
+              "permutation_std": 1.0833407226781499e-05
+            },
+            "rsi_14": {
+              "status": "selected",
+              "mutual_information": 0.005427531782920436,
+              "gain": 3542.34619140625,
+              "permutation_importance": 0.0006054441134134928,
+              "permutation_std": 4.056726550607782e-05
+            },
+            "rsi_14_change_3": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 894.2197265625,
+              "permutation_importance": 4.223982493082682e-05,
+              "permutation_std": 3.479843968530989e-05
+            },
+            "macd_histogram_atr": {
+              "status": "selected",
+              "mutual_information": 0.0036120853163650324,
+              "gain": 1785.6390380859375,
+              "permutation_importance": 7.963180541992188e-05,
+              "permutation_std": 6.80374074753722e-05
+            },
+            "stochastic_k_14": {
+              "status": "selected",
+              "mutual_information": 0.0008611053413010161,
+              "gain": 2598.397216796875,
+              "permutation_importance": 0.0008526047070821127,
+              "permutation_std": 7.717299090128671e-05
+            },
+            "donchian_position_48": {
+              "status": "selected",
+              "mutual_information": 0.008147991926796383,
+              "gain": 5610.21533203125,
+              "permutation_importance": 0.0005711515744527181,
+              "permutation_std": 3.220211688636886e-05
+            },
+            "atr_14_pct": {
+              "status": "selected",
+              "mutual_information": 0.0024420432293541516,
+              "gain": 3538.921875,
+              "permutation_importance": 0.0002486705780029297,
+              "permutation_std": 6.470464201145756e-05
+            },
+            "atr_14_vs_daily_mean": {
+              "status": "selected",
+              "mutual_information": 0.0035744320684707453,
+              "gain": 22428.6171875,
+              "permutation_importance": 0.012956062952677408,
+              "permutation_std": 0.0009136396211632328
+            },
+            "realized_vol_12": {
+              "status": "selected",
+              "mutual_information": 0.0004282735105873847,
+              "gain": 2486.974365234375,
+              "permutation_importance": 0.00013945500055948892,
+              "permutation_std": 9.260186427840414e-05
+            },
+            "realized_vol_48": {
+              "status": "selected",
+              "mutual_information": 0.0089969873981115,
+              "gain": 6174.0224609375,
+              "permutation_importance": 0.0008306304613749186,
+              "permutation_std": 0.00014829164727429226
+            },
+            "bollinger_width_20": {
+              "status": "selected",
+              "mutual_information": 0.007563000110180962,
+              "gain": 2515.779296875,
+              "permutation_importance": 9.679794311523438e-05,
+              "permutation_std": 9.581139658720987e-05
+            },
+            "bollinger_position_20": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.006722353652000024,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "close_vs_ema_12_atr"
+            },
+            "tick_volume_z_48": {
+              "status": "selected",
+              "mutual_information": 0.02080182354447402,
+              "gain": 61457.66015625,
+              "permutation_importance": 0.008219639460245768,
+              "permutation_std": 0.00030019945203538104
+            },
+            "tick_volume_ratio_12_288": {
+              "status": "selected",
+              "mutual_information": 0.004222111647092852,
+              "gain": 4270.79833984375,
+              "permutation_importance": 0.00047286351521809894,
+              "permutation_std": 6.028882060701106e-06
+            },
+            "spread_atr": {
+              "status": "selected",
+              "mutual_information": 0.019207781491239473,
+              "gain": 64452.30078125,
+              "permutation_importance": 0.01611371835072835,
+              "permutation_std": 0.0005459635392162125
+            },
+            "spread_z_288": {
+              "status": "selected",
+              "mutual_information": 0.015749121147817124,
+              "gain": 1907.2332763671875,
+              "permutation_importance": 0.0001288453737894694,
+              "permutation_std": 2.4595100713465356e-05
+            },
+            "hour_sin": {
+              "status": "selected",
+              "mutual_information": 0.02635164549220903,
+              "gain": 65277.5703125,
+              "permutation_importance": 0.01002641518910726,
+              "permutation_std": 0.0012755228437159529
+            },
+            "hour_cos": {
+              "status": "selected",
+              "mutual_information": 0.031289949713194654,
+              "gain": 107600.03125,
+              "permutation_importance": 0.022399624188741047,
+              "permutation_std": 5.5146749338773517e-05
+            },
+            "day_of_week": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2571.8310546875,
+              "permutation_importance": 0.00017420450846354166,
+              "permutation_std": 9.609730805563148e-05
+            },
+            "session_asia": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0046591635351469485,
+              "gain": 70.33140563964844,
+              "permutation_importance": -1.0867913564046225e-05,
+              "permutation_std": 3.5437900768238885e-06
+            },
+            "session_london": {
+              "status": "selected",
+              "mutual_information": 0.014653406936584457,
+              "gain": 5034.75146484375,
+              "permutation_importance": 0.0006696581840515137,
+              "permutation_std": 0.00023923691736561973
+            },
+            "session_newyork": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.004534006623592379,
+              "gain": 228.3124237060547,
+              "permutation_importance": -3.1093756357828774e-05,
+              "permutation_std": 6.180963025125077e-06
+            },
+            "session_london_newyork_overlap": {
+              "status": "selected",
+              "mutual_information": 0.006587919601971581,
+              "gain": 618.3552856445312,
+              "permutation_importance": 2.785523732503255e-05,
+              "permutation_std": 2.517703456507282e-06
+            },
+            "bars_since_gap": {
+              "status": "selected",
+              "mutual_information": 0.050413471843686386,
+              "gain": 34136.671875,
+              "permutation_importance": 0.0028054118156433105,
+              "permutation_std": 0.00027161832046215416
+            }
+          },
+          "base_model": "xgboost",
+          "calibration_log_loss_before_shuffle": 0.9923102855682373
+        },
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8312378961427876,
+          "log_loss_before": 0.9911169409751892,
+          "log_loss_after": 0.9890853568062421
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.46,
+            "prevalence": 0.40869313242538396,
+            "required_precision": 0.49043175891046076,
+            "chosen_on_threshold_block": {
+              "threshold": 0.46,
+              "signals": 3495,
+              "precision": 0.49470672389127324,
+              "recall": 0.24517867271695973,
+              "f1": 0.32786574381340666
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.54,
+            "prevalence": 0.4140249203129528,
+            "required_precision": 0.4968299043755433,
+            "chosen_on_threshold_block": {
+              "threshold": 0.54,
+              "signals": 285,
+              "precision": 0.5017543859649123,
+              "recall": 0.020016797312430012,
+              "f1": 0.03849777897428995
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 68628,
+          "accuracy": 0.2678061432651396,
+          "macro_f1": 0.2305160565438821,
+          "directional_macro_f1": 0.1711080486413345,
+          "per_class": {
+            "SELL": {
+              "precision": 0.49271523178807947,
+              "precision_wilson95": [
+                0.46754883855509266,
+                0.517918597403861
+              ],
+              "recall": 0.026306484689908777,
+              "f1": 0.04994629430719656,
+              "support": 28282,
+              "predicted": 1510,
+              "false_positive": 766
+            },
+            "NO_TRADE": {
+              "precision": 0.21558721068086892,
+              "precision_wilson95": [
+                0.21216494834674435,
+                0.21904932650399953
+              ],
+              "recall": 0.9202024133904243,
+              "f1": 0.3493320723489774,
+              "support": 12845,
+              "predicted": 54827,
+              "false_positive": 43007
+            },
+            "BUY": {
+              "precision": 0.4731104059881214,
+              "precision_wilson95": [
+                0.46429337810479626,
+                0.481944237514424
+              ],
+              "recall": 0.21144685647794625,
+              "f1": 0.29226980297547245,
+              "support": 27501,
+              "predicted": 12291,
+              "false_positive": 6476
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                744,
+                21932,
+                5606
+              ],
+              [
+                155,
+                11820,
+                870
+              ],
+              [
+                611,
+                21075,
+                5815
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 1510,
+            "NO_TRADE": 54827,
+            "BUY": 12291
+          },
+          "signal_coverage": 0.20109867692487032,
+          "buy_coverage": 0.17909599580346214,
+          "sell_coverage": 0.02200268112140817,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 5606,
+            "SELL_when_BUY": 611
+          },
+          "no_trade_rate": 0.7989013230751297,
+          "probability": {
+            "log_loss": 0.9960198018389271,
+            "brier_multiclass": 0.6132753980715498,
+            "ece_top_label": 0.0286799978184528
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 68628,
+          "accuracy": 0.42283033164306116,
+          "macro_f1": 0.3708094570409886,
+          "directional_macro_f1": 0.44464537609292876,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4188646504709965,
+              "precision_wilson95": [
+                0.4140579614760935,
+                0.4236867911207936
+              ],
+              "recall": 0.5974471395233718,
+              "f1": 0.49246597301157063,
+              "support": 28282,
+              "predicted": 40340,
+              "false_positive": 23443
+            },
+            "NO_TRADE": {
+              "precision": 0.4379412434525165,
+              "precision_wilson95": [
+                0.4233269729182851,
+                0.4526640070524151
+              ],
+              "recall": 0.14970805760996497,
+              "f1": 0.22313761893710837,
+              "support": 12845,
+              "predicted": 4391,
+              "false_positive": 2468
+            },
+            "BUY": {
+              "precision": 0.42674812738000584,
+              "precision_wilson95": [
+                0.4204893056111704,
+                0.4330304968044901
+              ],
+              "recall": 0.37082287916803025,
+              "f1": 0.39682477917428693,
+              "support": 27501,
+              "predicted": 23897,
+              "false_positive": 13699
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                16897,
+                1249,
+                10136
+              ],
+              [
+                7359,
+                1923,
+                3563
+              ],
+              [
+                16084,
+                1219,
+                10198
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28282,
+            "NO_TRADE": 12845,
+            "BUY": 27501
+          },
+          "predicted_distribution": {
+            "SELL": 40340,
+            "NO_TRADE": 4391,
+            "BUY": 23897
+          },
+          "signal_coverage": 0.9360173690039051,
+          "buy_coverage": 0.3482106428862855,
+          "sell_coverage": 0.5878067261176196,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 10136,
+            "SELL_when_BUY": 16084
+          },
+          "no_trade_rate": 0.06398263099609489
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2022",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2021-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2021-07-01T00:00:00+00:00",
+            "end": "2021-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2021-10-01T00:00:00+00:00",
+            "end": "2022-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2022-01-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost_selected",
+        "block_sizes": {
+          "train": 376108,
+          "calibration": 17545,
+          "threshold": 17301,
+          "evaluation": 69143
+        },
+        "label_distribution": {
+          "train": {
+            "total": 376108,
+            "SELL": {
+              "count": 132449,
+              "share": 0.3521568272942878
+            },
+            "NO_TRADE": {
+              "count": 113050,
+              "share": 0.3005785572229253
+            },
+            "BUY": {
+              "count": 130609,
+              "share": 0.34726461548278686
+            }
+          },
+          "evaluation": {
+            "total": 69143,
+            "SELL": {
+              "count": 29210,
+              "share": 0.4224578048392462
+            },
+            "NO_TRADE": {
+              "count": 11227,
+              "share": 0.16237363145943914
+            },
+            "BUY": {
+              "count": 28706,
+              "share": 0.41516856370131466
+            }
+          }
+        },
+        "training_seconds": 62.06428940000001,
+        "best_iteration": 299,
+        "feature_selection": {
+          "total_features": 41,
+          "after_filter": 37,
+          "selected_count": 31,
+          "selected": [
+            "log_return_3",
+            "log_return_6",
+            "log_return_12",
+            "return_24_atr",
+            "candle_range_atr",
+            "upper_wick_ratio",
+            "lower_wick_ratio",
+            "close_vs_ema_12_atr",
+            "close_vs_ema_48_atr",
+            "ema_12_vs_48_atr",
+            "adx_14",
+            "di_difference_14",
+            "rsi_14",
+            "macd_histogram_atr",
+            "stochastic_k_14",
+            "donchian_position_48",
+            "atr_14_pct",
+            "atr_14_vs_daily_mean",
+            "realized_vol_12",
+            "realized_vol_48",
+            "bollinger_width_20",
+            "tick_volume_z_48",
+            "tick_volume_ratio_12_288",
+            "spread_atr",
+            "spread_z_288",
+            "hour_sin",
+            "hour_cos",
+            "day_of_week",
+            "session_london",
+            "session_london_newyork_overlap",
+            "bars_since_gap"
+          ],
+          "leakage_flags": [],
+          "gain_permutation_rank_correlation": 0.8669985775248932,
+          "features": {
+            "log_return_1": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.014907071783384573,
+              "gain": 829.3770141601562,
+              "permutation_importance": -2.886851628621419e-05,
+              "permutation_std": 1.9919151339651504e-05
+            },
+            "log_return_3": {
+              "status": "selected",
+              "mutual_information": 0.014254897186332105,
+              "gain": 805.9204711914062,
+              "permutation_importance": 1.6669432322184246e-05,
+              "permutation_std": 2.962430130579599e-06
+            },
+            "log_return_6": {
+              "status": "selected",
+              "mutual_information": 0.007970586296676796,
+              "gain": 887.8862915039062,
+              "permutation_importance": 3.574291865030924e-05,
+              "permutation_std": 3.453670718323965e-05
+            },
+            "log_return_12": {
+              "status": "selected",
+              "mutual_information": 0.009658276432875645,
+              "gain": 1028.406982421875,
+              "permutation_importance": 6.435314814249675e-05,
+              "permutation_std": 3.9673158818159596e-05
+            },
+            "return_6_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0072015463156689385,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_6"
+            },
+            "return_24_atr": {
+              "status": "selected",
+              "mutual_information": 0.0005063243026239839,
+              "gain": 1458.2637939453125,
+              "permutation_importance": 4.13060188293457e-05,
+              "permutation_std": 9.208612195189688e-06
+            },
+            "candle_body_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0019893492138072233,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_1"
+            },
+            "candle_range_atr": {
+              "status": "selected",
+              "mutual_information": 0.013674892412548711,
+              "gain": 4899.8837890625,
+              "permutation_importance": 0.0010472734769185383,
+              "permutation_std": 0.00011283162229740991
+            },
+            "upper_wick_ratio": {
+              "status": "selected",
+              "mutual_information": 0.0044462100765696455,
+              "gain": 249.95362854003906,
+              "permutation_importance": 5.086263020833333e-06,
+              "permutation_std": 1.918697699786483e-06
+            },
+            "lower_wick_ratio": {
+              "status": "selected",
+              "mutual_information": 0.012847549452124962,
+              "gain": 226.61827087402344,
+              "permutation_importance": 1.3470649719238281e-05,
+              "permutation_std": 1.2553913623542902e-05
+            },
+            "close_position_in_range": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.008979814621023596,
+              "gain": 722.5078125,
+              "permutation_importance": -4.2120615641276044e-06,
+              "permutation_std": 5.7550999926471325e-05
+            },
+            "close_vs_ema_12_atr": {
+              "status": "selected",
+              "mutual_information": 0.01122243159111136,
+              "gain": 9240.81640625,
+              "permutation_importance": 0.0013661583264668782,
+              "permutation_std": 4.576121344071021e-05
+            },
+            "close_vs_ema_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.008986230771383052,
+              "gain": 2594.50830078125,
+              "permutation_importance": 6.29425048828125e-05,
+              "permutation_std": 6.669929311617976e-05
+            },
+            "close_vs_ema_288_atr": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.003180419003265378,
+              "gain": 6653.01318359375,
+              "permutation_importance": -0.00029093027114868164,
+              "permutation_std": 5.0748166041909323e-05
+            },
+            "ema_12_vs_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2410.00439453125,
+              "permutation_importance": 4.527966181437174e-05,
+              "permutation_std": 6.269079535084802e-05
+            },
+            "ema_48_slope_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "ema_12_vs_48_atr"
+            },
+            "adx_14": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2502.756103515625,
+              "permutation_importance": 0.0001535813013712565,
+              "permutation_std": 3.0073928309048966e-05
+            },
+            "di_difference_14": {
+              "status": "selected",
+              "mutual_information": 0.002619189891068796,
+              "gain": 2260.670166015625,
+              "permutation_importance": 2.0245711008707683e-05,
+              "permutation_std": 0.00010254789697674927
+            },
+            "rsi_14": {
+              "status": "selected",
+              "mutual_information": 0.01038213056760151,
+              "gain": 3845.20947265625,
+              "permutation_importance": 0.0004300077756245931,
+              "permutation_std": 0.00011595778243861637
+            },
+            "rsi_14_change_3": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0,
+              "gain": 819.4441528320312,
+              "permutation_importance": -8.245309193929037e-06,
+              "permutation_std": 2.3490448540967982e-05
+            },
+            "macd_histogram_atr": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 1666.3712158203125,
+              "permutation_importance": 1.6113122304280598e-05,
+              "permutation_std": 4.5619956844929846e-05
+            },
+            "stochastic_k_14": {
+              "status": "selected",
+              "mutual_information": 0.0023389577021486474,
+              "gain": 2945.672607421875,
+              "permutation_importance": 0.0003066261609395345,
+              "permutation_std": 2.291953389664307e-05
+            },
+            "donchian_position_48": {
+              "status": "selected",
+              "mutual_information": 0.001683791029770454,
+              "gain": 6422.4931640625,
+              "permutation_importance": 0.0005541245142618815,
+              "permutation_std": 9.73325335349975e-05
+            },
+            "atr_14_pct": {
+              "status": "selected",
+              "mutual_information": 0.01161708640640402,
+              "gain": 4276.40478515625,
+              "permutation_importance": 0.00013438860575358072,
+              "permutation_std": 3.4938164146320095e-05
+            },
+            "atr_14_vs_daily_mean": {
+              "status": "selected",
+              "mutual_information": 0.004520380415933722,
+              "gain": 29207.259765625,
+              "permutation_importance": 0.014827291170756022,
+              "permutation_std": 0.0007041738196972958
+            },
+            "realized_vol_12": {
+              "status": "selected",
+              "mutual_information": 0.0042770060269505805,
+              "gain": 2736.165283203125,
+              "permutation_importance": 0.00012369950612386069,
+              "permutation_std": 4.445322061941696e-05
+            },
+            "realized_vol_48": {
+              "status": "selected",
+              "mutual_information": 0.008169960414367683,
+              "gain": 8433.330078125,
+              "permutation_importance": 0.002537250518798828,
+              "permutation_std": 0.00023885176961686491
+            },
+            "bollinger_width_20": {
+              "status": "selected",
+              "mutual_information": 0.008741675521670267,
+              "gain": 2305.693359375,
+              "permutation_importance": 4.029273986816406e-05,
+              "permutation_std": 5.0242602680407226e-05
+            },
+            "bollinger_position_20": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0033328227704632063,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "close_vs_ema_12_atr"
+            },
+            "tick_volume_z_48": {
+              "status": "selected",
+              "mutual_information": 0.01878898636329307,
+              "gain": 78718.1875,
+              "permutation_importance": 0.018781344095865887,
+              "permutation_std": 0.0006388667906449316
+            },
+            "tick_volume_ratio_12_288": {
+              "status": "selected",
+              "mutual_information": 0.008119838619910613,
+              "gain": 4197.2734375,
+              "permutation_importance": 0.00020935138066609701,
+              "permutation_std": 4.20655202858523e-05
+            },
+            "spread_atr": {
+              "status": "selected",
+              "mutual_information": 0.013771928634099151,
+              "gain": 121521.6328125,
+              "permutation_importance": 0.009767413139343262,
+              "permutation_std": 0.0006712775405229589
+            },
+            "spread_z_288": {
+              "status": "selected",
+              "mutual_information": 0.01814508700690798,
+              "gain": 1353.9791259765625,
+              "permutation_importance": 5.3028265635172524e-05,
+              "permutation_std": 6.887904658073852e-05
+            },
+            "hour_sin": {
+              "status": "selected",
+              "mutual_information": 0.02570212945401007,
+              "gain": 59218.12890625,
+              "permutation_importance": 0.007411837577819824,
+              "permutation_std": 0.00029828136708196775
+            },
+            "hour_cos": {
+              "status": "selected",
+              "mutual_information": 0.030810869230150972,
+              "gain": 129253.625,
+              "permutation_importance": 0.033141891161600746,
+              "permutation_std": 0.00033569435184354924
+            },
+            "day_of_week": {
+              "status": "selected",
+              "mutual_information": 0.0013652817244684812,
+              "gain": 2766.821533203125,
+              "permutation_importance": 0.0005804300308227539,
+              "permutation_std": 7.119985431689958e-05
+            },
+            "session_asia": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0019964087824440035,
+              "gain": 196.12252807617188,
+              "permutation_importance": -2.3245811462402344e-06,
+              "permutation_std": 6.382430183020143e-06
+            },
+            "session_london": {
+              "status": "selected",
+              "mutual_information": 0.014159307667494403,
+              "gain": 6813.837890625,
+              "permutation_importance": 0.0009985963503519695,
+              "permutation_std": 5.668942444851092e-05
+            },
+            "session_newyork": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.00020198785320113544,
+              "gain": 131.47312927246094,
+              "permutation_importance": -1.551707585652669e-05,
+              "permutation_std": 3.829672513155281e-06
+            },
+            "session_london_newyork_overlap": {
+              "status": "selected",
+              "mutual_information": 0.015190728175542567,
+              "gain": 729.5903930664062,
+              "permutation_importance": 1.6093254089355469e-06,
+              "permutation_std": 6.430859639039224e-06
+            },
+            "bars_since_gap": {
+              "status": "selected",
+              "mutual_information": 0.04559269684282752,
+              "gain": 37851.9296875,
+              "permutation_importance": 0.006768067677815755,
+              "permutation_std": 0.0002402663616989615
+            }
+          },
+          "base_model": "xgboost",
+          "calibration_log_loss_before_shuffle": 0.9945157766342163
+        },
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.9330329915368074,
+          "log_loss_before": 0.9942418336868286,
+          "log_loss_after": 0.9939823649774351
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.48,
+            "prevalence": 0.4093405005491012,
+            "required_precision": 0.4912086006589214,
+            "chosen_on_threshold_block": {
+              "threshold": 0.48,
+              "signals": 1956,
+              "precision": 0.4948875255623722,
+              "recall": 0.13668455238633154,
+              "f1": 0.21420668289444567
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.40760649673429283,
+            "required_precision": 0.48912779608115137,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 868,
+              "precision": 0.5299539170506913,
+              "recall": 0.0652297220646625,
+              "f1": 0.11616161616161616
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 69143,
+          "accuracy": 0.22580738469548617,
+          "macro_f1": 0.19591430162707435,
+          "directional_macro_f1": 0.14220726394695946,
+          "per_class": {
+            "SELL": {
+              "precision": 0.46425912137006703,
+              "precision_wilson95": [
+                0.4454627452911342,
+                0.4831575868503571
+              ],
+              "recall": 0.04269085929476207,
+              "f1": 0.07819162277401555,
+              "support": 29210,
+              "predicted": 2686,
+              "false_positive": 1439
+            },
+            "NO_TRADE": {
+              "precision": 0.18066318102082873,
+              "precision_wilson95": [
+                0.17757209974218247,
+                0.183796045226639
+              ],
+              "recall": 0.9448650574507883,
+              "f1": 0.30332837698730414,
+              "support": 11227,
+              "predicted": 58717,
+              "false_positive": 48109
+            },
+            "BUY": {
+              "precision": 0.4855297157622739,
+              "precision_wilson95": [
+                0.4744050790906188,
+                0.49666870940216234
+              ],
+              "recall": 0.13091339789591025,
+              "f1": 0.20622290511990338,
+              "support": 28706,
+              "predicted": 7740,
+              "false_positive": 3982
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                1247,
+                24470,
+                3493
+              ],
+              [
+                130,
+                10608,
+                489
+              ],
+              [
+                1309,
+                23639,
+                3758
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 2686,
+            "NO_TRADE": 58717,
+            "BUY": 7740
+          },
+          "signal_coverage": 0.1507889446509408,
+          "buy_coverage": 0.11194191747537711,
+          "sell_coverage": 0.03884702717556369,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 3493,
+            "SELL_when_BUY": 1309
+          },
+          "no_trade_rate": 0.8492110553490592,
+          "probability": {
+            "log_loss": 0.9789197472973503,
+            "brier_multiclass": 0.6036394689644085,
+            "ece_top_label": 0.01204296886526972
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69143,
+          "accuracy": 0.43515612571048407,
+          "macro_f1": 0.4007362957459924,
+          "directional_macro_f1": 0.451007753822606,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4371112367719525,
+              "precision_wilson95": [
+                0.4320730126107518,
+                0.44216247051841884
+              ],
+              "recall": 0.5557343375556316,
+              "f1": 0.48933636788400375,
+              "support": 29210,
+              "predicted": 37137,
+              "false_positive": 20904
+            },
+            "NO_TRADE": {
+              "precision": 0.41526357199055863,
+              "precision_wilson95": [
+                0.403202845743038,
+                0.42742668275473117
+              ],
+              "recall": 0.23505834149817403,
+              "f1": 0.3001933795927653,
+              "support": 11227,
+              "predicted": 6355,
+              "false_positive": 3716
+            },
+            "BUY": {
+              "precision": 0.4372539082296987,
+              "precision_wilson95": [
+                0.4311932155267267,
+                0.4433333923475546
+              ],
+              "recall": 0.39071971016512225,
+              "f1": 0.41267913976120824,
+              "support": 28706,
+              "predicted": 25651,
+              "false_positive": 14435
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                16233,
+                1931,
+                11046
+              ],
+              [
+                5199,
+                2639,
+                3389
+              ],
+              [
+                15705,
+                1785,
+                11216
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 29210,
+            "NO_TRADE": 11227,
+            "BUY": 28706
+          },
+          "predicted_distribution": {
+            "SELL": 37137,
+            "NO_TRADE": 6355,
+            "BUY": 25651
+          },
+          "signal_coverage": 0.908089032873899,
+          "buy_coverage": 0.37098477069262253,
+          "sell_coverage": 0.5371042621812765,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 11046,
+            "SELL_when_BUY": 15705
+          },
+          "no_trade_rate": 0.09191096712610097
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2023",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2022-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2022-07-01T00:00:00+00:00",
+            "end": "2022-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2022-10-01T00:00:00+00:00",
+            "end": "2023-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2023-01-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost_selected",
+        "block_sizes": {
+          "train": 445132,
+          "calibration": 17753,
+          "threshold": 17211,
+          "evaluation": 69111
+        },
+        "label_distribution": {
+          "train": {
+            "total": 445132,
+            "SELL": {
+              "count": 161067,
+              "share": 0.3618409820008447
+            },
+            "NO_TRADE": {
+              "count": 125349,
+              "share": 0.28159961539498396
+            },
+            "BUY": {
+              "count": 158716,
+              "share": 0.35655940260417135
+            }
+          },
+          "evaluation": {
+            "total": 69111,
+            "SELL": {
+              "count": 28083,
+              "share": 0.40634631245387853
+            },
+            "NO_TRADE": {
+              "count": 13426,
+              "share": 0.19426719335561632
+            },
+            "BUY": {
+              "count": 27602,
+              "share": 0.39938649419050515
+            }
+          }
+        },
+        "training_seconds": 71.53825940000002,
+        "best_iteration": 294,
+        "feature_selection": {
+          "total_features": 41,
+          "after_filter": 37,
+          "selected_count": 33,
+          "selected": [
+            "log_return_1",
+            "log_return_6",
+            "log_return_12",
+            "return_24_atr",
+            "candle_range_atr",
+            "upper_wick_ratio",
+            "close_vs_ema_12_atr",
+            "close_vs_ema_48_atr",
+            "close_vs_ema_288_atr",
+            "ema_12_vs_48_atr",
+            "di_difference_14",
+            "rsi_14",
+            "rsi_14_change_3",
+            "macd_histogram_atr",
+            "stochastic_k_14",
+            "donchian_position_48",
+            "atr_14_pct",
+            "atr_14_vs_daily_mean",
+            "realized_vol_12",
+            "realized_vol_48",
+            "bollinger_width_20",
+            "tick_volume_z_48",
+            "tick_volume_ratio_12_288",
+            "spread_atr",
+            "spread_z_288",
+            "hour_sin",
+            "hour_cos",
+            "day_of_week",
+            "session_asia",
+            "session_london",
+            "session_newyork",
+            "session_london_newyork_overlap",
+            "bars_since_gap"
+          ],
+          "leakage_flags": [],
+          "gain_permutation_rank_correlation": 0.8793266951161687,
+          "features": {
+            "log_return_1": {
+              "status": "selected",
+              "mutual_information": 0.00923236346763634,
+              "gain": 765.1714477539062,
+              "permutation_importance": 1.2516975402832031e-06,
+              "permutation_std": 7.602755661063472e-05
+            },
+            "log_return_3": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.008136123368604142,
+              "gain": 573.1856079101562,
+              "permutation_importance": -1.154343287150065e-05,
+              "permutation_std": 2.4595100713465356e-05
+            },
+            "log_return_6": {
+              "status": "selected",
+              "mutual_information": 0.007748027131734503,
+              "gain": 939.416015625,
+              "permutation_importance": 7.989009221394856e-05,
+              "permutation_std": 2.3446042607747302e-05
+            },
+            "log_return_12": {
+              "status": "selected",
+              "mutual_information": 0.0016909852705619954,
+              "gain": 1260.7269287109375,
+              "permutation_importance": 1.1920928955078125e-06,
+              "permutation_std": 2.644552700413803e-05
+            },
+            "return_6_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.004822639482561009,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_6"
+            },
+            "return_24_atr": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 1429.3387451171875,
+              "permutation_importance": 0.0001171429951985677,
+              "permutation_std": 3.757243868973385e-05
+            },
+            "candle_body_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.007667425120402971,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_1"
+            },
+            "candle_range_atr": {
+              "status": "selected",
+              "mutual_information": 0.011994557359908953,
+              "gain": 5545.73876953125,
+              "permutation_importance": 0.0004171927769978841,
+              "permutation_std": 7.955247646074876e-05
+            },
+            "upper_wick_ratio": {
+              "status": "selected",
+              "mutual_information": 0.004416108811989616,
+              "gain": 234.1207733154297,
+              "permutation_importance": 9.49700673421224e-06,
+              "permutation_std": 6.974394361253113e-06
+            },
+            "lower_wick_ratio": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.008713032137670496,
+              "gain": 281.5101318359375,
+              "permutation_importance": -1.1146068572998047e-05,
+              "permutation_std": 5.309809339573722e-05
+            },
+            "close_position_in_range": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.009194556825223632,
+              "gain": 682.6212158203125,
+              "permutation_importance": -1.722574234008789e-05,
+              "permutation_std": 3.1908291313488306e-05
+            },
+            "close_vs_ema_12_atr": {
+              "status": "selected",
+              "mutual_information": 0.006940016771097124,
+              "gain": 10385.1064453125,
+              "permutation_importance": 0.00013800462086995444,
+              "permutation_std": 7.964395939834534e-05
+            },
+            "close_vs_ema_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.009596165400893142,
+              "gain": 2774.665771484375,
+              "permutation_importance": 0.00019621849060058594,
+              "permutation_std": 3.707488760338593e-05
+            },
+            "close_vs_ema_288_atr": {
+              "status": "selected",
+              "mutual_information": 0.0012980917641427503,
+              "gain": 6080.3173828125,
+              "permutation_importance": 0.0002467632293701172,
+              "permutation_std": 6.791636508390028e-05
+            },
+            "ema_12_vs_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.0031476535447203524,
+              "gain": 2772.41748046875,
+              "permutation_importance": 0.00016425053278605142,
+              "permutation_std": 4.787739355598855e-05
+            },
+            "ema_48_slope_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0005419417507841473,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "ema_12_vs_48_atr"
+            },
+            "adx_14": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0029045565234979698,
+              "gain": 2479.310546875,
+              "permutation_importance": -0.00012097756067911784,
+              "permutation_std": 5.877002526255007e-05
+            },
+            "di_difference_14": {
+              "status": "selected",
+              "mutual_information": 0.0018552941561482683,
+              "gain": 2044.932861328125,
+              "permutation_importance": 0.0001251697540283203,
+              "permutation_std": 4.2326293062702755e-05
+            },
+            "rsi_14": {
+              "status": "selected",
+              "mutual_information": 0.006105261017066876,
+              "gain": 3588.767822265625,
+              "permutation_importance": 0.00012375911076863608,
+              "permutation_std": 7.111731437801734e-05
+            },
+            "rsi_14_change_3": {
+              "status": "selected",
+              "mutual_information": 0.007571106493362567,
+              "gain": 816.0628662109375,
+              "permutation_importance": 3.095467885335287e-05,
+              "permutation_std": 2.495749912378938e-05
+            },
+            "macd_histogram_atr": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2021.321533203125,
+              "permutation_importance": 4.460414250691732e-05,
+              "permutation_std": 4.04180537282675e-05
+            },
+            "stochastic_k_14": {
+              "status": "selected",
+              "mutual_information": 0.0028353879680307337,
+              "gain": 3418.640625,
+              "permutation_importance": 0.00014865398406982422,
+              "permutation_std": 7.239377739855769e-05
+            },
+            "donchian_position_48": {
+              "status": "selected",
+              "mutual_information": 0.0010653670234814783,
+              "gain": 5652.16796875,
+              "permutation_importance": 0.000509957472483317,
+              "permutation_std": 7.342455745437458e-05
+            },
+            "atr_14_pct": {
+              "status": "selected",
+              "mutual_information": 0.00028007681729924627,
+              "gain": 4418.2412109375,
+              "permutation_importance": 0.00031179189682006836,
+              "permutation_std": 2.5510091638420334e-05
+            },
+            "atr_14_vs_daily_mean": {
+              "status": "selected",
+              "mutual_information": 0.0021092198828469577,
+              "gain": 35007.26171875,
+              "permutation_importance": 0.014785468578338623,
+              "permutation_std": 0.0008275021018845813
+            },
+            "realized_vol_12": {
+              "status": "selected",
+              "mutual_information": 0.01003603518135554,
+              "gain": 2421.1259765625,
+              "permutation_importance": 3.163019816080729e-05,
+              "permutation_std": 4.9848262403234464e-05
+            },
+            "realized_vol_48": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 9723.392578125,
+              "permutation_importance": 0.0016103386878967285,
+              "permutation_std": 2.1858305397619286e-05
+            },
+            "bollinger_width_20": {
+              "status": "selected",
+              "mutual_information": 0.00540792468539486,
+              "gain": 1911.1923828125,
+              "permutation_importance": 0.00012981891632080078,
+              "permutation_std": 1.2755115452515126e-05
+            },
+            "bollinger_position_20": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.003839776258850236,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "close_vs_ema_12_atr"
+            },
+            "tick_volume_z_48": {
+              "status": "selected",
+              "mutual_information": 0.014784608148082912,
+              "gain": 82168.8515625,
+              "permutation_importance": 0.012760539849599203,
+              "permutation_std": 0.0006232143206102284
+            },
+            "tick_volume_ratio_12_288": {
+              "status": "selected",
+              "mutual_information": 0.004974101197779746,
+              "gain": 4027.237548828125,
+              "permutation_importance": 0.0006329615910847982,
+              "permutation_std": 6.457154567406982e-05
+            },
+            "spread_atr": {
+              "status": "selected",
+              "mutual_information": 0.02243537070004864,
+              "gain": 162641.671875,
+              "permutation_importance": 0.006360888481140137,
+              "permutation_std": 0.0003915585949768152
+            },
+            "spread_z_288": {
+              "status": "selected",
+              "mutual_information": 0.02358656529054337,
+              "gain": 2739.192138671875,
+              "permutation_importance": 0.00032756725947062176,
+              "permutation_std": 2.1074904026173496e-05
+            },
+            "hour_sin": {
+              "status": "selected",
+              "mutual_information": 0.02252831714086234,
+              "gain": 63421.4140625,
+              "permutation_importance": 0.007178266843159993,
+              "permutation_std": 0.0002118171200553001
+            },
+            "hour_cos": {
+              "status": "selected",
+              "mutual_information": 0.03682200857735762,
+              "gain": 155209.046875,
+              "permutation_importance": 0.027091145515441895,
+              "permutation_std": 0.0009528229211136514
+            },
+            "day_of_week": {
+              "status": "selected",
+              "mutual_information": 0.0009522581904519711,
+              "gain": 2803.45947265625,
+              "permutation_importance": 0.000673830509185791,
+              "permutation_std": 7.709866369710159e-05
+            },
+            "session_asia": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 145.2394256591797,
+              "permutation_importance": 1.3172626495361328e-05,
+              "permutation_std": 5.098433264238175e-06
+            },
+            "session_london": {
+              "status": "selected",
+              "mutual_information": 0.015316197686292554,
+              "gain": 6549.5693359375,
+              "permutation_importance": 0.0005225141843159994,
+              "permutation_std": 0.00012489358708932106
+            },
+            "session_newyork": {
+              "status": "selected",
+              "mutual_information": 0.00807484784322865,
+              "gain": 211.5384063720703,
+              "permutation_importance": 3.713369369506836e-05,
+              "permutation_std": 5.937372617315207e-06
+            },
+            "session_london_newyork_overlap": {
+              "status": "selected",
+              "mutual_information": 0.007860352299960738,
+              "gain": 581.6732788085938,
+              "permutation_importance": 5.364418029785156e-06,
+              "permutation_std": 1.0606724274189583e-06
+            },
+            "bars_since_gap": {
+              "status": "selected",
+              "mutual_information": 0.03715961471718687,
+              "gain": 52064.92578125,
+              "permutation_importance": 0.00598520040512085,
+              "permutation_std": 0.00019023637027913183
+            }
+          },
+          "base_model": "xgboost",
+          "calibration_log_loss_before_shuffle": 0.9760559797286987
+        },
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8122523963562355,
+          "log_loss_before": 0.9755579233169556,
+          "log_loss_after": 0.9729685576620531
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.54,
+            "prevalence": 0.421474638312707,
+            "required_precision": 0.5057695659752484,
+            "chosen_on_threshold_block": {
+              "threshold": 0.54,
+              "signals": 257,
+              "precision": 0.5525291828793775,
+              "recall": 0.019575406672180867,
+              "f1": 0.03781121022500333
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.54,
+            "prevalence": 0.41920864563360644,
+            "required_precision": 0.5030503747603277,
+            "chosen_on_threshold_block": {
+              "threshold": 0.54,
+              "signals": 94,
+              "precision": 0.5425531914893617,
+              "recall": 0.007068607068607069,
+              "f1": 0.013955397455192229
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 69111,
+          "accuracy": 0.200387781973926,
+          "macro_f1": 0.12134887060156081,
+          "directional_macro_f1": 0.018328662913615245,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4650112866817156,
+              "precision_wilson95": [
+                0.419064139618603,
+                0.5115600457750578
+              ],
+              "recall": 0.007335398639746466,
+              "f1": 0.01444296431325808,
+              "support": 28083,
+              "predicted": 443,
+              "false_positive": 237
+            },
+            "NO_TRADE": {
+              "precision": 0.19601470588235295,
+              "precision_wilson95": [
+                0.19304811119507548,
+                0.19901564539128774
+              ],
+              "recall": 0.9927752122746909,
+              "f1": 0.327389285977452,
+              "support": 13426,
+              "predicted": 68000,
+              "false_positive": 54671
+            },
+            "BUY": {
+              "precision": 0.47005988023952094,
+              "precision_wilson95": [
+                0.43248975821513236,
+                0.5079723983408178
+              ],
+              "recall": 0.01137598724730092,
+              "f1": 0.022214361513972408,
+              "support": 27602,
+              "predicted": 668,
+              "false_positive": 354
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                206,
+                27574,
+                303
+              ],
+              [
+                46,
+                13329,
+                51
+              ],
+              [
+                191,
+                27097,
+                314
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 443,
+            "NO_TRADE": 68000,
+            "BUY": 668
+          },
+          "signal_coverage": 0.01607558854596229,
+          "buy_coverage": 0.009665610394872017,
+          "sell_coverage": 0.006409978151090275,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 303,
+            "SELL_when_BUY": 191
+          },
+          "no_trade_rate": 0.9839244114540378,
+          "probability": {
+            "log_loss": 0.9979164107180512,
+            "brier_multiclass": 0.6130526746240276,
+            "ece_top_label": 0.02716421505525215
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69111,
+          "accuracy": 0.4253013268510078,
+          "macro_f1": 0.40255222197029955,
+          "directional_macro_f1": 0.44267150248284176,
+          "per_class": {
+            "SELL": {
+              "precision": 0.419002347758036,
+              "precision_wilson95": [
+                0.4138052702559236,
+                0.42421746102361957
+              ],
+              "recall": 0.5147598191076452,
+              "f1": 0.46197111082704845,
+              "support": 28083,
+              "predicted": 34501,
+              "false_positive": 20045
+            },
+            "NO_TRADE": {
+              "precision": 0.43717310881489985,
+              "precision_wilson95": [
+                0.42622558028417107,
+                0.44818218539096394
+              ],
+              "recall": 0.2552510055116937,
+              "f1": 0.32231366094521513,
+              "support": 13426,
+              "predicted": 7839,
+              "false_positive": 4412
+            },
+            "BUY": {
+              "precision": 0.4299428486048336,
+              "precision_wilson95": [
+                0.42402285778812887,
+                0.4358829427376901
+              ],
+              "recall": 0.41699876820520254,
+              "f1": 0.4233718941386351,
+              "support": 27602,
+              "predicted": 26771,
+              "false_positive": 15261
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                14456,
+                2280,
+                11347
+              ],
+              [
+                6085,
+                3427,
+                3914
+              ],
+              [
+                13960,
+                2132,
+                11510
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28083,
+            "NO_TRADE": 13426,
+            "BUY": 27602
+          },
+          "predicted_distribution": {
+            "SELL": 34501,
+            "NO_TRADE": 7839,
+            "BUY": 26771
+          },
+          "signal_coverage": 0.886573772626644,
+          "buy_coverage": 0.3873623591034712,
+          "sell_coverage": 0.4992114135231729,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 11347,
+            "SELL_when_BUY": 13960
+          },
+          "no_trade_rate": 0.1134262273733559
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2024",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2023-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2023-07-01T00:00:00+00:00",
+            "end": "2023-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2023-10-01T00:00:00+00:00",
+            "end": "2024-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2024-01-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost_selected",
+        "block_sizes": {
+          "train": 514533,
+          "calibration": 17490,
+          "threshold": 17189,
+          "evaluation": 69656
+        },
+        "label_distribution": {
+          "train": {
+            "total": 514533,
+            "SELL": {
+              "count": 189938,
+              "share": 0.36914639099921676
+            },
+            "NO_TRADE": {
+              "count": 137526,
+              "share": 0.2672831480196605
+            },
+            "BUY": {
+              "count": 187069,
+              "share": 0.36357046098112267
+            }
+          },
+          "evaluation": {
+            "total": 69656,
+            "SELL": {
+              "count": 27559,
+              "share": 0.39564430917652466
+            },
+            "NO_TRADE": {
+              "count": 14025,
+              "share": 0.20134661766394854
+            },
+            "BUY": {
+              "count": 28072,
+              "share": 0.40300907315952683
+            }
+          }
+        },
+        "training_seconds": 83.44944029999999,
+        "best_iteration": 299,
+        "feature_selection": {
+          "total_features": 41,
+          "after_filter": 37,
+          "selected_count": 28,
+          "selected": [
+            "log_return_1",
+            "log_return_6",
+            "log_return_12",
+            "return_24_atr",
+            "candle_range_atr",
+            "close_position_in_range",
+            "close_vs_ema_12_atr",
+            "close_vs_ema_48_atr",
+            "ema_48_slope_atr",
+            "adx_14",
+            "rsi_14",
+            "macd_histogram_atr",
+            "stochastic_k_14",
+            "atr_14_pct",
+            "atr_14_vs_daily_mean",
+            "realized_vol_48",
+            "bollinger_width_20",
+            "tick_volume_z_48",
+            "tick_volume_ratio_12_288",
+            "spread_atr",
+            "spread_z_288",
+            "hour_sin",
+            "hour_cos",
+            "day_of_week",
+            "session_asia",
+            "session_london",
+            "session_london_newyork_overlap",
+            "bars_since_gap"
+          ],
+          "leakage_flags": [],
+          "gain_permutation_rank_correlation": 0.7406353722143194,
+          "features": {
+            "log_return_1": {
+              "status": "selected",
+              "mutual_information": 0.008071637831484235,
+              "gain": 903.0093994140625,
+              "permutation_importance": 3.345807393391927e-05,
+              "permutation_std": 2.4478301977541373e-05
+            },
+            "log_return_3": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.006493310291178389,
+              "gain": 549.4584350585938,
+              "permutation_importance": -2.471605936686198e-05,
+              "permutation_std": 4.821799229125898e-06
+            },
+            "log_return_6": {
+              "status": "selected",
+              "mutual_information": 0.007493856772706309,
+              "gain": 1176.765869140625,
+              "permutation_importance": 3.7749608357747394e-07,
+              "permutation_std": 3.3770694040831666e-05
+            },
+            "log_return_12": {
+              "status": "selected",
+              "mutual_information": 0.0012435328112405664,
+              "gain": 949.422607421875,
+              "permutation_importance": 1.8417835235595703e-05,
+              "permutation_std": 2.044783939457808e-05
+            },
+            "return_6_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.005067650954507119,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_6"
+            },
+            "return_24_atr": {
+              "status": "selected",
+              "mutual_information": 0.006426440552918855,
+              "gain": 1666.2542724609375,
+              "permutation_importance": 0.0001478393872578939,
+              "permutation_std": 8.473710046290766e-05
+            },
+            "candle_body_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.003873374809059804,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_1"
+            },
+            "candle_range_atr": {
+              "status": "selected",
+              "mutual_information": 0.011565664982474688,
+              "gain": 6452.1171875,
+              "permutation_importance": 0.0008087754249572754,
+              "permutation_std": 5.479090306416224e-06
+            },
+            "upper_wick_ratio": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.01033865767452724,
+              "gain": 209.94943237304688,
+              "permutation_importance": -1.5715758005777996e-05,
+              "permutation_std": 1.221854834677521e-06
+            },
+            "lower_wick_ratio": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.001374540476351438,
+              "gain": 319.25860595703125,
+              "permutation_importance": -1.4682610829671225e-05,
+              "permutation_std": 2.844290236939146e-05
+            },
+            "close_position_in_range": {
+              "status": "selected",
+              "mutual_information": 0.012184965018350091,
+              "gain": 691.1422729492188,
+              "permutation_importance": 5.116065343221029e-05,
+              "permutation_std": 2.029607930417816e-05
+            },
+            "close_vs_ema_12_atr": {
+              "status": "selected",
+              "mutual_information": 0.007095498239175324,
+              "gain": 10817.095703125,
+              "permutation_importance": 0.0008969505627950033,
+              "permutation_std": 0.00012910212260694424
+            },
+            "close_vs_ema_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2345.953857421875,
+              "permutation_importance": 2.7954578399658203e-05,
+              "permutation_std": 4.662785174647582e-05
+            },
+            "close_vs_ema_288_atr": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.001280878141628694,
+              "gain": 6358.59228515625,
+              "permutation_importance": -5.694230397542318e-05,
+              "permutation_std": 5.892751106962663e-05
+            },
+            "ema_12_vs_48_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.001670869498857197,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "ema_48_slope_atr"
+            },
+            "ema_48_slope_atr": {
+              "status": "selected",
+              "mutual_information": 0.004083571873247038,
+              "gain": 2121.72314453125,
+              "permutation_importance": 0.00018231074015299478,
+              "permutation_std": 1.1617589343300082e-05
+            },
+            "adx_14": {
+              "status": "selected",
+              "mutual_information": 0.008046700844779764,
+              "gain": 2477.535400390625,
+              "permutation_importance": 0.0002493460973103841,
+              "permutation_std": 4.6330930609850294e-05
+            },
+            "di_difference_14": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0020977917501867616,
+              "gain": 1739.214111328125,
+              "permutation_importance": -7.66913096110026e-06,
+              "permutation_std": 6.110700688743051e-05
+            },
+            "rsi_14": {
+              "status": "selected",
+              "mutual_information": 0.009065308975666486,
+              "gain": 4330.37158203125,
+              "permutation_importance": 0.0004356503486633301,
+              "permutation_std": 0.00011612405476286422
+            },
+            "rsi_14_change_3": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0006921355198818979,
+              "gain": 806.8348999023438,
+              "permutation_importance": -1.7523765563964844e-05,
+              "permutation_std": 1.3123944819452501e-05
+            },
+            "macd_histogram_atr": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2101.198486328125,
+              "permutation_importance": 0.00014181931813557944,
+              "permutation_std": 1.2248653790188043e-05
+            },
+            "stochastic_k_14": {
+              "status": "selected",
+              "mutual_information": 0.003040731932695717,
+              "gain": 2941.35546875,
+              "permutation_importance": 0.00016071399052937826,
+              "permutation_std": 6.750801355822395e-05
+            },
+            "donchian_position_48": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.006133915298464743,
+              "gain": 6639.09423828125,
+              "permutation_importance": -0.00026986996332804364,
+              "permutation_std": 3.532882602455685e-05
+            },
+            "atr_14_pct": {
+              "status": "selected",
+              "mutual_information": 0.008134280427087415,
+              "gain": 5280.099609375,
+              "permutation_importance": 0.0003798206647237142,
+              "permutation_std": 8.405229010017061e-05
+            },
+            "atr_14_vs_daily_mean": {
+              "status": "selected",
+              "mutual_information": 0.0014778156759422956,
+              "gain": 38984.64453125,
+              "permutation_importance": 0.012363056341807047,
+              "permutation_std": 0.0010966820869529126
+            },
+            "realized_vol_12": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.007062085042893518,
+              "gain": 2885.40234375,
+              "permutation_importance": -7.172425587972005e-05,
+              "permutation_std": 2.7326604420659734e-05
+            },
+            "realized_vol_48": {
+              "status": "selected",
+              "mutual_information": 0.004202216284492355,
+              "gain": 12470.408203125,
+              "permutation_importance": 0.0008909106254577637,
+              "permutation_std": 0.0001920455426565751
+            },
+            "bollinger_width_20": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2015.8154296875,
+              "permutation_importance": 0.0001981655756632487,
+              "permutation_std": 3.243041683526923e-05
+            },
+            "bollinger_position_20": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.003943349046164002,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "close_vs_ema_12_atr"
+            },
+            "tick_volume_z_48": {
+              "status": "selected",
+              "mutual_information": 0.02618421725684006,
+              "gain": 93277.203125,
+              "permutation_importance": 0.0182764728864034,
+              "permutation_std": 6.917921854644545e-05
+            },
+            "tick_volume_ratio_12_288": {
+              "status": "selected",
+              "mutual_information": 0.0018667528682612122,
+              "gain": 4914.32373046875,
+              "permutation_importance": 0.00031882524490356445,
+              "permutation_std": 0.0001344019847030773
+            },
+            "spread_atr": {
+              "status": "selected",
+              "mutual_information": 0.021253743092639832,
+              "gain": 193324.890625,
+              "permutation_importance": 0.0052410562833150225,
+              "permutation_std": 0.0006896194675969547
+            },
+            "spread_z_288": {
+              "status": "selected",
+              "mutual_information": 0.016861498459411983,
+              "gain": 2658.806396484375,
+              "permutation_importance": 0.0001576542854309082,
+              "permutation_std": 5.710492042656886e-05
+            },
+            "hour_sin": {
+              "status": "selected",
+              "mutual_information": 0.017197285272820828,
+              "gain": 69745.03125,
+              "permutation_importance": 0.007083197434743245,
+              "permutation_std": 0.0002169050358992587
+            },
+            "hour_cos": {
+              "status": "selected",
+              "mutual_information": 0.03209451798720164,
+              "gain": 163064.75,
+              "permutation_importance": 0.030152539412180584,
+              "permutation_std": 0.0014110899909613424
+            },
+            "day_of_week": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 3360.552734375,
+              "permutation_importance": 0.000533898671468099,
+              "permutation_std": 9.808803897993485e-05
+            },
+            "session_asia": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 336.45367431640625,
+              "permutation_importance": 4.645188649495443e-05,
+              "permutation_std": 1.1999184660416874e-05
+            },
+            "session_london": {
+              "status": "selected",
+              "mutual_information": 0.012385607915186725,
+              "gain": 6861.91162109375,
+              "permutation_importance": 0.0011403958002726238,
+              "permutation_std": 0.00021510754120886933
+            },
+            "session_newyork": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.005358406077785816,
+              "gain": 265.1919860839844,
+              "permutation_importance": -1.9729137420654297e-05,
+              "permutation_std": 5.213504399020845e-06
+            },
+            "session_london_newyork_overlap": {
+              "status": "selected",
+              "mutual_information": 0.005238070740381406,
+              "gain": 646.0087890625,
+              "permutation_importance": 2.2709369659423828e-05,
+              "permutation_std": 8.172722045759008e-06
+            },
+            "bars_since_gap": {
+              "status": "selected",
+              "mutual_information": 0.04038345202005167,
+              "gain": 77623.1015625,
+              "permutation_importance": 0.00898526112238566,
+              "permutation_std": 0.000200508237428341
+            }
+          },
+          "base_model": "xgboost",
+          "calibration_log_loss_before_shuffle": 0.9952841401100159
+        },
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 1.0233738919967748,
+          "log_loss_before": 0.9948180317878723,
+          "log_loss_after": 0.9947714891083976
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.44,
+            "prevalence": 0.40479376345337137,
+            "required_precision": 0.48575251614404563,
+            "chosen_on_threshold_block": {
+              "threshold": 0.44,
+              "signals": 3674,
+              "precision": 0.49237887860642354,
+              "recall": 0.2599885024432308,
+              "f1": 0.34029345372460496
+            }
+          },
+          "SELL": {
+            "enabled": false,
+            "threshold": null,
+            "prevalence": 0.39845249869102334,
+            "required_precision": 0.47814299842922797,
+            "chosen_on_threshold_block": null
+          }
+        },
+        "evaluation": {
+          "samples": 69656,
+          "accuracy": 0.28263179051338005,
+          "macro_f1": 0.2303011164175661,
+          "directional_macro_f1": 0.15827422612616843,
+          "per_class": {
+            "SELL": {
+              "precision": null,
+              "precision_wilson95": [
+                null,
+                null
+              ],
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 27559,
+              "predicted": 0,
+              "false_positive": 0
+            },
+            "NO_TRADE": {
+              "precision": 0.23477787851314597,
+              "precision_wilson95": [
+                0.2312588518329444,
+                0.23833385193258985
+              ],
+              "recall": 0.9232085561497326,
+              "f1": 0.3743548970003614,
+              "support": 14025,
+              "predicted": 55150,
+              "false_positive": 42202
+            },
+            "BUY": {
+              "precision": 0.46456638632290087,
+              "precision_wilson95": [
+                0.45646052083746064,
+                0.47269101449012
+              ],
+              "recall": 0.24006127101738386,
+              "f1": 0.31654845225233685,
+              "support": 28072,
+              "predicted": 14506,
+              "false_positive": 7767
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                0,
+                20869,
+                6690
+              ],
+              [
+                0,
+                12948,
+                1077
+              ],
+              [
+                0,
+                21333,
+                6739
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 0,
+            "NO_TRADE": 55150,
+            "BUY": 14506
+          },
+          "signal_coverage": 0.2082519811645802,
+          "buy_coverage": 0.2082519811645802,
+          "sell_coverage": 0.0,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 6690,
+            "SELL_when_BUY": 0
+          },
+          "no_trade_rate": 0.7917480188354198,
+          "probability": {
+            "log_loss": 1.0045234137242167,
+            "brier_multiclass": 0.6164140793657218,
+            "ece_top_label": 0.00673493846995939
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 69656,
+          "accuracy": 0.4207103479958654,
+          "macro_f1": 0.4104387628977868,
+          "directional_macro_f1": 0.43176489841433785,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4123730321907509,
+              "precision_wilson95": [
+                0.4070388857021646,
+                0.41772783649257605
+              ],
+              "recall": 0.48760840378823617,
+              "f1": 0.44684600804708546,
+              "support": 27559,
+              "predicted": 32587,
+              "false_positive": 19149
+            },
+            "NO_TRADE": {
+              "precision": 0.406153050672182,
+              "precision_wilson95": [
+                0.3972497155462376,
+                0.41511850284847235
+              ],
+              "recall": 0.3360427807486631,
+              "f1": 0.3677864918646845,
+              "support": 14025,
+              "predicted": 11604,
+              "false_positive": 6891
+            },
+            "BUY": {
+              "precision": 0.43801295896328296,
+              "precision_wilson95": [
+                0.4319289238283785,
+                0.44411569376428034
+              ],
+              "recall": 0.39733542319749215,
+              "f1": 0.4166837887815903,
+              "support": 28072,
+              "predicted": 25465,
+              "false_positive": 14311
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                13438,
+                3269,
+                10852
+              ],
+              [
+                5853,
+                4713,
+                3459
+              ],
+              [
+                13296,
+                3622,
+                11154
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 27559,
+            "NO_TRADE": 14025,
+            "BUY": 28072
+          },
+          "predicted_distribution": {
+            "SELL": 32587,
+            "NO_TRADE": 11604,
+            "BUY": 25465
+          },
+          "signal_coverage": 0.8334099000803951,
+          "buy_coverage": 0.36558229011140464,
+          "sell_coverage": 0.4678276099689905,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 10852,
+            "SELL_when_BUY": 13296
+          },
+          "no_trade_rate": 0.1665900999196049
+        }
+      },
+      {
+        "fold": {
+          "name": "validation_2025",
+          "train": {
+            "start": "2016-01-01T00:00:00+00:00",
+            "end": "2024-07-01T00:00:00+00:00"
+          },
+          "calibration": {
+            "start": "2024-07-01T00:00:00+00:00",
+            "end": "2024-10-01T00:00:00+00:00"
+          },
+          "threshold": {
+            "start": "2024-10-01T00:00:00+00:00",
+            "end": "2025-01-01T00:00:00+00:00"
+          },
+          "evaluation": {
+            "start": "2025-01-01T00:00:00+00:00",
+            "end": "2026-01-01T00:00:00+00:00"
+          }
+        },
+        "model": "xgboost_selected",
+        "block_sizes": {
+          "train": 583659,
+          "calibration": 17755,
+          "threshold": 17448,
+          "evaluation": 68819
+        },
+        "label_distribution": {
+          "train": {
+            "total": 583659,
+            "SELL": {
+              "count": 217556,
+              "share": 0.37274504462365865
+            },
+            "NO_TRADE": {
+              "count": 151528,
+              "share": 0.2596173450593583
+            },
+            "BUY": {
+              "count": 214575,
+              "share": 0.36763761031698305
+            }
+          },
+          "evaluation": {
+            "total": 68819,
+            "SELL": {
+              "count": 28586,
+              "share": 0.41537947369185835
+            },
+            "NO_TRADE": {
+              "count": 11293,
+              "share": 0.16409712434066173
+            },
+            "BUY": {
+              "count": 28940,
+              "share": 0.4205234019674799
+            }
+          }
+        },
+        "training_seconds": 92.16710379999995,
+        "best_iteration": 299,
+        "feature_selection": {
+          "total_features": 41,
+          "after_filter": 37,
+          "selected_count": 30,
+          "selected": [
+            "log_return_1",
+            "log_return_6",
+            "log_return_12",
+            "candle_range_atr",
+            "upper_wick_ratio",
+            "close_position_in_range",
+            "close_vs_ema_48_atr",
+            "close_vs_ema_288_atr",
+            "ema_12_vs_48_atr",
+            "di_difference_14",
+            "rsi_14",
+            "rsi_14_change_3",
+            "macd_histogram_atr",
+            "stochastic_k_14",
+            "donchian_position_48",
+            "atr_14_vs_daily_mean",
+            "realized_vol_12",
+            "realized_vol_48",
+            "bollinger_width_20",
+            "bollinger_position_20",
+            "tick_volume_z_48",
+            "tick_volume_ratio_12_288",
+            "spread_atr",
+            "hour_sin",
+            "hour_cos",
+            "day_of_week",
+            "session_london",
+            "session_newyork",
+            "session_london_newyork_overlap",
+            "bars_since_gap"
+          ],
+          "leakage_flags": [],
+          "gain_permutation_rank_correlation": 0.8089141773352299,
+          "features": {
+            "log_return_1": {
+              "status": "selected",
+              "mutual_information": 0.007513626944361196,
+              "gain": 942.0659790039062,
+              "permutation_importance": 0.00011928876241048177,
+              "permutation_std": 7.290524988131512e-06
+            },
+            "log_return_3": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.004546218870863594,
+              "gain": 751.0338134765625,
+              "permutation_importance": -8.54333241780599e-06,
+              "permutation_std": 1.4956002513539306e-05
+            },
+            "log_return_6": {
+              "status": "selected",
+              "mutual_information": 0.008058621455643955,
+              "gain": 1110.7550048828125,
+              "permutation_importance": 0.00016736984252929688,
+              "permutation_std": 1.5212463051244952e-05
+            },
+            "log_return_12": {
+              "status": "selected",
+              "mutual_information": 0.010221526233781919,
+              "gain": 1132.3798828125,
+              "permutation_importance": 0.00014611085255940756,
+              "permutation_std": 2.818929332262937e-05
+            },
+            "return_6_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.006436239243645225,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_6"
+            },
+            "return_24_atr": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.002682453619864411,
+              "gain": 1627.4241943359375,
+              "permutation_importance": -5.451838175455729e-05,
+              "permutation_std": 3.18597962118721e-05
+            },
+            "candle_body_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0064664133030962745,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "log_return_1"
+            },
+            "candle_range_atr": {
+              "status": "selected",
+              "mutual_information": 0.014669212212582217,
+              "gain": 7113.36279296875,
+              "permutation_importance": 0.001214146614074707,
+              "permutation_std": 8.581815954882249e-05
+            },
+            "upper_wick_ratio": {
+              "status": "selected",
+              "mutual_information": 0.004238798393998877,
+              "gain": 225.92408752441406,
+              "permutation_importance": 1.1444091796875e-05,
+              "permutation_std": 5.321418654440361e-06
+            },
+            "lower_wick_ratio": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.004780421679153601,
+              "gain": 278.3199157714844,
+              "permutation_importance": -9.139378865559896e-06,
+              "permutation_std": 5.630527318622868e-06
+            },
+            "close_position_in_range": {
+              "status": "selected",
+              "mutual_information": 0.003327106823795223,
+              "gain": 710.8320922851562,
+              "permutation_importance": 2.6067097981770832e-05,
+              "permutation_std": 4.975178748907878e-05
+            },
+            "close_vs_ema_12_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.004254814830357834,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "bollinger_position_20"
+            },
+            "close_vs_ema_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.0016524008131009182,
+              "gain": 2991.046875,
+              "permutation_importance": 0.00017535686492919922,
+              "permutation_std": 1.7047623084436858e-05
+            },
+            "close_vs_ema_288_atr": {
+              "status": "selected",
+              "mutual_information": 0.00023568707061727423,
+              "gain": 6233.7421875,
+              "permutation_importance": 0.0005827744801839193,
+              "permutation_std": 4.398745608205547e-05
+            },
+            "ema_12_vs_48_atr": {
+              "status": "selected",
+              "mutual_information": 0.0003570108805375227,
+              "gain": 2629.11376953125,
+              "permutation_importance": 9.942054748535156e-05,
+              "permutation_std": 4.002699317087538e-05
+            },
+            "ema_48_slope_atr": {
+              "status": "dropped_redundant",
+              "mutual_information": 0.0,
+              "gain": null,
+              "permutation_importance": null,
+              "permutation_std": null,
+              "redundant_with": "ema_12_vs_48_atr"
+            },
+            "adx_14": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0,
+              "gain": 2031.2884521484375,
+              "permutation_importance": -1.641114552815755e-05,
+              "permutation_std": 4.13688106634324e-05
+            },
+            "di_difference_14": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 2367.19091796875,
+              "permutation_importance": 0.00013951460520426431,
+              "permutation_std": 6.705769487237048e-05
+            },
+            "rsi_14": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 6990.3701171875,
+              "permutation_importance": 0.0008360147476196289,
+              "permutation_std": 0.000124455525953062
+            },
+            "rsi_14_change_3": {
+              "status": "selected",
+              "mutual_information": 0.009912081180659671,
+              "gain": 997.5543823242188,
+              "permutation_importance": 6.75519307454427e-05,
+              "permutation_std": 2.1303766992143648e-05
+            },
+            "macd_histogram_atr": {
+              "status": "selected",
+              "mutual_information": 0.0027927991368374983,
+              "gain": 1955.9954833984375,
+              "permutation_importance": 0.00011603037516276042,
+              "permutation_std": 1.7258698467681404e-05
+            },
+            "stochastic_k_14": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 4149.54248046875,
+              "permutation_importance": 0.0006324847539265951,
+              "permutation_std": 5.039234224108736e-05
+            },
+            "donchian_position_48": {
+              "status": "selected",
+              "mutual_information": 0.005536359597416496,
+              "gain": 6543.68310546875,
+              "permutation_importance": 0.0007121562957763672,
+              "permutation_std": 0.00010389707954163108
+            },
+            "atr_14_pct": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0,
+              "gain": 4651.31201171875,
+              "permutation_importance": -7.832050323486328e-05,
+              "permutation_std": 8.860241973829678e-05
+            },
+            "atr_14_vs_daily_mean": {
+              "status": "selected",
+              "mutual_information": 0.002203512594792123,
+              "gain": 44162.77734375,
+              "permutation_importance": 0.011508504549662272,
+              "permutation_std": 0.001186711939477146
+            },
+            "realized_vol_12": {
+              "status": "selected",
+              "mutual_information": 0.0038508157774419516,
+              "gain": 2096.370361328125,
+              "permutation_importance": 2.5232632954915363e-05,
+              "permutation_std": 4.0884132756843515e-06
+            },
+            "realized_vol_48": {
+              "status": "selected",
+              "mutual_information": 0.0036939364214969572,
+              "gain": 10868.7275390625,
+              "permutation_importance": 0.0011606216430664062,
+              "permutation_std": 6.214658214888546e-05
+            },
+            "bollinger_width_20": {
+              "status": "selected",
+              "mutual_information": 0.004924295229142839,
+              "gain": 2166.749755859375,
+              "permutation_importance": 1.8715858459472656e-05,
+              "permutation_std": 5.726588949111247e-05
+            },
+            "bollinger_position_20": {
+              "status": "selected",
+              "mutual_information": 0.01104736136734319,
+              "gain": 7505.44091796875,
+              "permutation_importance": 0.0008310079574584961,
+              "permutation_std": 0.00014341083975934053
+            },
+            "tick_volume_z_48": {
+              "status": "selected",
+              "mutual_information": 0.021850337238233264,
+              "gain": 113953.984375,
+              "permutation_importance": 0.019148826599121094,
+              "permutation_std": 0.0009265633472240074
+            },
+            "tick_volume_ratio_12_288": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 3980.26708984375,
+              "permutation_importance": 0.00021119912465413412,
+              "permutation_std": 5.195322041363784e-05
+            },
+            "spread_atr": {
+              "status": "selected",
+              "mutual_information": 0.01969171255903235,
+              "gain": 211006.234375,
+              "permutation_importance": 0.0136947234471639,
+              "permutation_std": 0.00026813347298149424
+            },
+            "spread_z_288": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.018734932439765872,
+              "gain": 2652.76806640625,
+              "permutation_importance": -9.059906005859375e-05,
+              "permutation_std": 2.004063811262104e-05
+            },
+            "hour_sin": {
+              "status": "selected",
+              "mutual_information": 0.013798493541130386,
+              "gain": 66243.8984375,
+              "permutation_importance": 0.00867605209350586,
+              "permutation_std": 0.0004710672994726031
+            },
+            "hour_cos": {
+              "status": "selected",
+              "mutual_information": 0.034469085394853494,
+              "gain": 178812.875,
+              "permutation_importance": 0.02464560667673747,
+              "permutation_std": 0.0007477630298334338
+            },
+            "day_of_week": {
+              "status": "selected",
+              "mutual_information": 0.0027161616963988777,
+              "gain": 3796.684814453125,
+              "permutation_importance": 0.0009307066599527994,
+              "permutation_std": 8.652100044500239e-05
+            },
+            "session_asia": {
+              "status": "dropped_permutation",
+              "mutual_information": 0.0,
+              "gain": 202.04180908203125,
+              "permutation_importance": -4.132588704427083e-06,
+              "permutation_std": 8.264986366118143e-06
+            },
+            "session_london": {
+              "status": "selected",
+              "mutual_information": 0.013191838101913822,
+              "gain": 8937.1123046875,
+              "permutation_importance": 0.0016070206960042317,
+              "permutation_std": 0.00028737006393283375
+            },
+            "session_newyork": {
+              "status": "selected",
+              "mutual_information": 0.0,
+              "gain": 145.29054260253906,
+              "permutation_importance": 1.3907750447591146e-05,
+              "permutation_std": 4.44053492377567e-06
+            },
+            "session_london_newyork_overlap": {
+              "status": "selected",
+              "mutual_information": 0.00901698626616354,
+              "gain": 743.07470703125,
+              "permutation_importance": 6.000200907389323e-06,
+              "permutation_std": 1.7427493937483143e-05
+            },
+            "bars_since_gap": {
+              "status": "selected",
+              "mutual_information": 0.0437668144857124,
+              "gain": 95251.78125,
+              "permutation_importance": 0.007707715034484863,
+              "permutation_std": 0.00014576551993221757
+            }
+          },
+          "base_model": "xgboost",
+          "calibration_log_loss_before_shuffle": 1.0126192569732666
+        },
+        "calibration": {
+          "method": "temperature_scaling",
+          "temperature": 0.8506671609508557,
+          "log_loss_before": 1.0122817754745483,
+          "log_loss_after": 1.0108733360753572
+        },
+        "thresholds": {
+          "BUY": {
+            "enabled": true,
+            "threshold": 0.5,
+            "prevalence": 0.4097890875745071,
+            "required_precision": 0.4917469050894085,
+            "chosen_on_threshold_block": {
+              "threshold": 0.5,
+              "signals": 885,
+              "precision": 0.5016949152542373,
+              "recall": 0.0620979020979021,
+              "f1": 0.1105164903546982
+            }
+          },
+          "SELL": {
+            "enabled": true,
+            "threshold": 0.48,
+            "prevalence": 0.4140302613480055,
+            "required_precision": 0.4968363136176066,
+            "chosen_on_threshold_block": {
+              "threshold": 0.48,
+              "signals": 1679,
+              "precision": 0.5062537224538416,
+              "recall": 0.11766334440753046,
+              "f1": 0.1909468718409525
+            }
+          }
+        },
+        "evaluation": {
+          "samples": 68819,
+          "accuracy": 0.23757973815370756,
+          "macro_f1": 0.212072851748919,
+          "directional_macro_f1": 0.16324496896074878,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4625680087051143,
+              "precision_wilson95": [
+                0.45239169139996954,
+                0.4727756075450112
+              ],
+              "recall": 0.14870915832925208,
+              "f1": 0.22506353240152477,
+              "support": 28586,
+              "predicted": 9190,
+              "false_positive": 4939
+            },
+            "NO_TRADE": {
+              "precision": 0.18595555555555557,
+              "precision_wilson95": [
+                0.18276172565788898,
+                0.18919227792433044
+              ],
+              "recall": 0.9262374922518374,
+              "f1": 0.30972861732525947,
+              "support": 11293,
+              "predicted": 56250,
+              "false_positive": 45790
+            },
+            "BUY": {
+              "precision": 0.4850547499260136,
+              "precision_wilson95": [
+                0.46822981088567966,
+                0.5019136330166302
+              ],
+              "recall": 0.05663441603317208,
+              "f1": 0.10142640551997278,
+              "support": 28940,
+              "predicted": 3379,
+              "false_positive": 1740
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                4251,
+                22766,
+                1569
+              ],
+              [
+                662,
+                10460,
+                171
+              ],
+              [
+                4277,
+                23024,
+                1639
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 9190,
+            "NO_TRADE": 56250,
+            "BUY": 3379
+          },
+          "signal_coverage": 0.1826385155262355,
+          "buy_coverage": 0.04909981255176623,
+          "sell_coverage": 0.13353870297446926,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 1569,
+            "SELL_when_BUY": 4277
+          },
+          "no_trade_rate": 0.8173614844737646,
+          "probability": {
+            "log_loss": 0.9936599678097066,
+            "brier_multiclass": 0.6117256859944277,
+            "ece_top_label": 0.022812033277191977
+          }
+        },
+        "evaluation_without_threshold": {
+          "samples": 68819,
+          "accuracy": 0.4206396489341606,
+          "macro_f1": 0.3754363551912408,
+          "directional_macro_f1": 0.4442087055540648,
+          "per_class": {
+            "SELL": {
+              "precision": 0.4162509101696287,
+              "precision_wilson95": [
+                0.41124252664399286,
+                0.42127664474704796
+              ],
+              "recall": 0.5399496256908977,
+              "f1": 0.4700991365526063,
+              "support": 28586,
+              "predicted": 37081,
+              "false_positive": 21646
+            },
+            "NO_TRADE": {
+              "precision": 0.35126253891387066,
+              "precision_wilson95": [
+                0.3390603865060137,
+                0.36366220444773795
+              ],
+              "recall": 0.17984592225272292,
+              "f1": 0.23789165446559296,
+              "support": 11293,
+              "predicted": 5782,
+              "false_positive": 3751
+            },
+            "BUY": {
+              "precision": 0.4423640006164278,
+              "precision_wilson95": [
+                0.4363306681002671,
+                0.4484143913611126
+              ],
+              "recall": 0.3967519004837595,
+              "f1": 0.4183182745555232,
+              "support": 28940,
+              "predicted": 25956,
+              "false_positive": 14474
+            }
+          },
+          "confusion_matrix": {
+            "rows_actual_cols_predicted": [
+              "SELL",
+              "NO_TRADE",
+              "BUY"
+            ],
+            "values": [
+              [
+                15435,
+                1816,
+                11335
+              ],
+              [
+                6123,
+                2031,
+                3139
+              ],
+              [
+                15523,
+                1935,
+                11482
+              ]
+            ]
+          },
+          "actual_distribution": {
+            "SELL": 28586,
+            "NO_TRADE": 11293,
+            "BUY": 28940
+          },
+          "predicted_distribution": {
+            "SELL": 37081,
+            "NO_TRADE": 5782,
+            "BUY": 25956
+          },
+          "signal_coverage": 0.9159825048315146,
+          "buy_coverage": 0.3771632833955739,
+          "sell_coverage": 0.5388192214359406,
+          "opposite_direction_errors": {
+            "BUY_when_SELL": 11335,
+            "SELL_when_BUY": 15523
+          },
+          "no_trade_rate": 0.08401749516848545
+        }
+      }
+    ],
+    "summary": {
+      "macro_f1": {
+        "mean": 0.19803063938780047,
+        "std": 0.04044364546682659,
+        "folds_with_value": 5
+      },
+      "directional_macro_f1": {
+        "mean": 0.13063263411776527,
+        "std": 0.056942137609032696,
+        "folds_with_value": 5
+      },
+      "signal_coverage": {
+        "mean": 0.15177074136251784,
+        "std": 0.07069700641602185,
+        "folds_with_value": 5
+      },
+      "buy_f1": {
+        "mean": 0.18773638547633156,
+        "std": 0.11198972130186838,
+        "folds_with_value": 5
+      },
+      "sell_f1": {
+        "mean": 0.073528882759199,
+        "std": 0.08054597696121281,
+        "folds_with_value": 5
+      },
+      "buy_precision": {
+        "mean": 0.47566422764776617,
+        "std": 0.008325894083030581,
+        "folds_with_value": 5
+      },
+      "sell_precision": {
+        "mean": 0.4711384121362441,
+        "std": 0.012488767643779859,
+        "folds_with_value": 4
+      }
+    },
+    "feature_selection_stability": [
+      {
+        "feature": "hour_cos",
+        "group": "time",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.02748616139094035
+      },
+      {
+        "feature": "tick_volume_z_48",
+        "group": "volume",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.01543736457824707
+      },
+      {
+        "feature": "atr_14_vs_daily_mean",
+        "group": "volatility",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.013288076718648272
+      },
+      {
+        "feature": "spread_atr",
+        "group": "spread",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.010235559940338135
+      },
+      {
+        "feature": "hour_sin",
+        "group": "time",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.008075153827667237
+      },
+      {
+        "feature": "bars_since_gap",
+        "group": "time",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.006450331211090088
+      },
+      {
+        "feature": "realized_vol_48",
+        "group": "volatility",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.0014059503873189289
+      },
+      {
+        "feature": "session_london",
+        "group": "time",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.0009876370429992675
+      },
+      {
+        "feature": "candle_range_atr",
+        "group": "price_action",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.0007569114367167154
+      },
+      {
+        "feature": "day_of_week",
+        "group": "time",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.000578614075978597
+      },
+      {
+        "feature": "rsi_14",
+        "group": "momentum",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00048617521921793616
+      },
+      {
+        "feature": "stochastic_k_14",
+        "group": "momentum",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.000420216719309489
+      },
+      {
+        "feature": "tick_volume_ratio_12_288",
+        "group": "volume",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.0003690401713053385
+      },
+      {
+        "feature": "close_vs_ema_48_atr",
+        "group": "trend",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00010013182957967121
+      },
+      {
+        "feature": "bollinger_width_20",
+        "group": "volatility",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 9.675820668538411e-05
+      },
+      {
+        "feature": "macd_histogram_atr",
+        "group": "momentum",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 7.963975270589193e-05
+      },
+      {
+        "feature": "log_return_12",
+        "group": "price_action",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 7.130702336629231e-05
+      },
+      {
+        "feature": "session_london_newyork_overlap",
+        "group": "time",
+        "selected_folds": 5,
+        "total_folds": 5,
+        "mean_permutation_importance": 1.270771026611328e-05
+      },
+      {
+        "feature": "close_vs_ema_12_atr",
+        "group": "trend",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.0010775327682495117
+      },
+      {
+        "feature": "donchian_position_48",
+        "group": "momentum",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00041550397872924805
+      },
+      {
+        "feature": "atr_14_pct",
+        "group": "volatility",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00019927024841308593
+      },
+      {
+        "feature": "ema_12_vs_48_atr",
+        "group": "trend",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00012156367301940918
+      },
+      {
+        "feature": "spread_z_288",
+        "group": "spread",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00011529922485351563
+      },
+      {
+        "feature": "di_difference_14",
+        "group": "trend",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 9.190638860066731e-05
+      },
+      {
+        "feature": "log_return_6",
+        "group": "price_action",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 7.084508736928304e-05
+      },
+      {
+        "feature": "return_24_atr",
+        "group": "price_action",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 6.87400499979655e-05
+      },
+      {
+        "feature": "log_return_1",
+        "group": "price_action",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 5.353291829427084e-05
+      },
+      {
+        "feature": "realized_vol_12",
+        "group": "volatility",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 4.965861638387045e-05
+      },
+      {
+        "feature": "upper_wick_ratio",
+        "group": "price_action",
+        "selected_folds": 4,
+        "total_folds": 5,
+        "mean_permutation_importance": 7.744630177815755e-06
+      },
+      {
+        "feature": "close_vs_ema_288_atr",
+        "group": "trend",
+        "selected_folds": 3,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00018891890843709312
+      },
+      {
+        "feature": "close_position_in_range",
+        "group": "price_action",
+        "selected_folds": 3,
+        "total_folds": 5,
+        "mean_permutation_importance": 3.217458724975586e-05
+      },
+      {
+        "feature": "rsi_14_change_3",
+        "group": "momentum",
+        "selected_folds": 3,
+        "total_folds": 5,
+        "mean_permutation_importance": 2.29954719543457e-05
+      },
+      {
+        "feature": "session_asia",
+        "group": "time",
+        "selected_folds": 2,
+        "total_folds": 5,
+        "mean_permutation_importance": 8.459885915120443e-06
+      },
+      {
+        "feature": "adx_14",
+        "group": "trend",
+        "selected_folds": 2,
+        "total_folds": 5,
+        "mean_permutation_importance": -9.457270304361977e-07
+      },
+      {
+        "feature": "lower_wick_ratio",
+        "group": "price_action",
+        "selected_folds": 2,
+        "total_folds": 5,
+        "mean_permutation_importance": -2.9246012369791673e-06
+      },
+      {
+        "feature": "session_newyork",
+        "group": "time",
+        "selected_folds": 2,
+        "total_folds": 5,
+        "mean_permutation_importance": -3.059705098470052e-06
+      },
+      {
+        "feature": "bollinger_position_20",
+        "group": "volatility",
+        "selected_folds": 1,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.0008310079574584961
+      },
+      {
+        "feature": "ema_48_slope_atr",
+        "group": "trend",
+        "selected_folds": 1,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00018231074015299478
+      },
+      {
+        "feature": "return_6_atr",
+        "group": "price_action",
+        "selected_folds": 1,
+        "total_folds": 5,
+        "mean_permutation_importance": 0.00010162591934204102
+      },
+      {
+        "feature": "log_return_3",
+        "group": "price_action",
+        "selected_folds": 1,
+        "total_folds": 5,
+        "mean_permutation_importance": -1.0255972544352213e-05
+      },
+      {
+        "feature": "candle_body_atr",
+        "group": "price_action",
+        "selected_folds": 0,
+        "total_folds": 5,
+        "mean_permutation_importance": null
+      }
+    ]
+  }
+}
