@@ -1,4 +1,4 @@
-Sumber: candle `runs/20261107T144502Z_walk-forward_13dc74b30d/backtest/candles/` (2021–2025) dan `runs/20261103T150145Z_final-test_062047d030/backtest/candles/` (2026, sampai September); label aktual dari predictions.csv run yang sama. Dihitung oleh `laporan_uts/eda_m5.py`.
+Sumber: candle `runs/20261107T144502Z_walk-forward_13dc74b30d/backtest/candles/` (2021–2025) dan `runs/20261103T150145Z_final-test_062047d030/backtest/candles/` (2026, sampai September); label aktual dari predictions.csv run yang sama. Dihitung oleh `documents/laporan_uts/eda_m5.py`.
 
 Tabel 4.1 Ringkasan Statistik Candle M5 XAU/USD 2021–2026
 <!-- widths: 20,11,9,8,8,9,8,10,8,9 -->

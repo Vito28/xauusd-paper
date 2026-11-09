@@ -1,4 +1,4 @@
-Sumber: `laporan_uts/uji_scratch_bin_2025.json` dari `laporan_uts/uji_scratch_bin.py` (XGBoost 3.4.1). Data: 353.301 candle 2021-01-01 s.d. 2025 dari `runs/20261107T144502Z_walk-forward_13dc74b30d/backtest/candles/validation_*.csv`. TRAIN 2021-01 s.d. 2024-07 (241.310 candle), CALIBRATION 17.755, THRESHOLD 17.448, EVALUATION 2025 68.819 candle.
+Sumber: `documents/laporan_uts/uji_scratch_bin_2025.json` dari `documents/laporan_uts/uji_scratch_bin.py` (XGBoost 3.4.1). Data: 353.301 candle 2021-01-01 s.d. 2025 dari `runs/20261107T144502Z_walk-forward_13dc74b30d/backtest/candles/validation_*.csv`. TRAIN 2021-01 s.d. 2024-07 (241.310 candle), CALIBRATION 17.755, THRESHOLD 17.448, EVALUATION 2025 68.819 candle.
 
 Tabel 10.21 XGBoost Library vs From Scratch dengan Hyperparameter yang Disamakan (fold 2025)
 <!-- widths: 34,22,22,22 -->

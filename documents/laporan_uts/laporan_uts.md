@@ -1,15 +1,15 @@
 <!--
 Sumber LAPORAN UTS MILESTONE 1.docx. Jalankan dari root repo yang memuat technical/simulation.py terbaru
 (branch feat/dashboard-buka-tutup-spread atau main setelah di-merge), dengan D = ../xauusd-paper-documents:
-  0a. (bab 3.4, 4.6, 6.3) uv run python $D/laporan_uts/eda_m5.py --walk-forward runs/<id_walk_forward_2> --final-test runs/<id_final_test> --out $D/laporan_uts
-  0b. (bab 10.5) uv run python $D/laporan_uts/uji_scratch_bin.py --year 2025 --out $D/laporan_uts/uji_scratch_bin_2025.json --candles-dir runs/<id_walk_forward_2>/backtest/candles --history-start 2021-01-01T00:00:00Z
-  1. uv run python $D/laporan_uts/ringkas_runs.py --out $D/laporan_uts --uji-scratch $D/laporan_uts/uji_scratch_bin_2025.json runs/<id_label_scan> runs/<id_walk_forward_1> runs/<id_walk_forward_2> runs/<id_walk_forward_3> runs/<id_final_test> [runs/<id_compare_scratch>] [runs/<id_ablation>]
+  0a. (bab 3.4, 4.6, 6.3) uv run python $D/documents/laporan_uts/eda_m5.py --walk-forward runs/<id_walk_forward_2> --final-test runs/<id_final_test> --out $D/documents/laporan_uts
+  0b. (bab 10.5) uv run python $D/documents/laporan_uts/uji_scratch_bin.py --year 2025 --out $D/documents/laporan_uts/uji_scratch_bin_2025.json --candles-dir runs/<id_walk_forward_2>/backtest/candles --history-start 2021-01-01T00:00:00Z
+  1. uv run python $D/documents/laporan_uts/ringkas_runs.py --out $D/documents/laporan_uts --uji-scratch $D/documents/laporan_uts/uji_scratch_bin_2025.json runs/<id_label_scan> runs/<id_walk_forward_1> runs/<id_walk_forward_2> runs/<id_walk_forward_3> runs/<id_final_test> [runs/<id_compare_scratch>] [runs/<id_ablation>]
      (menulis hasil_label_scan.md, hasil_walk_forward.md, hasil_final_test.md, hasil_uji_scratch.md, hasil_blok_fold.md, dan bila ada hasil_compare_scratch.md, hasil_ablation.md)
-  2. sesuaikan $D/laporan_uts/analisis_walk_forward.md bila angka berubah
-  3. uv run python $D/laporan_uts/md2docx.py build "$D/BUSINESS UNDERSTANDING.docx" $D/laporan_uts/laporan_uts.md "$D/LAPORAN UTS MILESTONE 1.docx" .
+  2. sesuaikan $D/documents/laporan_uts/analisis_walk_forward.md bila angka berubah
+  3. uv run python $D/documents/laporan_uts/md2docx.py build "$D/documents/BUSINESS UNDERSTANDING.docx" $D/documents/laporan_uts/laporan_uts.md "$D/documents/LAPORAN UTS MILESTONE 1.docx" .
   4. render ke PDF (soffice --headless --convert-to pdf), lalu
-     uv run python $D/laporan_uts/md2docx.py toc-pages <laporan.pdf> $D/laporan_uts/laporan_uts.md . $D/laporan_uts/toc_pages.json
-     dan ulangi langkah 3 dengan argumen tambahan $D/laporan_uts/toc_pages.json agar daftar isi bernomor halaman.
+     uv run python $D/documents/laporan_uts/md2docx.py toc-pages <laporan.pdf> $D/documents/laporan_uts/laporan_uts.md . $D/documents/laporan_uts/toc_pages.json
+     dan ulangi langkah 3 dengan argumen tambahan $D/documents/laporan_uts/toc_pages.json agar daftar isi bernomor halaman.
 -->
 %cover
 judul: Technical Agent XAU/USD M5: Klasifikasi Selektif BUY / SELL / NO_TRADE dengan XGBoost
@@ -19,7 +19,7 @@ kelompok: KELOMPOK GOLDMIND
 anggota: DELVIN DE VITO | 231111185
 anggota: DICKSON YANGGA | 231110389
 anggota: ELVINA ESTELITA | 231112380
-logo: ../Draft Skripsi Bab I-III - Sistem Multi-Agen XAUUSD.docx#word/media/image1.png
+logo: gambar/logo_mikroskil.png
 instansi: PROGRAM STUDI S-1 TEKNIK INFORMATIKA
 instansi: FAKULTAS INFORMATIKA
 instansi: UNIVERSITAS MIKROSKIL
@@ -756,8 +756,8 @@ Tabel 9.5 Perintah dan Hasilnya
 | `technical.run walk-forward --models …` | metrics.json, run.json, backtest/<model>/validation_<tahun>/predictions.csv |
 | `technical.run ablation` | ablation.json: walk-forward tanpa satu kelompok fitur |
 | `technical.run compare-scratch --year 2025` | comparison.json: library vs scratch pada satu fold |
-| `laporan_uts/uji_scratch_bin.py --year 2025` | uji_scratch_bin_2025.json: langkah compare-scratch ditambah varian scratch dengan batas bin library |
-| `laporan_uts/eda_m5.py` | hasil_eda_m5.md, hasil_zona_waktu.md, hasil_fe_atr.md, dan Gambar 4.8–4.10 |
+| `documents/laporan_uts/uji_scratch_bin.py --year 2025` | uji_scratch_bin_2025.json: langkah compare-scratch ditambah varian scratch dengan batas bin library |
+| `documents/laporan_uts/eda_m5.py` | hasil_eda_m5.md, hasil_zona_waktu.md, hasil_fe_atr.md, dan Gambar 4.8–4.10 |
 | `technical.run final-test --model <pemenang> --confirm` | metrics.json, test_period.json, latest_signal.json, live_bundle.joblib |
 
 # 10. Hasil Eksperimen Awal
@@ -770,10 +770,10 @@ Tabel 10.1 Bukti Bahwa Pipeline Berjalan
 |---|---|---|
 | Unit test seluruh proyek | 128 tes lolos, 1 dilewati (7 November 2026) | `uv run pytest` |
 | Kausalitas fitur | Fitur tidak berubah bila candle masa depan diubah | `test_features_do_not_change_when_future_candles_change` |
-| Kesesuaian XGBoost from scratch | Identik dengan library pada kandidat split yang sama, baik pada data uji (Tabel 8.2) maupun pada data XAU/USD 2025 (Tabel 10.21–10.22) | `tests/test_xgboost_scratch.py`, `laporan_uts/uji_scratch_bin.py` |
+| Kesesuaian XGBoost from scratch | Identik dengan library pada kandidat split yang sama, baik pada data uji (Tabel 8.2) maupun pada data XAU/USD 2025 (Tabel 10.21–10.22) | `tests/test_xgboost_scratch.py`, `documents/laporan_uts/uji_scratch_bin.py` |
 | Simulasi transaksi | TP = +k·ATR, SL = −(k·ATR + 2 × spread), waktu buka/tutup per transaksi | `tests/test_backtest_simulation.py` |
 | Dashboard backtest | Ringkasan, riwayat transaksi, dan laporan spread terbaca dari folder runs | `tests/test_dashboard_app.py` |
-| Kualitas data dan EDA | 754.660 bar valid; Gambar 4.1–4.10, Tabel 3.3–3.4 dan 4.1–4.3 | `reports/analytics/`, `laporan_uts/eda_m5.py` |
+| Kualitas data dan EDA | 754.660 bar valid; Gambar 4.1–4.10, Tabel 3.3–3.4 dan 4.1–4.3 | `reports/analytics/`, `documents/laporan_uts/eda_m5.py` |
 | Reproduksibilitas | Ringkasan metrik XGBoost identik pada tiga run walk-forward (3 dan 7 November 2026) | `runs/*_walk-forward_*/metrics.json` |
 | Repositori | Kode, run, dan skrip laporan tersimpan di GitHub | https://github.com/Vito28/xauusd-paper (bab 12.1) |
 
@@ -795,7 +795,7 @@ Final-test dijalankan satu kali pada 3 November 2026 untuk XGBoost, setelah walk
 
 ## 10.5 Perbandingan XGBoost Library dan From Scratch
 
-Uji dijalankan pada 8 November 2026 dengan skrip `laporan_uts/uji_scratch_bin.py`. Skrip ini mengikuti langkah `compare-scratch` (bab 8.3) dan menambah varian scratch dengan batas bin library. Database PostgreSQL tidak tersedia di mesin tempat uji dijalankan, sehingga data diambil dari candle 2021–2025 yang tersimpan di folder runs/ (`backtest/candles`). Akibatnya, TRAIN dimulai pada 2021, bukan 2016. Perintah `compare-scratch --year 2025` dengan data penuh 2016–2024 tetap perlu dijalankan sebagai konfirmasi; hasilnya ditabelkan otomatis setelah run-nya tersedia.
+Uji dijalankan pada 8 November 2026 dengan skrip `documents/laporan_uts/uji_scratch_bin.py`. Skrip ini mengikuti langkah `compare-scratch` (bab 8.3) dan menambah varian scratch dengan batas bin library. Database PostgreSQL tidak tersedia di mesin tempat uji dijalankan, sehingga data diambil dari candle 2021–2025 yang tersimpan di folder runs/ (`backtest/candles`). Akibatnya, TRAIN dimulai pada 2021, bukan 2016. Perintah `compare-scratch --year 2025` dengan data penuh 2016–2024 tetap perlu dijalankan sebagai konfirmasi; hasilnya ditabelkan otomatis setelah run-nya tersedia.
 
 %include hasil_uji_scratch.md
 
@@ -871,7 +871,7 @@ Tabel 12.2 Isi Repositori
 | Lokasi | Isi |
 |---|---|
 | Branch `main` | Kode pipeline, konfigurasi, unit test, dan folder `runs/` berisi seluruh run yang dipakai laporan ini |
-| Branch `documents` | Laporan ini, BUSINESS UNDERSTANDING.docx, dan skrip pembuat laporan di folder `laporan_uts/` |
+| Branch `documents` | Laporan ini, BUSINESS UNDERSTANDING.docx, dan skrip pembuat laporan di folder `documents/laporan_uts/` |
 | Branch `feat/dashboard-buka-tutup-spread` | Dashboard backtest dengan waktu buka/tutup posisi dan laporan spread |
 | `technical/` | Data, fitur, label, split, model, kalibrasi, threshold, evaluasi, simulasi, XGBoost from scratch, dan CLI `run.py` |
 | `configs/technical.toml` | Semua nilai konstanta eksperimen beserta alasannya (bab 13) |
@@ -882,7 +882,7 @@ Tabel 12.2 Isi Repositori
 | `docs/peta_commit.json` | Peta hash commit lama → baru setelah riwayat git dirapikan pada 8 November 2026; hash di run.json run lama diterjemahkan dengan tabel ini |
 | `SOURCE_OF_TRUTH.md`, `docs/METHODOLOGY.md` | Keputusan desain (kode SoT) dan metodologi |
 
-Setiap angka di bab 3, 4, 6, 10, dan 11 dibuat ulang otomatis dari folder runs/ oleh skrip di `laporan_uts/` (`ringkas_runs.py`, `eda_m5.py`, `uji_scratch_bin.py`), sehingga tidak ada angka hasil yang diketik manual. Perintah untuk mengulang eksperimen:
+Setiap angka di bab 3, 4, 6, 10, dan 11 dibuat ulang otomatis dari folder runs/ oleh skrip di `documents/laporan_uts/` (`ringkas_runs.py`, `eda_m5.py`, `uji_scratch_bin.py`), sehingga tidak ada angka hasil yang diketik manual. Perintah untuk mengulang eksperimen:
 
 ```
 uv sync --dev

@@ -897,7 +897,7 @@ def scratch_bin_tables(path: Path, numbering: Numbering) -> list[str]:
         ("Log loss EVALUATION", lambda m: number(m["log_loss"])),
     ]
     lines = [
-        f"Sumber: `laporan_uts/uji_scratch_bin_2025.json` dari `laporan_uts/uji_scratch_bin.py` "
+        f"Sumber: `documents/laporan_uts/uji_scratch_bin_2025.json` dari `documents/laporan_uts/uji_scratch_bin.py` "
         f"(XGBoost {test['packages']['xgboost']}). Data: {integer(test['rows_used'])} candle "
         f"{test['history_start'][:10]} s.d. 2025 dari `{test['source']}`. TRAIN "
         f"{fold['train']['start'][:7]} s.d. {fold['train']['end'][:7]} ({integer(blocks['train'])} candle), "
