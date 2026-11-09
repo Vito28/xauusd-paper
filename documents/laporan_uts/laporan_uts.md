@@ -14,7 +14,7 @@ Sumber LAPORAN UTS MILESTONE 1.docx. Jalankan dari root repo yang memuat technic
 %cover
 judul: Technical Agent XAU/USD M5: Klasifikasi Selektif BUY / SELL / NO_TRADE dengan XGBoost
 jenis: LAPORAN UTS MILESTONE 1
-keterangan: Mata Kuliah Deep Learning
+keterangan: Mata Kuliah Machine Learning
 kelompok: KELOMPOK GOLDMIND
 anggota: DELVIN DE VITO | 231111185
 anggota: DICKSON YANGGA | 231110389
@@ -32,9 +32,9 @@ instansi: 2026
 
 # Ringkasan
 
-Proyek ini membangun Technical Agent untuk XAU/USD pada timeframe M5. Setiap 5 menit, agen memutuskan BUY, SELL, atau NO_TRADE untuk horizon 30 menit dan hanya mengeluarkan BUY atau SELL bila probabilitas terkalibrasinya cukup tinggi. Data berasal dari terminal MetaTrader 5 broker MetaQuotes-Demo: 754.660 candle M5 dari Januari 2016 sampai September 2026. Target dibentuk dengan label triple-barrier berbasis ATR dan spread. Model utama adalah XGBoost dengan 41 fitur teknikal kausal, yang dibandingkan dengan tiga baseline, random forest, XGBoost berbobot kelas, ensemble soft voting, XGBoost dengan feature selection di dalam fold, dan XGBoost yang ditulis ulang dari nol (from scratch).
+Proyek ini membangun Trading Technical Agent pada XAU/USD timeframe M5. Setiap 5 menit, agen memutuskan BUY, SELL, atau NO_TRADE untuk horizon 30 menit dan hanya mengeluarkan BUY atau SELL bila probabilitas terkalibrasinya cukup tinggi. Data berasal dari terminal MetaTrader 5 broker MetaQuotes-Demo: 754.660 candle M5 dari Januari 2016 sampai September 2026. Target dibentuk dengan label triple-barrier berbasis ATR dan spread. Model utama adalah XGBoost dengan 41 fitur teknikal kausal, yang dibandingkan dengan tiga baseline, random forest, XGBoost berbobot kelas, ensemble soft voting, XGBoost dengan feature selection di dalam fold, dan XGBoost yang ditulis ulang dari nol (from scratch).
 
-Evaluasi memakai walk-forward lima fold (2021–2025) dengan purging dan embargo, ditambah uji out-of-sample retrospektif pada 2026. Hasil awal menunjukkan sinyal XGBoost lebih presisi daripada tebakan acak (lift 1,09–1,20, precision sekitar 47–48% terhadap prevalensi 40–42%), tetapi keunggulan ini belum cukup untuk menutup biaya spread (profit factor 0,91). Ensemble dan feature selection belum memperbaiki XGBoost tunggal. Implementasi from scratch terbukti identik dengan library bila batas bin-nya disamakan. EDA juga menemukan dua masalah kualitas data yang perlu diperbaiki setelah UTS: timestamp yang tersimpan sebagai UTC sebenarnya adalah jam server broker, dan 5,35% candle memiliki spread tercatat nol.
+Evaluasi memakai walk-forward lima fold (2021–2025) dengan purging dan embargo, ditambah uji out-of-sample retrospektif pada 2026. Hasil awal menunjukkan sinyal XGBoost lebih presisi daripada tebakan acak (lift 1,09–1,20, precision sekitar 47–48% terhadap prevalensi 40–42%), tetapi keunggulan ini belum cukup untuk menutup biaya spread (profit factor 0,91). Ensemble dan feature selection belum memperbaiki XGBoost tunggal. Implementasi from scratch terbukti identik dengan library bila batas bin-nya disamakan. EDA juga menemukan dua masalah kualitas data pada timestamp yang tersimpan sebagai UTC sebenarnya adalah jam server broker, dan 5,35% candle memiliki spread tercatat nol (Terkait hal ini kami akan melakukan perbaikan lebih lanjut untuk kedepannya).
 
 Pemetaan kriteria Milestone 1 ke bab laporan:
 
